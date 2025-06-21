@@ -1,0 +1,38 @@
+{# templates/_ou_turn_display.html (Updated to use generic classes) #}
+{# Expects: turn, total_turns, question_text, items_to_display, players_status #}
+
+<div id="ou-content">
+    
+    <h2>Order Up! (Turn {{ turn }}/{{ total_turns }})</h2>
+    <h3>{{ question_text }}</h3>
+
+    {% if items_to_display and items_to_display|length > 0 %}
+        
+        {# Use the generic h4 styling, which is now centrally controlled #}
+        <h4>Can you put these in order?</h4>
+        
+        {# CHANGE: Swapped specific '.ou-options-grid' for the generic '.options-grid-2-col'. #}
+        {# The inner divs will now be styled by the generic '.options-grid-2-col > *' rule. #}
+        <div class="options-grid-2-col">
+            {% for item in items_to_display %}
+                <div>{{ item }}</div> {# Simple div is all that's needed #}
+            {% endfor %}
+        </div>
+
+    {% endif %}
+
+    {# The entire player status section now uses a single, generic component class #}
+    <div class="player-status-list">
+        <h4>Waiting for players to submit their order:</h4>
+        
+        {# The <ul> itself doesn't need a class, but its parent container does. #}
+        {# The <li> elements will be styled by '.player-status-list li'. #}
+        <ul>
+             {% for p_status in players_status %}
+                {# The 'guessed' class for JS to add is handled by the generic '.player-status-list li.guessed' rule #}
+                <li id="player-status-{{ p_status.name | replace('[^a-zA-Z0-9-_]', '_') }}">{{ p_status.name }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+</div>

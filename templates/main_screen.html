@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Handley's Fun Factory - Main Screen</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+    <style>
+        /* ==========================================================================
+        1. THEME & GLOBAL SETUP
+        ========================================================================== */
+        
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Oswald:wght@500;700&display=swap');
+
+        :root {
+            /* -- Color Palette -- */
+            --bg-primary: #222831;       /* Main page background */
+            --bg-secondary: #393E46;    /* Container/Card background */
+            --accent-gold: #FFD700;     /* Titles, highlights, important text */
+            --accent-blue: #00ADB5;     /* Interactive elements, options */
+            --text-primary: #EEEEEE;    /* Main body text */
+            --text-secondary: #AAAAAA;  /* Subtitles, less important text */
+            --color-success: #2ecc71;   /* Correct answers, 'guessed' status */
+            --color-waiting: #7f8c8d;   /* 'Waiting' status */
+            --color-podium-1: #FFD700;  /* Gold for 1st place */
+            --color-podium-2: #c0c0c0;  /* Silver for 2nd place */
+            --color-podium-3: #cd7f32;  /* Bronze for 3rd place */
+            
+            /* -- Typography -- */
+            --font-display: 'Oswald', sans-serif;
+            --font-body: 'Montserrat', sans-serif;
+        }
+
+        /* --- Global Resets & Base Styles --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            text-align: center;
+            padding: 20px;
+        }
+        
+        ul, ol {
+            list-style: none;
+        }
+
+        /* ==========================================================================
+        2. TYPOGRAPHY & HEADINGS
+        ========================================================================== */
+        
+        h1 {
+            font-family: var(--font-display);
+            color: var(--accent-gold);
+            font-size: 4.5em; /* Make it really big */
+            margin-bottom: 20px;
+            line-height: 1;
+            text-transform: uppercase;
+        }
+        
+        /* General headings for round titles (e.g., "Order Up!", "Guess The Answer!") */
+        h2 {
+            font-family: var(--font-display);
+            color: var(--accent-gold);
+            font-size: 2.8em;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 10px;
+        }
+
+        /* General headings for questions and instructions */
+        h3 {
+            font-family: var(--font-body);
+            color: var(--text-secondary);
+            font-size: 1.3em;
+            font-weight: 400; /* Use regular weight for clarity */
+            max-width: 800px;
+            margin: 0 auto 25px auto;
+        }
+
+        /* General headings for sub-sections (e.g., "Can you put these in order?") */
+        h4 {
+            font-family: var(--font-body);
+            color: var(--text-secondary);
+            font-weight: 700; /* Bold */
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+
+        /* ==========================================================================
+        3. LAYOUT & CONTAINERS
+        ========================================================================== */
+
+        .hidden { 
+            display: none !important; 
+        }
+
+        /* This is the main content area for each round */
+        #round-content-area {
+            min-height: 400px;
+        }
+
+        /* Wrapper for rounds that show an image */
+        .question-image {
+            max-width: 300px;
+            max-height: 300px;
+            border: 3px solid var(--text-primary);
+            border-radius: 8px;
+            margin: 0 auto 20px auto;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* ==========================================================================
+        4. SPLASH SCREEN & LOBBY STYLES
+        ========================================================================== */
+
+        #splash-screen, #waiting-area {
+            padding: 20px;
+        }
+
+        #splash-logo {
+            display: block;
+            margin: 0 auto 25px auto;
+            max-width: 80%;
+            max-height: 65vh;
+            object-fit: contain;
+        }
+
+        /* This targets BOTH start buttons for a consistent look */
+        #initiateGameButton, #startGameButton {
+            display: block;
+            max-width: 400px;
+            margin: 20px auto; /* Provides space around the button */
+            padding: 15px 30px;
+            font-family: var(--font-display);
+            font-size: 1.5em;
+            font-weight: 700;
+            text-transform: uppercase;
+            background-color: var(--color-success);
+            color: var(--text-primary);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+        #initiateGameButton:active, #lobbyStartButton:active {
+            transform: scale(0.98);
+        }
+
+        /* NEW: Styles the list of players in the lobby */
+        #player-list li {
+            display: inline-block; /* Makes them sit side-by-side like chips */
+            background-color: var(--accent-blue);
+            color: var(--text-primary);
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 6px;
+            font-size: 1.5em;  /* <<< Makes the player names larger */
+            font-weight: 700;
+        }
+
+        /* ==========================================================================
+        5. GENERIC COMPONENTS (Reusable across all rounds)
+        ========================================================================== */
+
+        /* --- Player Status Indicators --- */
+        .player-status-list {
+            margin-top: 25px;
+        }
+        .player-status-list li {
+            display: inline-block;
+            margin: 4px;
+            padding: 8px 14px;
+            background-color: var(--color-waiting);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+        .player-status-list li.guessed {
+            background-color: var(--color-success);
+        }
+        .player-status-list h4 { /* The "Waiting for players..." text */
+            color: var(--accent-gold);
+            font-style: italic;
+            font-weight: 400;
+        }
+        
+        /* --- Main Screen Option Displays --- */
+        /* Use this for 2-column layouts (WDDI, Order Up!) */
+        .options-grid-2-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-gap: 20px;
+            max-width: 700px;
+            margin: 20px auto;
+        }
+        .options-grid-2-col > * { /* Targets direct children (li, div, etc.) */
+            background-color: var(--accent-blue);
+            color: var(--text-primary);
+            padding: 25px;
+            border-radius: 8px;
+            font-size: 1.3em;
+            font-weight: 700;
+            font-family: var(--font-body);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        
+        /* Use this for the two side-by-side lists in Quiplash */
+        .options-columns-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .options-column {
+            width: 48%;
+        }
+        .options-column li {
+            background-color: var(--accent-blue);
+            color: var(--text-primary);
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            font-size: 1.1em;
+        }
+        
+        /* --- Results & Scoreboards --- */
+        /* List showing player results for a single round */
+        .round-results-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            padding: 15px;
+            margin: 8px auto;
+            border-radius: 6px;
+            max-width: 700px;
+        }
+        .round-results-list li .player-name {
+            font-weight: 700; font-size: 1.1em; text-align: left;
+            flex-basis: 40%; /* Stealing 10% from here */
+        }
+        .round-results-list li .player-answer {
+            text-align: center; font-style: italic;
+            flex-basis: 30%; /* Keeping this the same */
+        }
+        .round-results-list li .player-points {
+            font-weight: 700; font-size: 1.1em; text-align: right;
+            flex-basis: 30%; /* Giving the 10% here to prevent wrapping */
+        }
+
+        /* --- NEW: Style the time display to be more subtle --- */
+        .round-results-list li .time-display {
+            color: var(--text-primary); /* Use the lighter grey color */
+            font-size: 0.9em;             /* Make it slightly smaller */
+            font-style: normal;           /* Ensure it's not italic */
+            margin-left: 5px;             /* Add a little space */
+        }
+
+        /* Highlight for correct/point-scoring answers in results */
+        .round-results-list li.highlight {
+            background-color: var(--color-success);
+            transform: scale(1.02);
+        }
+
+        /* This will highlight a correct item within an options grid on a results screen */
+        .options-grid-2-col > .highlight {
+            background-color: var(--color-success);
+            color: var(--text-primary);
+            transform: scale(1.05);
+            border: 2px solid var(--accent-gold);
+        }
+        
+        /* List showing the correct answer(s) on a results screen */
+        .correct-answer-list {
+            max-width: 600px;
+            margin: 10px auto 30px auto;
+        }
+        .correct-answer-list li {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            padding: 12px 20px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            font-size: 1.2em;
+            font-weight: 700;
+        }
+        .correct-answer-list.ordered { /* Add class="ordered" to the <ol> for numbers */
+            list-style: decimal inside;
+            text-align: left;
+        }
+
+        /* --- Final Game Scoreboard --- */
+        #final-game-scoreboard li { 
+            display: flex; justify-content: space-between; align-items: center;
+            max-width: 600px; margin: 8px auto; padding: 15px; border-radius: 6px;
+            font-size: 1.3em; font-weight: 700;
+        }
+        #final-game-scoreboard li .rank { margin-right: 20px; }
+        #final-game-scoreboard li .name { flex-grow: 1; text-align: left; }
+        /* Podium Colors */
+        #final-game-scoreboard li:nth-child(1) { background-color: var(--color-podium-1); color: var(--bg-primary); }
+        #final-game-scoreboard li:nth-child(2) { background-color: var(--color-podium-2); color: var(--bg-primary); }
+        #final-game-scoreboard li:nth-child(3) { background-color: var(--color-podium-3); color: var(--text-primary); }
+        #final-game-scoreboard li:not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(3)) {
+            background-color: var(--bg-secondary);
+        }
+
+        /* ==========================================================================
+        6. MISCELLANEOUS & FOOTER
+        ========================================================================== */
+        
+        #status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(0,0,0,0.5);
+            padding: 10px;
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+        #overall-score-display span { 
+            margin: 0 8px;
+            background-color: var(--accent-blue); 
+            color: var(--text-primary); 
+            padding: 3px 8px;
+            border-radius: 4px;
+            display: inline-block; 
+            font-style: normal;
+        }
+
+        #mute-button {
+            position: fixed;
+            bottom: 15px; /* Adjust to sit above the new status bar */
+            right: 15px;
+            padding: 8px 12px;
+            background-color: rgba(0,0,0,0.5);
+            color: white;
+            border: 1px solid white;
+            cursor: pointer;
+            z-index: 100;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <button id="mute-button">Mute</button>
+    <div class="container">
+        <!-- Static HTML Structure -->
+        <div id="splash-screen">
+            <h1>Welcome to</h1>
+            <img id="splash-logo" src="/static/image/colour_logo.jpeg" alt="Handley's Fun Factory Logo">
+            <button id="initiateGameButton">Start New Game</button>
+        </div>
+        <div id="waiting-area" class="hidden">
+             <h2>Waiting for Players...</h2>
+             <p>Connect: <strong>http://<span id="connect-ip">...</span>:5000</strong> (Max 8)</p>
+             <h3>Connected Players:</h3>
+             <ul id="player-list"><li>Loading...</li></ul>
+             <button id="startGameButton" disabled>Start Game</button>
+        </div>
+        <div id="round-content-area" class="hidden"></div>
+        <div id="results-area" class="hidden"></div>
+        <div id="overall-game-over-area" class="hidden"></div>
+        <div id="status-bar">Status: <span id="game-state">Initializing...</span><div id="overall-score-display"></div></div>
+        <audio id="theme-music" src="/static/audio/main-theme.mp3" loop preload="auto"></audio>
+        <audio id="jingle-gta" src="/static/audio/gta_jingle.mp3" preload="auto"></audio>
+        <audio id="jingle-gty" src="/static/audio/gty_jingle.mp3" preload="auto"></audio>
+        <audio id="jingle-wddi" src="/static/audio/wddi_jingle.mp3" preload="auto"></audio>
+        <audio id="jingle-ou" src="/static/audio/ou_jingle.mp3" preload="auto"></audio>
+        <audio id="jingle-qp" src="/static/audio/qp_jingle.mp3" preload="auto"></audio>
+        <!-- <audio id="jingle-team" src="/static/audio/team_jingle.mp3" preload="auto"></audio> -->
+    </div>
+
+    <script>
+        // --- Element Refs (obtained after DOM loaded) ---
+        let splashScreen, initiateGameButton, waitingArea, playerList, startGameButton;
+        let roundContentArea, resultsArea, overallGameOverArea, statusBar, gameStateSpan;
+        let overallScoreDisplay, connectIpSpan, themeMusic, muteButton, playAgainButton;
+        let jingleGTA, jingleGTY, jingleWDDI, jingleOU, jingleQP;
+
+        let currentJingle = null;
+
+        const serverIp = window.location.hostname;
+        const socket = io(`http://${serverIp}:5000`);
+
+        // --- Helper Functions ---
+        function showArea(areaToShowId) {
+            console.log(`Showing area: ${areaToShowId}`);
+            [splashScreen, waitingArea, roundContentArea, resultsArea, overallGameOverArea].forEach(area => {
+                if (!area) return; area.id === areaToShowId ? area.classList.remove('hidden') : area.classList.add('hidden');
+            });
+            // Ensure specific content areas are hidden when not in round content view
+            const gtaContent = document.getElementById('gta-content'); if (gtaContent && areaToShowId !== 'round-content-area') gtaContent.classList.add('hidden');
+            const gtyContent = document.getElementById('gty-content'); if (gtyContent && areaToShowId !== 'round-content-area') gtyContent.classList.add('hidden');
+            // WDDI content removed
+        }
+        function updateOverallScoresUI(scoresData) {
+             if (!overallScoreDisplay) return;
+             const scoreHtml = (scoresData || []).map(p => `<span>${p.name}: ${p.game_score}pts</span>`).join(' ');
+             overallScoreDisplay.innerHTML = scoreHtml;
+             const resultsScoreElement = document.getElementById('results-overall-score-display'); // Find dynamically if needed
+             if (resultsScoreElement) resultsScoreElement.innerHTML = scoreHtml;
+        }
+
+        /**
+         * Updates a player's status indicator on the main screen.
+         * @param {string} playerName - The name of the player to update.
+         * @param {boolean} hasGuessed - True to mark as guessed (green), false to mark as waiting (grey).
+         */
+        function updatePlayerStatus(playerName, hasGuessed) {
+            // 1. Create the same 'safe ID' for the player's <li> element that we create in the Jinja templates.
+            //    This is the crucial link!
+            const safePlayerId = 'player-status-' + playerName.replace(/[^a-zA-Z0-9-_]/g, '_');
+
+            // 2. Find that specific player's list item on the page.
+            const playerElement = document.getElementById(safePlayerId);
+
+            // 3. If we found it, add or remove the '.guessed' class.
+            if (playerElement) {
+                // .classList.toggle() with a boolean is perfect for this.
+                // If hasGuessed is true, it adds the class. If false, it removes it.
+                playerElement.classList.toggle('guessed', hasGuessed);
+                console.log(`Updated status for ${playerName} to guessed=${hasGuessed}`);
+            } else {
+                console.warn(`Could not find player element with ID: ${safePlayerId} to update status.`);
+            }
+        }
+
+        // --- Socket Event Listeners ---
+        socket.on('connect', () => {
+            console.log('Main Screen Connected!'); if(gameStateSpan) gameStateSpan.textContent = 'Connected';
+            socket.emit('register_main_screen'); showArea('splash-screen');
+        });
+        socket.on('disconnect', () => { if(gameStateSpan) gameStateSpan.textContent = 'DISCONNECTED!'; showArea('splash-screen'); });
+        socket.on('message', (data) => { console.log('Server Message:', data.data); });
+
+        socket.on('update_html', (data) => {
+            console.log(`Received HTML update for: ${data.target_selector}`);
+            const targetElement = document.querySelector(data.target_selector);
+            if (targetElement) {
+                targetElement.innerHTML = data.html; console.log(`Target ${data.target_selector} updated.`);
+                const parentArea = targetElement.closest('#round-content-area, #results-area, #overall-game-over-area');
+                if (parentArea) { showArea(parentArea.id); }
+                 else if (data.target_selector === '#player-list') { if (splashScreen && splashScreen.classList.contains('hidden')) { showArea('waiting-area'); } }
+                 else if (data.target_selector === '#overall-game-over-area') {
+                     playAgainButton = document.getElementById('playAgainButton');
+                     if (playAgainButton) { playAgainButton.addEventListener('click', startGameHandler); }
+                 }
+                 // <<< NEW: Ensure inner content visible after injection >>>
+                 if (data.target_selector === '#round-content-area') {
+                     const gtaContentEl = targetElement.querySelector('#gta-content'); if (gtaContentEl) gtaContentEl.classList.remove('hidden');
+                     const gtyContentEl = targetElement.querySelector('#gty-content'); if (gtyContentEl) gtyContentEl.classList.remove('hidden');
+                     const wddiContentEl = targetElement.querySelector('#wddi-content'); if (wddiContentEl) wddiContentEl.classList.remove('hidden');
+                     const ouContentEl = targetElement.querySelector('#ou-content'); if (ouContentEl) ouContentEl.classList.remove('hidden');
+                     const qpContentEl = targetElement.querySelector('#qp-content'); if (qpContentEl) qpContentEl.classList.remove('hidden');
+                 } else if (data.target_selector === '#results-area') {
+                     const resultsOverallScoresDivEl = targetElement.querySelector('#results-overall-scores');
+                     // Show overall scores only if it's a round summary (check based on content?)
+                     // Let's assume round summary always includes it, show it if found
+                     if (resultsOverallScoresDivEl) {
+                         const overallScoreData = overallScoreDisplay ? overallScoreDisplay.innerHTML : ''; // Get current scores
+                         const resultsOverallScoreDisplayEl = resultsOverallScoresDivEl.querySelector('#results-overall-score-display');
+                         if (resultsOverallScoreDisplayEl) resultsOverallScoreDisplayEl.innerHTML = overallScoreData;
+                         resultsOverallScoresDivEl.classList.remove('hidden'); // Show the div
+                     }
+                 }
+            } else { console.error(`Target "${data.target_selector}" not found.`); }
+        });
+
+        socket.on('game_state_update', (data) => {
+            console.log('Game State Update:', data);
+            if(gameStateSpan) { /* Update status text */ }
+            updateOverallScoresUI(data.overall_scores || []);
+            if (data.game_state === 'waiting') {
+                 if(startGameButton) { startGameButton.disabled = !(data.overall_scores && data.overall_scores.length > 0 && data.game_rounds_total > 0); }
+                 if (splashScreen && splashScreen.classList.contains('hidden')) { showArea('waiting-area'); } else { showArea('splash-screen');}
+                 if(startGameButton) startGameButton.classList.remove('hidden');
+                 if(playAgainButton) playAgainButton.classList.add('hidden');
+            }
+            // ... other state handling (visibility driven by update_html) ...
+        });
+
+        // This one listener now handles all rounds!
+        socket.on('player_submitted_update', (data) => {
+            // The server now sends us { name: "Adam" }
+            console.log(`Player submitted update received for: ${data.name}`);
+            
+            // We call our universal status update function, telling it to mark this player as "guessed" (true)
+            updatePlayerStatus(data.name, true);
+        });
+
+        socket.on('play_round_jingle', (data) => {
+            console.log('Received play_round_jingle:', data);
+            const jingleFile = data.jingle_file;
+            let jingleToPlay = null;
+
+            // --- NEW: Permanently stop main theme music ---
+            if (themeMusic && !themeMusic.paused) {
+                console.log("First jingle triggered, permanently stopping main theme.");
+                themeMusic.pause();
+                themeMusic.currentTime = 0; // Rewind it for next game
+            }
+            // ---------------------------------------------
+
+            // Stop any previously playing jingle
+            if (currentJingle && !currentJingle.paused) {
+                currentJingle.pause();
+                currentJingle.currentTime = 0;
+            }
+
+            // Map filename to the audio element
+            if (jingleFile === 'gta_jingle.mp3' && jingleGTA) jingleToPlay = jingleGTA;
+            else if (jingleFile === 'gty_jingle.mp3' && jingleGTY) jingleToPlay = jingleGTY;
+            else if (jingleFile === 'wddi_jingle.mp3' && jingleWDDI) jingleToPlay = jingleWDDI;
+            else if (jingleFile === 'ou_jingle.mp3' && jingleOU) jingleToPlay = jingleOU;
+            else if (jingleFile === 'qp_jingle.mp3' && jingleQP) jingleToPlay = jingleQP;
+
+            if (jingleToPlay) {
+                currentJingle = jingleToPlay;
+                jingleToPlay.currentTime = 0;
+                jingleToPlay.volume = 0.7; // Set jingle volume
+
+                jingleToPlay.play().catch(error => {
+                    console.error(`Error playing jingle ${jingleFile}:`, error);
+                });
+
+                // Simplified 'onended' listener since we no longer need to manage theme volume
+                jingleToPlay.onended = () => {
+                    console.log(`Jingle ${jingleFile} finished.`);
+                    if (currentJingle === jingleToPlay) {
+                        currentJingle = null;
+                    }
+                    jingleToPlay.onended = null; // Clean up
+                };
+            } else {
+                console.warn(`Jingle file ${jingleFile} not found or element missing.`);
+            }
+        });
+
+        // --- User Interaction Handlers ---
+        function initiateGameHandler() {
+            console.log("Initiate button clicked."); showArea('waiting-area');
+            if (themeMusic && themeMusic.paused) { themeMusic.volume = 0.3; themeMusic.play().catch(e => console.error("Music Error:", e)); }
+        }
+        function startGameHandler() {
+            console.log('Start/Play Again clicked.'); if(startGameButton) startGameButton.disabled = true; if(playAgainButton) playAgainButton.disabled = true;
+            socket.emit('start_game_request'); 
+        }
+
+        // --- Attach Listeners After DOM Loaded ---
+        document.addEventListener('DOMContentLoaded', (event) => {
+            console.log("DOM loaded");
+            // Get references
+            splashScreen = document.getElementById('splash-screen'); initiateGameButton = document.getElementById('initiateGameButton');
+            waitingArea = document.getElementById('waiting-area'); playerList = document.getElementById('player-list');
+            startGameButton = document.getElementById('startGameButton'); roundContentArea = document.getElementById('round-content-area');
+            resultsArea = document.getElementById('results-area'); overallGameOverArea = document.getElementById('overall-game-over-area');
+            statusBar = document.getElementById('status-bar'); gameStateSpan = document.getElementById('game-state');
+            overallScoreDisplay = document.getElementById('overall-score-display'); connectIpSpan = document.getElementById('connect-ip');
+            themeMusic = document.getElementById('theme-music'); muteButton = document.getElementById('mute-button');
+            playAgainButton = document.getElementById('playAgainButton');
+            jingleGTA = document.getElementById('jingle-gta');
+            jingleGTY = document.getElementById('jingle-gty');
+            jingleWDDI = document.getElementById('jingle-wddi');
+            jingleOU = document.getElementById('jingle-ou');
+            jingleQP = document.getElementById('jingle-qp');
+            if (!themeMusic || !jingleGTA) {
+                console.warn("Audio elements (theme or jingles) might be missing!");
+            }
+            if (!splashScreen || !waitingArea || !statusBar || !initiateGameButton || !themeMusic || !muteButton) { console.error("Essential elements missing!"); return; }
+            if(connectIpSpan && serverIp) connectIpSpan.textContent = serverIp;
+            // Attach listeners
+            if(initiateGameButton) initiateGameButton.addEventListener('click', initiateGameHandler);
+            if(startGameButton) startGameButton.addEventListener('click', startGameHandler);
+            // Play again listener attached when its area is rendered
+            if (muteButton && themeMusic) { muteButton.addEventListener('click', () => { themeMusic.muted = !themeMusic.muted; muteButton.textContent = themeMusic.muted ? 'Unmute' : 'Mute'; }); }
+            console.log("Initial listeners attached."); showArea('splash-screen');
+        });
+    </script>
+</body>
+</html>

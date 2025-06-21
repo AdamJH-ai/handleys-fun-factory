@@ -1,0 +1,39 @@
+{# templates/_ou_turn_results.html (Corrected) #}
+{# Expects: correct_order, results #}
+
+<div id="ou-results">
+
+    <h2>Results!</h2>
+    <h3>Here's the correct order:</h3>
+
+    <ol class="correct-answer-list ordered">
+        {% for item in correct_order %}
+            <li>{{ item }}</li>
+        {% endfor %}
+    </ol>
+
+    <h3>Round Scores:</h3>
+    
+    <ul class="round-results-list">
+        {# CHANGE #1: Loop over 'results' instead of 'player_results' #}
+        {% for result in results %}
+            {# CHANGE #2: Check 'result.is_correct' instead of 'result.points_awarded' #}
+            <li class="{{ 'highlight' if result.is_correct }}">
+                {# CHANGE #3: Use 'result.name' instead of 'result.player_name' #}
+                <span class="player-name">{{ result.name }}</span>
+                <span class="player-answer">
+                    {{ "Correct!" if result.is_correct else "Incorrect" }}
+                </span>
+                <span class="player-points">
+                    {# CHANGE #4: Display points based on correctness and show the total 'round_score' #}
+                    {% if result.is_correct %}
+                        +1 pt (Total: {{ result.round_score }})
+                    {% else %}
+                        0 pts (Total: {{ result.round_score }})
+                    {% endif %}
+                </span>
+            </li>
+        {% endfor %}
+    </ul>
+    
+</div>

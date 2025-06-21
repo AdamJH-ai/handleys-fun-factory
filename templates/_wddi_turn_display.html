@@ -1,0 +1,31 @@
+{# templates/_wddi_turn_display.html (Rewritten) #}
+{# Expects: turn, total_turns, question_text, image_url, shuffled_options, players_status #}
+<div id="wddi-content">
+
+    <h2>Who Didn't Do It? (Turn {{ turn }}/{{ total_turns }})</h2>
+    <h3>{{ question_text or 'Question Loading...' }}</h3>
+
+    {% if image_url %}
+        <img src="{{ image_url }}" alt="Question related image" class="question-image">
+    {% endif %}
+
+    <h4>Which one of these doesn't belong?</h4>
+    
+    {# Using our generic 2-column grid component for the options #}
+    <div class="options-grid-2-col">
+        {% for option in shuffled_options %}
+            <div>{{ option }}</div>
+        {% endfor %}
+    </div>
+
+    {# Using the generic player status component #}
+    <div class="player-status-list">
+        <h4>Waiting for players to guess...</h4>
+        <ul>
+            {% for p_status in players_status %}
+                <li id="player-status-{{ p_status.name | replace('[^a-zA-Z0-9-_]', '_') }}">{{ p_status.name }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    
+</div>

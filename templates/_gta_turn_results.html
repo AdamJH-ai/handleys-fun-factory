@@ -1,0 +1,20 @@
+{# templates/_gta_turn_results.html (Rewritten) #}
+{# Expects variables: actual_age, results #}
+<div id="gta-results">
+
+    <h2>Results!</h2>
+    <h3>The correct age was: <span style="color: var(--color-success);">{{ actual_age if actual_age is not none else '--' }}</span></h3>
+    
+    {# Using the generic list for round results #}
+    <ul class="round-results-list">
+        {% for res in results %}
+            {# The 'highlight' class is handled by our generic CSS #}
+            <li class="{{ 'highlight' if res.diff == 0 }}">
+                <span class="player-name">{{ res.name }}</span>
+                <span class="player-answer">Guess: {{ res.guess }} ({{ res.diff }})</span>
+                <span class="player-points">+{{ res.round_score }} pts</span>
+            </li>
+        {% endfor %}
+    </ul>
+
+</div>

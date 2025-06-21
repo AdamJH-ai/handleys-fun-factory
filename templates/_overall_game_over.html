@@ -1,0 +1,24 @@
+{# templates/_overall_game_over.html (Rewritten) #}
+{# Expects: scores (list of dicts with rank, name, game_score) #}
+<div id="game-over-screen">
+
+    <h2>Game Over!</h2>
+    <h3>Final Scores:</h3>
+
+    {# This ID is targeted by our CSS for the special podium colors #}
+    <ol id="final-game-scoreboard">
+        {% for res in scores %}
+            {# No more custom classes needed! The CSS handles styling by position. #}
+            <li>
+                <span class="rank">{{ res.rank }}.</span>
+                <span class="name">{{ res.name }}</span>
+                <span class="score">{{ res.game_score }} pts</span>
+            </li>
+        {% endfor %}
+    </ol>
+    
+    {# NOTE: You need a generic .button class in your CSS for this to look good. #}
+    {# If you haven't made one, I recommend adding it. #}
+    <button id="playAgainButton">Play Again?</button>
+
+</div>

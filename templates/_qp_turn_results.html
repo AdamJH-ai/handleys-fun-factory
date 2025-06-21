@@ -1,0 +1,50 @@
+{# templates/_qp_turn_results.html (Rewritten) #}
+{# Expects: category_prompt, correct_pairs, results, etc. #}
+<div id="qp-results">
+    
+    <h2>Results!</h2>
+    <h3>{{ category_prompt }}</h3>
+
+    <h4>Correct Pairs:</h4>
+    {# Using the generic component for displaying correct answers #}
+    <ul class="correct-answer-list">
+        {% for pair in correct_pairs %}
+            {# The arrow color can be styled in CSS if desired #}
+            <li>{{ pair[0] }}  ↔  {{ pair[1] }}</li>
+        {% endfor %}
+    </ul>
+    
+    <h3>Player Scores:</h3>
+    {# Using the standard round results list #}
+    <ul class="round-results-list">
+        {% for result in results %}
+            <li class="{{ 'highlight' if result.points_this_turn > 0 }}">
+                <span class="player-name">{{ result.name }}</span>
+                
+                <span class="player-answer">
+                    {# First, display the status text #}
+                    {% if result.points_this_turn == 2 %}
+                        <strong>Fastest Correct!</strong>
+                    {% elif result.points_this_turn == 1 %}
+                        <strong>All Correct!</strong>
+                    {% elif result.time_ms is number %}
+                        {{ result.num_correct_pairs }}/{{ num_pairs_per_question }} pairs correct
+                    {% else %}
+                        No submission
+                    {% endif %}
+
+                    {# Second, append the time if they scored points and the time is valid #}
+                    {% if result.points_this_turn > 0 and result.time_ms is number and result.time_ms < 9999999 %}
+                        <span class="time-display"> ({{ "%.2f"|format(result.time_ms / 1000) }}s)</span>
+                    {% endif %}
+                </span>
+                
+                <span class="player-points">
+                    {# Show points for the turn and the cumulative round score #}
+                    +{{ result.points_this_turn }} pts (Total: {{ result.round_score }})
+                </span>
+            </li>
+        {% endfor %}
+    </ul>
+    
+</div>

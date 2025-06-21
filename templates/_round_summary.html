@@ -1,0 +1,33 @@
+{# templates/_round_summary.html (Rewritten) #}
+{# Expects: round_type, rankings, overall_scores #}
+<div id="round-summary">
+
+    <h2>Round Complete!</h2>
+    <h3>Round: {{ round_type or 'Unknown' }}</h3>
+
+    <h4>Round Rankings & Points Awarded:</h4>
+    
+    {# Using our standard results list component for consistency #}
+    <ul class="round-results-list">
+        {% for res in rankings %}
+            <li> {# No highlight class needed here, as everyone is on the list #}
+                <span class="player-name">{{ res.rank }}. {{ res.name }}</span>
+                <span class="player-answer">Score: {{ res.round_score }}</span>
+                <span class="player-points" style="background-color: var(--color-success); color: var(--bg-primary); padding: 5px 10px; border-radius: 5px;">
+                    +{{ res.points_awarded }} Game Pts
+                </span>
+            </li>
+        {% endfor %}
+    </ul>
+
+    {# This reuses the status bar component styling for the overall scores #}
+    <div id="status-bar" style="position: relative; margin-top: 30px;">
+        <h4>Overall Game Scores:</h4>
+        <div id="overall-score-display">
+             {% for score in overall_scores %}
+                <span>{{ score.name }}: {{ score.game_score }}pts</span>
+             {% endfor %}
+        </div>
+    </div>
+
+</div>

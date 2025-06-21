@@ -1,0 +1,597 @@
+[
+  {
+    "category_prompt": "Match the Country to its Capital City:",
+    "pairs": [
+      [
+        "France",
+        "Paris"
+      ],
+      [
+        "United Kingdom",
+        "London"
+      ],
+      [
+        "Japan",
+        "Tokyo"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Pair the Character with their TV Show:",
+    "pairs": [
+      [
+        "Michael Scott",
+        "The Office (US)"
+      ],
+      [
+        "Walter White",
+        "Breaking Bad"
+      ],
+      [
+        "Daenerys Targaryen",
+        "Game of Thrones"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Match the Artist with their Band:",
+    "pairs": [
+      [
+        "Noel Gallagher",
+        "Oasis"
+      ],
+      [
+        "Ringo Starr",
+        "The Beatles"
+      ],
+      [
+        "Mick Jagger",
+        "The Rolling Stones"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Match the Footballer to their Country:",
+    "pairs": [
+      [
+        "David Beckham",
+        "England"
+      ],
+      [
+        "Lionel Messi",
+        "Argentina"
+      ],
+      [
+        "Cristiano Ronaldo",
+        "Portugal"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Match the Soap character to their Soap:",
+    "pairs": [
+      [
+        "Pat Butcher",
+        "Eastenders"
+      ],
+      [
+        "Cain Dingle",
+        "Emmerdale"
+      ],
+      [
+        "Tony Hutchinson",
+        "Hollyoaks"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Pair the Actor to their Film Franchise",
+    "pairs": [
+      [
+        "Daniel Radcliffe",
+        "Harry Potter"
+      ],
+      [
+        "Bruce Willis",
+        "Die Hard"
+      ],
+      [
+        "Mark Hamill",
+        "Star Wars"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Match the Football teams to their Nations",
+    "pairs": [
+      [
+        "Ajax",
+        "The Netherlands"
+      ],
+      [
+        "Roma",
+        "Italy"
+      ],
+      [
+        "Valencia",
+        "Spain"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Match the Countries to their Continents",
+    "pairs": [
+      [
+        "Vietnam",
+        "Asia"
+      ],
+      [
+        "Senegal",
+        "Africa"
+      ],
+      [
+        "Bolivia",
+        "South America"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Match the Olympian to their Sport",
+    "pairs": [
+      [
+        "Tom Daley",
+        "Diving"
+      ],
+      [
+        "Steve Redgrave",
+        "Rowing"
+      ],
+      [
+        "Laura Kenny",
+        "Cycling"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Match the Film to its Franchise",
+    "pairs": [
+      [
+        "Captain America",
+        "MCU"
+      ],
+      [
+        "At Worlds End",
+        "Pirates of the Carribean"
+      ],
+      [
+        "The Last Jedi",
+        "Star Wars"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Match the Video Game Character to their series",
+    "pairs": [
+      [
+        "Master Chief",
+        "Halo"
+      ],
+      [
+        "Lara Croft",
+        "Tomb Raider"
+      ],
+      [
+        "Kratos",
+        "God of War"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Match the Slogan to the Company",
+    "pairs": [
+      [
+        "Just Do It",
+        "Nike"
+      ],
+      [
+        "I'm Lovin' It",
+        "McDonalds"
+      ],
+      [
+        "Think Different",
+        "Apple"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Match the iconic quote to the movie",
+    "pairs": [
+      [
+        "\"I'll be back.\"",
+        "The Terminator"
+      ],
+      [
+        "\"Here's looking at you, kid\"",
+        "Casablanca"
+      ],
+      [
+        "\"You're gonna need a bigger boat\"",
+        "Jaws"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Match the Landmark to its City",
+    "pairs": [
+      [
+        "The Colosseum",
+        "Rome"
+      ],
+      [
+        "The Eiffel Tower",
+        "Paris"
+      ],
+      [
+        "The Pyramids",
+        "Cairo"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Pair the Sidekick with their Animated Movie",
+    "pairs": [
+      [
+        "Timon & Pumbaa",
+        "The Lion King"
+      ],
+      [
+        "Genie",
+        "Aladdin"
+      ],
+      [
+        "Donkey",
+        "Shrek"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Match the Author to their famous book",
+    "pairs": [
+      [
+        "J.K. Rowling",
+        "Harry Potter and the Philosopher's Stone"
+      ],
+      [
+        "J.R.R. Tolkien",
+        "The Lord of the Rings"
+      ],
+      [
+        "F. Scott Fitzgerald",
+        "The Great Gatsby"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Match the Element to its Chemical Symbol",
+    "pairs": [
+      [
+        "Gold",
+        "Au"
+      ],
+      [
+        "Iron",
+        "Fe"
+      ],
+      [
+        "Silver",
+        "Ag"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Pair the James Bond actor with their first Bond film",
+    "pairs": [
+      [
+        "Daniel Craig",
+        "Casino Royale"
+      ],
+      [
+        "Pierce Brosnan",
+        "Goldeneye"
+      ],
+      [
+        "Roger Moore",
+        "Live and Let Die"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Match the God to their Mythology",
+    "pairs": [
+      [
+        "Zeus",
+        "Greek"
+      ],
+      [
+        "Thor",
+        "Norse"
+      ],
+      [
+        "Anubis",
+        "Egyptian"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Match the catchphrase to the TV character",
+    "pairs": [
+      [
+        "\"How you doing'?\"",
+        "Joey Tribbiani"
+      ],
+      [
+        "\"Bazinga!\"",
+        "Sheldon Cooper"
+      ],
+      [
+        "\"D'oh!\"",
+        "Homer Simpson"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Pair the Superhero with their Secret Identity",
+    "pairs": [
+      [
+        "Superman",
+        "Clark Kent"
+      ],
+      [
+        "Batman",
+        "Bruce Wayne"
+      ],
+      [
+        "Spider-man",
+        "Peter Parker"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Match the Car Manufacturer to its Country of Origin",
+    "pairs": [
+      [
+        "Ferrari",
+        "Italy"
+      ],
+      [
+        "Ford",
+        "USA"
+      ],
+      [
+        "Toyota",
+        "Japan"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Match the Artist to their Masterpiece",
+    "pairs": [
+      [
+        "Leonardo da Vinci",
+        "Mona Lisa"
+      ],
+      [
+        "Vincent van Gogh",
+        "The Starry Night"
+      ],
+      [
+        "Edvard Munch",
+        "The Scream"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Pair the UK Prime Minister with the Decade they first took office",
+    "pairs": [
+      [
+        "Margaret Thatcher",
+        "1970s"
+      ],
+      [
+        "Tony Blair",
+        "1990s"
+      ],
+      [
+        "Winston Churchill",
+        "1940s"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Match the Cocktail to its main spirit",
+    "pairs": [
+      [
+        "Margarita",
+        "Tequila"
+      ],
+      [
+        "Mojito",
+        "Rum"
+      ],
+      [
+        "Dry Martini",
+        "Gin"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Match the character to their Hogwarts House",
+    "pairs": [
+      [
+        "Harry Potter",
+        "Gryffindor"
+      ],
+      [
+        "Draco Malfoy",
+        "Slytherin"
+      ],
+      [
+        "Luna Lovegood",
+        "Ravenclaw"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Match the Greek God to their domain",
+    "pairs": [
+      [
+        "Poseidon",
+        "The Sea"
+      ],
+      [
+        "Hades",
+        "The Underworld"
+      ],
+      [
+        "Apollo",
+        "Music & Arts"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Match the Founder to the Company they started",
+    "pairs": [
+      [
+        "Bill Gates",
+        "Microsoft"
+      ],
+      [
+        "Jeff Bezos",
+        "Amazon"
+      ],
+      [
+        "Mark Zuckerberg",
+        "Facebook"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Match the classic album to the artist",
+    "pairs": [
+      [
+        "Thriller",
+        "Michael Jackson"
+      ],
+      [
+        "Rumours",
+        "Fleetwood Mac"
+      ],
+      [
+        "The Dark Side of the Moon",
+        "Pink Floyd"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Pair the fictional detective with their creator",
+    "pairs": [
+      [
+        "Sherlock Holmes",
+        "Arthur Conan Doyle"
+      ],
+      [
+        "Hercule Poirot",
+        "Agatha Christie"
+      ],
+      [
+        "Philip Marlowe",
+        "Raymond Chandler"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Match the director to one of their iconic films",
+    "pairs": [
+      [
+        "Steven Spielberg",
+        "E.T. the Extra-Terrestrial"
+      ],
+      [
+        "Alfred Hitchcock",
+        "Psycho"
+      ],
+      [
+        "Quentin Tarantino",
+        "Pulp Fiction"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Match the unit of measurement to what it measures",
+    "pairs": [
+      [
+        "Hertz",
+        "Frequency"
+      ],
+      [
+        "Ampere",
+        "Electric Current"
+      ],
+      [
+        "Lumen",
+        "Light Output"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Match the famous quote to the Shakespeare play",
+    "pairs": [
+      [
+        "\"To be, or not to be...\"",
+        "Hamlet"
+      ],
+      [
+        "\"A horse! a horse! my kingdom for a horse!\"",
+        "Richard III"
+      ],
+      [
+        "\"Double, double toil and trouble; Fire burn, and cauldron bubble.\"",
+        "Macbeth"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Match the currency to its country",
+    "pairs": [
+      [
+        "Yen",
+        "Japan"
+      ],
+      [
+        "Rupee",
+        "India"
+      ],
+      [
+        "Franc",
+        "Switzerland"
+      ]
+    ]
+  },
+  {
+    "category_prompt": "Pair the bone with its location in the human body",
+    "pairs": [
+      [
+        "Femur",
+        "Leg"
+      ],
+      [
+        "Humerus",
+        "Arm"
+      ],
+      [
+        "Cranium",
+        "Head"
+      ]
+    ]
+  }
+]

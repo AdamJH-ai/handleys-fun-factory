@@ -1,0 +1,40 @@
+{# templates/_wddi_turn_results.html (Rewritten) #}
+{# Expects: question_text, image_url, shuffled_options, correct_answer, results #}
+<div id="wddi-results">
+
+    <h2>Results!</h2>
+    <h3>{{ question_text }}</h3>
+
+    <h4>The correct answer was:</h4>
+    
+    {# Displaying the options again, but now as a results list #}
+    <div class="options-grid-2-col">
+        {% for option in shuffled_options %}
+            {# We use a Jinja conditional to add the 'highlight' class, which our CSS will style #}
+            <div class="{{ 'highlight' if option == correct_answer }}">
+               {{ option }}
+            </div>
+        {% endfor %}
+    </div>
+    
+    <h3>Player Guesses:</h3>
+    <ul class="round-results-list">
+        {% for result in results %}
+            <li class="{{ 'highlight' if result.is_correct }}">
+                <span class="player-name">{{ result.name }}</span>
+                <span class="player-answer">
+                    Guessed: {{ result.guess }}
+                </span>
+                <span class="player-points">
+                    {# Show points for the turn and the cumulative round score #}
+                    {% if result.is_correct %}
+                        +1 pt (Total: {{ result.round_score }})
+                    {% else %}
+                        0 pts (Total: {{ result.round_score }})
+                    {% endif %}
+                </span>
+            </li>
+        {% endfor %}
+    </ul>
+    
+</div>

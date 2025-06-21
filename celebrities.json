@@ -1,0 +1,386 @@
+[
+  {
+    "name": "Tom Hanks",
+    "dob": "1957-07-09",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/a/a9/Tom_Hanks_TIFF_2019.jpg",
+    "description": "An iconic American actor, beloved for his roles in films such as 'Forrest Gump,' 'Cast Away,' and as the voice of Woody in 'Toy Story'."
+  },
+  {
+    "name": "Zendaya",
+    "dob": "1996-09-01",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Zendaya_-_2019_by_Glenn_Francis.jpg/800px-Zendaya_-_2019_by_Glenn_Francis.jpg",
+    "description": "An American actress and singer who gained fame on the Disney Channel before starring in the 'Spider-Man' films and the hit series 'Euphoria'."
+  },
+  {
+    "name": "Taylor Swift",
+    "dob": "1989-12-13",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Taylor_Swift_at_the_2023_MTV_Video_Music_Awards_%283%29.png/800px-Taylor_Swift_at_the_2023_MTV_Video_Music_Awards_%283%29.png",
+    "description": "A global music superstar, this American singer-songwriter is known for her narrative songs and record-breaking concert tours like The Eras Tour."
+  },
+  {
+    "name": "Morgan Freeman",
+    "dob": "1937-06-01",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Morgan_Freeman_1998.jpg/250px-Morgan_Freeman_1998.jpg",
+    "description": "An American actor and narrator, famous for his deep, commanding voice and acclaimed roles in films like 'The Shawshank Redemption' and 'Bruce Almighty'."
+  },
+  {
+    "name": "Dwayne Johnson",
+    "dob": "1972-05-02",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/37/Therockaswwfchampion_b.jpg",
+    "description": "Also known as \"The Rock,\" he is an American actor and former professional wrestler, starring in blockbuster films like 'Jumanji' and the 'Fast & Furious' series."
+  },
+  {
+    "name": "Leonardo DiCaprio",
+    "dob": "1974-11-11",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Leonardo_Dicaprio_Cannes_2019.jpg/800px-Leonardo_Dicaprio_Cannes_2019.jpg",
+    "description": "An acclaimed American actor and film producer, known for starring roles in 'Titanic,' 'Inception,' and 'The Wolf of Wall Street'."
+  },
+  {
+    "name": "William Roache",
+    "dob": "1932-04-25",
+    "image_url": "https://i2-prod.mirror.co.uk/article21034384.ece/ALTERNATES/s615b/0_William-Roache.jpg",
+    "description": "An English actor, best known for playing Ken Barlow in the soap opera 'Coronation Street' since its first episode in 1960."
+  },
+  {
+    "name": "Tim Henman",
+    "dob": "1974-09-06",
+    "image_url": "https://www.speakersassociates.com/wp-content/uploads/2023/02/2_TimHenman-1.jpg",
+    "description": "A retired English professional tennis player who was the British No. 1 for many years and a four-time Wimbledon semi-finalist."
+  },
+  {
+    "name": "Elton John",
+    "dob": "1947-03-25",
+    "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSty-VmGmU0Q5nPOzaw1r6P0X_-aiWP3MZerV6TtmAVPBqlZsW71jQOEZc7LvEMhJXEqeYqu6ZqTqZhZxYJ_Vnuvg",
+    "description": "A legendary English singer, pianist, and composer. His iconic hits include 'Rocket Man,' 'Tiny Dancer,' and 'I'm Still Standing'."
+  },
+  {
+    "name": "Kylie Minogue",
+    "dob": "1968-05-28",
+    "image_url": "https://pbs.twimg.com/media/FnjHZZXaQAAQ2_p.jpg:large",
+    "description": "An Australian singer and actress, often called the \"Princess of Pop,\" known for hits like 'Can't Get You Out of My Head' and 'Spinning Around'."
+  },
+  {
+    "name": "David Beckham",
+    "dob": "1975-05-02",
+    "image_url": "https://img.a.transfermarkt.technology/portrait/big/3139-1459504284.jpg?lm=1",
+    "description": "A retired English professional footballer and co-owner of Inter Miami CF. He is a global icon known for his time at Manchester United and Real Madrid."
+  },
+  {
+    "name": "Robbie Williams",
+    "dob": "1974-02-13",
+    "image_url": "https://yt3.googleusercontent.com/ytc/AIdro_lnx1ivel5MLjZhhEmqXXUYvc54SQH_ca1R0bWs_hzKJJU=s900-c-k-c0x00ffffff-no-rj",
+    "description": "An English singer-songwriter who found fame with the pop group Take That before launching a hugely successful solo career with hits like 'Angels' and 'Let Me Entertain You'."
+  },
+  {
+    "name": "Geri Halliwell",
+    "dob": "1972-08-06",
+    "image_url": "https://media.glamourmagazine.co.uk/photos/6138c1bb2b5bbea008293e34/master/w_1600%2Cc_limit/union-jack_glamour_22feb17_getty-b.jpg",
+    "description": "An English singer, also known as \"Ginger Spice,\" who was a member of the iconic 1990s girl group, the Spice Girls."
+  },
+  {
+    "name": "Kate Winslet",
+    "dob": "1975-10-05",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Kate_Winslet_at_the_2017_Toronto_International_Film_Festival_%28cropped%29.jpg/800px-Kate_Winslet_at_the_2017_Toronto_International_Film_Festival_%28cropped%29.jpg",
+    "description": "An English actress who gained international stardom for her role as Rose in 'Titanic'. She is also known for films like 'The Reader' and 'Eternal Sunshine of the Spotless Mind'."
+  },
+  {
+    "name": "Steve Bull",
+    "dob": "1965-03-28",
+    "image_url": "https://i2-prod.birminghammail.co.uk/article8210389.ece/ALTERNATES/s1200c/Steve-Bull-6.jpg",
+    "description": "A legendary English former professional footballer, best known for his long and prolific goal-scoring career at Wolverhampton Wanderers."
+  },
+  {
+    "name": "Gary Lineker",
+    "dob": "1960-11-30",
+    "image_url": "https://c.files.bbci.co.uk/11AA6/production/_128885327_lineker-index-afp.jpg",
+    "description": "An English former professional footballer and current sports broadcaster. He is the long-time host of the BBC's 'Match of the Day'."
+  },
+  {
+    "name": "Tom Daley",
+    "dob": "1994-05-21",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Tom_Daley_London_%28cropped2%29.jpg/640px-Tom_Daley_London_%28cropped2%29.jpg",
+    "description": "A British diver and Olympic gold medallist. He is also a television personality and knitting enthusiast."
+  },
+  {
+    "name": "Steve Redgrave",
+    "dob": "1962-03-23",
+    "image_url": "https://images.ctfassets.net/v8zaoys2pgzt/2WEowOlACPZwODADrHIqVz/b7b41631696b6d3a6f8be419fc388623/Steve_Redgrave_-_hero.jpg",
+    "description": "A retired British rower who won gold medals at five consecutive Olympic Games"
+  },
+  {
+    "name": "Beyonce",
+    "dob": "1981-09-04",
+    "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ0hHy0EPc679dvkchvDETDjJUolamDWPg7Lw&s",
+    "description": "An American singer, songwriter, and global icon who first achieved fame as the lead singer of Destiny's Child before a monumental solo career."
+  },
+  {
+    "name": "Madonna",
+    "dob": "1958-08-16",
+    "image_url": "https://m.media-amazon.com/images/I/618QTVuSsMS._AC_UF894,1000_QL80_.jpg",
+    "description": "An American singer, songwriter, and actress. Referred to as the \"Queen of Pop,\" she is known for pushing boundaries in music and fashion since the 1980s."
+  },
+  {
+    "name": "Justin Timberlake",
+    "dob": "1981-01-31",
+    "image_url": "https://i.pinimg.com/736x/2d/95/3f/2d953f301af2488727aa20a162d1c24b.jpg",
+    "description": "An American singer and actor who rose to fame as a member of the boy band NSYNC, followed by a successful solo music and film career."
+  },
+  {
+    "name": "Andy Murray",
+    "dob": "1987-05-15",
+    "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJdIuGgpo9Fflwf8KcEC0emBd9wwLxyhstVw&s",
+    "description": "A Scottish professional tennis player and former world No. 1. He is a two-time Wimbledon champion and two-time Olympic singles champion."
+  },
+  {
+    "name": "Jonny Wilkinson",
+    "dob": "1979-05-25",
+    "image_url": "https://static.independent.co.uk/s3fs-public/thumbnails/image/2014/05/19/17/Wilkinson.jpg",
+    "description": "An English former rugby union player. He is most famous for scoring the winning drop goal in the final minute of the Rugby World Cup Final."
+  },
+  {
+    "name": "Andrew Flintoff",
+    "dob": "1977-12-06",
+    "image_url": "https://static.wikia.nocookie.net/cricket/images/6/6c/Andrew_Flintoff.jpg/revision/latest?cb=20150221230419",
+    "description": "Nicknamed \"Freddie,\" he is an English television presenter and former international cricketer. He was a key player in England's 2005 Ashes victory."
+  },
+  {
+    "name": "Ross Kemp",
+    "dob": "1964-07-21",
+    "image_url": "https://static.wikia.nocookie.net/ee-walford/images/9/94/Grant_Michell_promo.png/revision/latest/scale-to-width-down/985?cb=20230629012021",
+    "description": "An English actor, author, and television presenter, best known for playing Grant Mitchell in the soap opera 'EastEnders' and for his documentary series."
+  },
+  {
+    "name": "Steve Carell",
+    "dob": "1962-08-16",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/9/96/Steve_Carell_November_2014.jpg",
+    "description": "An American actor and comedian, famous for his role as Michael Scott in the US version of 'The Office' and for films like 'The 40-Year-Old Virgin'."
+  },
+  {
+    "name": "Jim Carrey",
+    "dob": "1962-01-17",
+    "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxnML4yS4uZ3TwWP_IZEq1CnyXUmuJTFxrjbd4pkTPdtM5xMPLuuHbcJs7sk21Vrt0pNzVK3wdw0IhwJQK6axExA",
+    "description": "A Canadian-American actor and comedian known for his energetic slapstick performances in films like 'Ace Ventura,' 'The Mask,' and 'Dumb and Dumber'."
+  },
+  {
+    "name": "Jennifer Aniston",
+    "dob": "1969-02-11",
+    "image_url": "https://media.vogue.co.uk/photos/67aa18b876c821645a3ab0c7/master/w_320%2Cc_limit/GettyImages-105806550.jpg",
+    "description": "An American actress who became a global star for her role as Rachel Green on the hit sitcom 'Friends'."
+  },
+  {
+    "name": "Daniel Craig",
+    "dob": "1968-03-02",
+    "image_url": "https://cdn.britannica.com/46/144446-050-D2996CC6/Daniel-Craig.jpg",
+    "description": "An English actor best known for his portrayal of James Bond in five films, starting with 'Casino Royale'."
+  },
+  {
+    "name": "Pierce Brosnan",
+    "dob": "1953-05-16",
+    "image_url": "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcQwfySJRPGIyLMNf6Npwh9myRkcFV4trk2jXA7E1jqsmWd0rAU_8_pLGEx85nnD_axWRZGH_2n3L2FGQjDzQksgba_hp7WX0of6Dm6TWQU",
+    "description": "An Irish actor who portrayed James Bond in four films, including 'GoldenEye' and 'Die Another Day'."
+  },
+  {
+    "name": "Lewis Hamilton",
+    "dob": "1985-01-07",
+    "image_url": "https://d3cm515ijfiu6w.cloudfront.net/wp-content/uploads/2020/06/29085135/Lewis-Hamilton-2007.jpg",
+    "description": "A British racing driver competing in Formula One. He is widely regarded as one of the greatest drivers in the history of the sport, holding multiple World Drivers' Championship titles."
+  },
+  {
+    "name": "Nigel Mansell",
+    "dob": "1953-08-08",
+    "image_url": "https://static.wikia.nocookie.net/gp2-joey/images/d/dc/Nigelcropped.jpg/revision/latest?cb=20230917003359",
+    "description": "A retired British racing driver who won both the Formula One World Championship and the CART Indy Car World Series."
+  },
+  {
+    "name": "Jesnon Button",
+    "dob": "1980-01-19",
+    "image_url": "https://cdn.williamsf1.tech/images/fnx611yr/production/46918874177dfb2945d8fa4f35998657a21bff37-600x315.jpg?rect=64,0,473,315&w=960&h=640&auto=format",
+    "description": "A retired British racing driver who won the Formula One World Championship."
+  },
+  {
+    "name": "Ryan Giggs",
+    "dob": "1973-11-29",
+    "image_url": "https://i2-prod.mirror.co.uk/article12216598.ece/ALTERNATES/s1200b/Ryan-Giggs.jpg",
+    "description": "A Welsh football coach and former player. He spent his entire professional career at Manchester United, becoming the club's most decorated player."
+  },
+  {
+    "name": "Alex Ferguson",
+    "dob": "1941-12-31",
+    "image_url": "https://i2-prod.mirror.co.uk/article30188039.ece/ALTERNATES/s1200c/0_Sir-Alex-Ferguson-4.jpg",
+    "description": "A Scottish former football manager and player, widely regarded as one of the greatest managers of all time. He is most famous for his 26-year tenure at Manchester United."
+  },
+  {
+    "name": "Pam St Clement",
+    "dob": "1942-05-11",
+    "image_url": "https://static.wikia.nocookie.net/eastenders/images/c/c3/PSC.png/revision/latest?cb=20241221201158",
+    "description": "An English actress, best known for her long-running role as Pat Butcher in the BBC soap opera 'EastEnders'."
+  },
+  {
+    "name": "Rick Astley",
+    "dob": "1966-02-06",
+    "image_url": "https://static.wikia.nocookie.net/agk/images/1/18/21499dba0eec71730fdaa0534a82e163.jpg/revision/latest?cb=20210511185219",
+    "description": "An English singer who became a global star in the 1980s with his hit song 'Never Gonna Give You Up,' which later became an internet meme."
+  },
+  {
+    "name": "Celine Dion",
+    "dob": "1968-03-30",
+    "image_url": "https://m.media-amazon.com/images/M/MV5BOTkyNTk2MTc5M15BMl5BanBnXkFtZTcwMDg0ODY1NA@@._V1_.jpg",
+    "description": "A Canadian singer renowned for her powerful and technically skilled vocals. She is famous for singing 'My Heart Will Go On' from the film 'Titanic'."
+  },
+  {
+    "name": "Mariah Carey",
+    "dob": "1969-03-27",
+    "image_url": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcRnfjRac7tNXjgRqFoeM25aMuloQ21TquzbJeSnpDMDMhEbKt5Cgpl4O3X6frD9Ilid9ulN2L_PbyCXOrlyRH7llw",
+    "description": "An American singer and songwriter, famous for her five-octave vocal range. She is often called the \"Queen of Christmas\" for her enduring hit song."
+  },
+  {
+    "name": "Ronan Keating",
+    "dob": "1977-03-03",
+    "image_url": "https://preview.redd.it/ronan-keating-of-boyzone-v0-j0hy719lysab1.jpg?width=640&crop=smart&auto=webp&s=ebd626c6cfe222a2c3e39f502bfbdadc6a0380d5",
+    "description": "An Irish singer who gained fame as the lead singer of the boy band Boyzone. He later launched a successful solo career."
+  },
+  {
+    "name": "Ed Shearan",
+    "dob": "1991-02-17",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Ed_Sheeran-6886_%28cropped%29.jpg/800px-Ed_Sheeran-6886_%28cropped%29.jpg",
+    "description": "An English singer-songwriter known for his acoustic-pop style and hit songs like 'Shape of You' and 'Perfect'."
+  },
+  {
+    "name": "Michael Owen",
+    "dob": "1979-12-14",
+    "image_url": "https://pbs.twimg.com/media/DpjEauCUYAAaOOT.jpg:large",
+    "description": "An English former professional footballer who played as a striker for Liverpool, Real Madrid, and Manchester United, winning the Ballon d'Or."
+  },
+  {
+    "name": "Harry Kane",
+    "dob": "1993-07-28",
+    "image_url": "https://encrypted-tbn2.gstatic.com/licensed-image?q=tbn:ANd9GcQ7iRm6bU8qCwBHT2qlCwQAdi0-QqTq9ORHBiKqKt3Vu-dLyK_lZ6rChyBGkH8WeToK0tceAtSdkeciJBM",
+    "description": "An English professional footballer who plays as a striker for Bayern Munich. He is the all-time leading goalscorer for both England and Tottenham Hotspur."
+  },
+  {
+    "name": "Emma Raducanu",
+    "dob": "2002-11-13",
+    "image_url": "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcQK960vT_Ug6X4rAHColfcg95gvevvpTh3tf1Bz82fYB_hkrdLr08DdEitArBbqGrP_-XwK1VGT6f5984GO_fN0Wg",
+    "description": "A British professional tennis player who made history by winning the US Open in 2021 as a qualifier, without dropping a set."
+  },
+  {
+    "name": "Robert Downey Jr",
+    "dob": "1965-04-04",
+    "image_url": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcR_AHCv7kgQZxq5NCTWKqE9mP2xtISqkm3RzMx_5z7HSRNoyqzG",
+    "description": "An American actor who experienced a major career revival starring as Tony Stark in the 'Iron Man' and 'Avengers' films of the Marvel Cinematic Universe."
+  },
+  {
+    "name": "Paul Weller",
+    "dob": "1968-05-25",
+    "image_url": "https://ichef.bbci.co.uk/images/ic/640x360/p01g7wxk.jpg",
+    "description": "An English singer-songwriter and musician. Weller achieved fame with the punk rock/new wave/mod revival band The Jam."
+  },
+  {
+    "name": "Tom Holland",
+    "dob": "1996-06-01",
+    "image_url": "https://cdn.bestmovie.it/wp-content/uploads/2022/01/Tom-Holland-scaled.jpg",
+    "description": "An English actor best known for his portrayal of Spider-Man in the Marvel Cinematic Universe films."
+  },
+  {
+    "name": "Emma Watson",
+    "dob": "1990-04-15",
+    "image_url": "https://m.media-amazon.com/images/M/MV5BMTQ3ODE2NTMxMV5BMl5BanBnXkFtZTgwOTIzOTQzMjE@._V1_.jpg",
+    "description": "An English actress and activist. She is best known for her role as Hermione Granger in the 'Harry Potter' film series."
+  },
+  {
+    "name": "Harry Styles",
+    "dob": "1994-02-01",
+    "image_url": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcT2LRDk3ewj1es3Wl6BMFGrTBw1rBYbI8nwrpqTIofOav55SOILYuhT9EQDPK-wY_XiN6fU-yBKk8huVCvF-0OFgA",
+    "description": "An English singer, songwriter, and actor. He rose to fame as a member of the boy band One Direction before launching a successful solo career."
+  },
+  {
+    "name": "Tony Blair",
+    "dob": "1953-05-06",
+    "image_url": "https://thereturnofthepublic.wordpress.com/wp-content/uploads/2011/03/tony-blair.jpg",
+    "description": "A British politician who served as Prime Minister of the United Kingdom from 1997 to 2007 and Leader of the Labour Party from 1994 to 2007."
+  },
+  {
+    "name": "Olivia Rodrigo",
+    "dob": "2003-03-20",
+    "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNs2Cuw2baMyfEvLk5FJC2Q0pfogkMu016yxwF_GXL7VCB5NBfbTdok0LItDL1g_CMA7La9HGD_eggZGV080P4XA",
+    "description": "An American singer-songwriter and actress. She gained widespread recognition with her debut single 'Drivers License' and her role in the 'High School Musical' series."
+  },
+  {
+    "name": "Greta Thunberg",
+    "dob": "2003-01-03",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Greta_Thunberg_Stockholm_2024_%283x4_cropped%29.jpg/250px-Greta_Thunberg_Stockholm_2024_%283x4_cropped%29.jpg",
+    "description": "A Swedish environmental activist who gained international recognition for her 'School Strike for Climate' movement, urging world leaders to take action on climate change."
+  },
+  {
+    "name": "Simone Biles",
+    "dob": "1997-03-14",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Simone_Biles_National_Team_2024.jpg/250px-Simone_Biles_National_Team_2024.jpg",
+    "description": "An American artistic gymnast who is widely regarded as the greatest of all time. She is the most decorated American gymnast in history."
+  },
+  {
+    "name": "Billie Eilish",
+    "dob": "2001-12-18",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/BillieEilishO2160622_%2819_of_45%29_%2852153214339%29_%28cropped_3%29.jpg/250px-BillieEilishO2160622_%2819_of_45%29_%2852153214339%29_%28cropped_3%29.jpg",
+    "description": "An American singer and songwriter known for her unique musical style. Her hit songs include 'Bad Guy' and the James Bond theme 'No Time to Die'."
+  },
+  {
+    "name": "Kylie Jenner",
+    "dob": "1997-08-10",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Kylie_Jenner2_%28cropped%29.png/250px-Kylie_Jenner2_%28cropped%29.png",
+    "description": "An American media personality and businesswoman. She gained fame on the reality show 'Keeping Up with the Kardashians' and founded the cosmetic company Kylie Cosmetics."
+  },
+  {
+    "name": "Timothée Chalamet",
+    "dob": "1995-12-27",
+    "image_url": "https://m.media-amazon.com/images/M/MV5BZTIyZWY4ZjktOGJiZi00NGFkLTllMjctZjJjMmNiMjIxOTY2XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+    "description": "An American actor known for his leading roles in films such as 'Dune,' 'Wonka,' and 'Call Me by Your Name'."
+  },
+  {
+    "name": "Carlos Alcaraz",
+    "dob": "2003-05-05",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Carlos_Alcaraz_2025_FO.jpg/250px-Carlos_Alcaraz_2025_FO.jpg",
+    "description": "A Spanish professional tennis player. He has won multiple Grand Slam titles, including Wimbledon and the US Open, and has been ranked world No. 1."
+  },
+  {
+    "name": "Prince George",
+    "dob": "2013-07-22",
+    "image_url": "https://hips.hearstapps.com/hmg-prod/images/george-birthday-1626902510.jpg",
+    "description": "A member of the British royal family. He is the eldest child of William, Prince of Wales, and is second in the line of succession to the British throne."
+  },
+  {
+    "name": "Justin Bieber",
+    "dob": "1994-03-01",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Justin_Bieber_2010_2.jpg/250px-Justin_Bieber_2010_2.jpg",
+    "description": "A Canadian singer who rose to global stardom as a teenager after being discovered on YouTube. His hit songs include 'Baby,' 'Sorry,' and 'Peaches'."
+  },
+  {
+    "name": "Lady Gaga",
+    "dob": "1986-03-28",
+    "image_url": "https://m.media-amazon.com/images/M/MV5BMTg1NjQwMzU4MF5BMl5BanBnXkFtZTgwNTk5NjQ4NjE@._V1_FMjpg_UX1000_.jpg",
+    "description": "An American singer, songwriter, and actress. She is known for her theatrical performances, unique fashion, and hit songs like 'Bad Romance' and 'Shallow'."
+  },
+  {
+    "name": "Rihanna",
+    "dob": "1988-02-20",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Rihanna_visits_U.S._Embassy_in_Barbados_2024_%28cropped%29.jpg/250px-Rihanna_visits_U.S._Embassy_in_Barbados_2024_%28cropped%29.jpg",
+    "description": "A Barbadian singer, businesswoman, and actress. She is also the founder of the hugely successful cosmetics brand Fenty Beauty."
+  },
+  {
+    "name": "Ariana Grande",
+    "dob": "1993-06-26",
+    "image_url": "https://cdn.britannica.com/92/211792-050-E764F875/American-singer-Ariana-Grande-2018.jpg",
+    "description": "An American singer and actress known for her powerful four-octave vocal range. She began her career on the Nickelodeon TV series 'Victorious'."
+  },
+  {
+    "name": "Clint Eastwood",
+    "dob": "1930-05-31",
+    "image_url": "https://www.amica.it/wp-content/uploads/2020/05/prima-gallery-37.jpg?v=988741",
+    "description": "An American actor and film director. He is a Hollywood icon, famous for his roles in Westerns as the 'Man with No Name' and as detective 'Dirty' Harry Callahan."
+  },
+  {
+    "name": "David Attenborough",
+    "dob": "1926-05-08",
+    "image_url": "https://hips.hearstapps.com/hmg-prod/images/david-attenborough-GettyImages-587440925_1600.jpg?crop=1xw:1.0xh;center,top&resize=1200:*",
+    "description": "An English broadcaster and natural historian. He is celebrated for writing and presenting numerous award-winning nature documentaries, including the 'Planet Earth' series."
+  }
+]

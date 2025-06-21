@@ -1,0 +1,20 @@
+{# templates/_gty_turn_results.html (Rewritten) #}
+{# Expects: question_text, correct_year, results #}
+<div id="gty-results">
+
+    <h2>Results!</h2>
+    <h3>{{ question_text }}</h3>
+    <h3>The correct year was: <span style="color: var(--color-success);">{{ correct_year if correct_year is not none else '--' }}</span></h3>
+    
+    {# Using the same generic results list as the GTA round #}
+    <ul class="round-results-list">
+        {% for res in results %}
+            <li class="{{ 'highlight' if res.diff == 0 }}">
+                <span class="player-name">{{ res.name }}</span>
+                <span class="player-answer">Guess: {{ res.guess }} (Diff: {{ res.diff }})</span>
+                <span class="player-points">+{{ res.round_score }} pts</span>
+            </li>
+        {% endfor %}
+    </ul>
+
+</div>

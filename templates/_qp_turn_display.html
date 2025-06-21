@@ -1,0 +1,45 @@
+{# templates/_qp_turn_display.html (Rewritten) #}
+{# Expects: turn, total_turns, category_prompt, list_a_items, list_b_items, players_status #}
+<div id="qp-content">
+    
+    <h2>Quick Pairs! (Turn {{ turn }}/{{ total_turns }})</h2>
+    <h3>{{ category_prompt }}</h3>
+
+    {% if list_a_items and list_b_items %}
+        {# CHANGE: Replaced specific container with our generic two-column component #}
+        <div class="options-columns-container">
+            
+            {# CHANGE: Replaced specific column class with generic one #}
+            <div class="options-column">
+                <h4>List A</h4>
+                <ul> {# The styling comes from the parent's class #}
+                    {% for item in list_a_items %}
+                        <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <div class="options-column">
+                <h4>List B</h4>
+                <ul>
+                    {% for item in list_b_items %}
+                        <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% else %}
+        <p style="margin-top:20px; font-style:italic;">Players are now making their pairs...</p>
+    {% endif %}
+
+    {# Using the generic player status component #}
+    <div class="player-status-list">
+        <h4>Waiting for players to make their pairs:</h4>
+        <ul>
+            {% for p_status in players_status %}
+                <li id="player-status-{{ p_status.name | replace('[^a-zA-Z0-9-_]', '_') }}">{{ p_status.name }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    
+</div>

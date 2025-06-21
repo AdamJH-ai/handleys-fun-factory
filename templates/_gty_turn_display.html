@@ -1,0 +1,29 @@
+{# templates/_gty_turn_display.html (Rewritten) #}
+{# Expects: turn, total_turns, question_data, players_status #}
+<div id="gty-content">
+
+    <h2>Guess The Year (Turn {{ turn }}/{{ total_turns }})</h2>
+
+    {# Using the generic image class again for instant consistency #}
+    {% if question_data and question_data.image_url %}
+        <img class="question-image" src="{{ question_data.image_url }}" alt="{{ question_data.category or 'Question Image' }}">
+    {% endif %}
+
+    {# The main question text is a prominent h3 #}
+    <h3>{{ question_data.question or 'Question loading...' }}</h3>
+    
+    {% if question_data.category %}
+        <p>Category: {{ question_data.category }}</p>
+    {% endif %}
+
+    {# Reusing the exact same player status component as GTA #}
+    <div class="player-status-list">
+        <h4>Waiting for players to guess...</h4>
+        <ul>
+            {% for p_status in players_status %}
+                <li id="player-status-{{ p_status.name | replace('[^a-zA-Z0-9-_]', '_') }}">{{ p_status.name }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+</div>

@@ -1,0 +1,21 @@
+# --- Python Virtual Environment ---
+# Ignore the virtual environment folder, it's specific to your machine
+venv/
+.venv/
+
+# --- Python Cache Files ---
+# These are generated automatically by Python to speed things up
+__pycache__/
+*.pyc
+
+# --- IDE / Editor Specific ---
+# Ignore VS Code specific settings folder
+.vscode/
+
+# --- Operating System Files ---
+.DS_Store
+Thumbs.db
+
+# --- Sensitive Information ---
+.env
+*.env

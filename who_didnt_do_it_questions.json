@@ -1,0 +1,317 @@
+[
+  {
+    "question": "Which of these tennis players did NOT win the men's singles title at Wimbledon?",
+    "options": [
+      "Andy Murray", "Roger Federer", "Rafael Nadal",
+      "Andre Agassi", "Pete Sampras", "Stan Wawrinka"
+    ],
+    "correct_answer": "Stan Wawrinka",
+    "image_url": "https://upload.wikimedia.org/wikipedia/en/thumb/c/c7/Wimbledon_Logo_2021.svg/1200px-Wimbledon_Logo_2021.svg.png"
+  },
+  {
+    "question": "Which of these elements is NOT a Noble Gas?",
+    "options": [
+      "Helium", "Neon", "Argon",
+      "Nitrogen", "Krypton", "Xenon"
+    ],
+    "correct_answer": "Nitrogen",
+    "image_url": null
+  },
+  {
+    "question": "Which of these is NOT a Planet in our Solar System",
+    "options": [
+      "Pluto", "Mercury", "Venus",
+      "Earth", "Mars","Jupiter"
+    ],
+    "correct_answer": "Pluto",
+    "image_url": null
+  },
+  {
+    "question": "Which of these teams has NOT won the European Cup/Champions League",
+    "options": [
+      "Arsenal", "Manchester United", "Manchester City",
+      "Chelsea", "Liverpool","Aston Villa"
+    ],
+    "correct_answer": "Arsenal",
+    "image_url": null
+  },
+  {
+    "question": "Which of these teams has NOT won the Premier League",
+    "options": [
+      "Arsenal", "Manchester United", "Manchester City",
+      "Chelsea", "Liverpool","Tottenham Hotspur"
+    ],
+    "correct_answer": "Tottenham Hotspur",
+    "image_url": null
+  },
+  {
+    "question": "Which of these cities has NOT hosted the Olympics",
+    "options": [
+      "New York", "London", "Paris",
+      "Munich", "Athens","Sydney"
+    ],
+    "correct_answer": "New York",
+    "image_url": null
+  },
+  {
+    "question": "Which of these actors has NOT won an Oscar",
+    "options": [
+      "Tom Cruise", "Will Smith", "Colin Firth",
+      "Jack Nicholson", "Nicholas Cage","Tom Hanks"
+    ],
+    "correct_answer": "Tom Cruise",
+    "image_url": null
+  },
+  {
+    "question": "Which of these actresses has NOT won an Oscar",
+    "options": [
+      "Sigourney Weaver", "Meryl Streep", "Sandra Bullock",
+      "Reese Witherspoon", "Nicole Kidman","Julia Roberts"
+    ],
+    "correct_answer": "Sigourney Weaver",
+    "image_url": null
+  },
+  {
+    "question": "Which of these celebrities was NOT a judge on Britain's Got Talent",
+    "options": [
+      "David Hasselhoff", "Michael McIntyre", "Bruno Tonioli",
+      "Piers Morgan", "David Walliams","Cheryl Cole"
+    ],
+    "correct_answer": "Cheryl Cole",
+    "image_url": "https://c.files.bbci.co.uk/BE78/production/_106306784_bgtlogosmall.jpg"
+  },
+  {
+    "question": "Which Coronation Street character (not actor/actress) has NOT appeared in at least 3,000 episodes",
+    "options": [
+      "Ken Barlow", "Kevin Webster", "Deirdre Barlow",
+      "Steve McDonald", "Betty Williams","David Platt"
+    ],
+    "correct_answer": "Betty Williams",
+    "image_url": "https://upload.wikimedia.org/wikipedia/en/8/86/Coronation_Street_Titles.png"
+  },
+  {
+    "question": "Which Eastenders character (not actor/actress) has NOT appeared in at least 2,000 episodes",
+    "options": [
+      "Pauline Fowler", "Pat Butcher", "Ian Beale",
+      "Dot Cotton", "Kathy Beale","Sharon Watts"
+    ],
+    "correct_answer": "Pauline Fowler",
+    "image_url": "https://resizing.flixster.com/wwgZzVOlwHTF4b89xMWstszilJk=/fit-in/705x460/v2/https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/p372238_b_h6_ab.jpg"
+  },
+  {
+    "question": "Which act has NOT had a UK Christmas Number 1",
+    "options": [
+      "Spice Girls", "The Beatles", "Michael Jackson",
+      "Queen", "Elvis Presley","Westlife"
+    ],
+    "correct_answer": "Westlife",
+    "image_url": "https://images.squarespace-cdn.com/content/v1/5b3ded77e2ccd1a90cd9722b/22dbff9e-47b4-439c-91ff-69c6cc1ffd02/xmas_number_one_.jpg"
+  },
+  {
+    "question": "Which act has NOT had at least 10 UK Number 1 hits",
+    "options": [
+      "Cliff Richard", "Westlife", "Madonna",
+      "Take That", "Elton John","The Rolling Stones"
+    ],
+    "correct_answer": "The Rolling Stones",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Totp_logo_1998.svg/200px-Totp_logo_1998.svg.png"
+  },
+  {
+    "question": "Which of these actors has NOT officially played James Bond in an Eon Productions film?",
+    "options": [
+      "Sean Connery", "George Lazenby", "Roger Moore",
+      "Timothy Dalton", "Pierce Brosnan", "Idris Elba"
+    ],
+    "correct_answer": "Idris Elba",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/007_logo.svg/1200px-007_logo.svg.png"
+  },
+  {
+    "question": "Which of these animated movies was NOT produced by Pixar?",
+    "options": [
+      "Toy Story", "Finding Nemo", "The Incredibles",
+      "Up", "Shrek", "WALL-E"
+    ],
+    "correct_answer": "Shrek",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Pixar_logo.svg/330px-Pixar_logo.svg.png"
+  },
+  {
+    "question": "Which of these countries is NOT a member of the G7?",
+    "options": [
+      "United States", "United Kingdom", "Canada",
+      "France", "Germany", "China"
+    ],
+    "correct_answer": "China",
+    "image_url": null
+  },
+  {
+    "question": "Which of these was NOT one of Henry VIII's six wives?",
+    "options": [
+      "Catherine of Aragon", "Anne Boleyn", "Jane Seymour",
+      "Anne of Cleves", "Catherine Howard", "Mary Queen of Scots"
+    ],
+    "correct_answer": "Mary Queen of Scots",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/1491_Henry_VIII.jpg/800px-1491_Henry_VIII.jpg"
+  },
+  {
+    "question": "Which of these is NOT a mammal?",
+    "options": [
+      "Dolphin", "Bat", "Whale",
+      "Platypus", "Human", "Shark"
+    ],
+    "correct_answer": "Shark",
+    "image_url": null
+  },
+  {
+    "question": "Which of these countries is NOT located in South America?",
+    "options": [
+      "Brazil", "Argentina", "Colombia",
+      "Chile", "Peru", "Mexico"
+    ],
+    "correct_answer": "Mexico",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/South_America_%28orthographic_projection%29.svg/800px-South_America_%28orthographic_projection%29.svg.png"
+  },
+  {
+    "question": "Which of these words is NOT one of the seven dwarves in 'Snow White'?",
+    "options": [
+      "Doc", "Grumpy", "Happy",
+      "Sleepy", "Lazy", "Sneezy"
+    ],
+    "correct_answer": "Lazy",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/c5/Snow-white-disney.png"
+  },
+  {
+    "question": "Which of these characters was NOT one of the original six Avengers in the 2012 film?",
+    "options": [
+      "Iron Man", "Captain America", "Hulk",
+      "Thor", "Black Widow", "Ant-Man"
+    ],
+    "correct_answer": "Ant-Man",
+    "image_url": "https://1000logos.net/wp-content/uploads/2019/05/Avengers-Logo-2015.png"
+  },
+  {
+    "question": "Which of these is NOT one of the five Great Lakes of North America?",
+    "options": [
+      "Lake Superior", "Lake Michigan", "Lake Huron",
+      "Lake Erie", "Lake Ontario", "Lake Tahoe"
+    ],
+    "correct_answer": "Lake Tahoe",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Great_Lakes_and_St_Lawrence_River_map.svg/1024px-Great_Lakes_and_St_Lawrence_River_map.svg.png"
+  },
+  {
+    "question": "Which of these countries is NOT a permanent member of the UN Security Council?",
+    "options": [
+      "China", "France", "Russia",
+      "United Kingdom", "United States", "Germany"
+    ],
+    "correct_answer": "Germany",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Flag_of_the_United_Nations.svg/800px-Flag_of_the_United_Nations.svg.png"
+  },
+  {
+    "question": "Which of these characters was NOT part of the original Fellowship of the Ring?",
+    "options": [
+      "Frodo Baggins", "Gandalf", "Legolas",
+      "Aragorn", "Gimli", "Elrond"
+    ],
+    "correct_answer": "Elrond",
+    "image_url": "https://upload.wikimedia.org/wikipedia/en/8/87/Ringstrilogyposter.jpg"
+  },
+  {
+    "question": "Which of these has NOT been a main presenter or judge on 'The Great British Bake Off'?",
+    "options": [
+      "Paul Hollywood", "Mary Berry", "Sue Perkins",
+      "Noel Fielding", "Prue Leith", "Gregg Wallace"
+    ],
+    "correct_answer": "Gregg Wallace",
+    "image_url": "https://upload.wikimedia.org/wikipedia/en/thumb/9/9b/The_Great_British_Bake_Off_S1_logo.png/440px-The_Great_British_Bake_Off_S1_logo.png"
+  },
+  {
+    "question": "Which of these is NOT traditionally considered a British luxury car brand?",
+    "options": [
+      "Rolls-Royce", "Bentley", "Aston Martin",
+      "Jaguar", "Land Rover", "Mercedes-Benz"
+    ],
+    "correct_answer": "Mercedes-Benz",
+    "image_url": "https://upload.wikimedia.org/wikipedia/en/thumb/a/ae/Flag_of_the_United_Kingdom.svg/330px-Flag_of_the_United_Kingdom.svg.png"
+  },
+  {
+    "question": "Which of these films was NOT directed by Quentin Tarantino?",
+    "options": [
+      "Pulp Fiction", "Reservoir Dogs", "Kill Bill: Volume 1",
+      "Django Unchained", "Inglourious Basterds", "Goodfellas"
+    ],
+    "correct_answer": "Goodfellas",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Quentin_Tarantino_by_Gage_Skidmore.jpg/800px-Quentin_Tarantino_by_Gage_Skidmore.jpg"
+  },
+  {
+    "question": "Which of these TV shows is NOT primarily set in New York City?",
+    "options": [
+      "Friends", "Seinfeld", "How I Met Your Mother",
+      "Sex and the City", "Brooklyn Nine-Nine", "The Office (US)"
+    ],
+    "correct_answer": "The Office (US)",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/View_of_Empire_State_Building_from_Rockefeller_Center_New_York_City_dllu_%28cropped%29.jpg/330px-View_of_Empire_State_Building_from_Rockefeller_Center_New_York_City_dllu_%28cropped%29.jpg"
+  },
+  {
+    "question": "Which of these films did NOT win the Academy Award for Best Picture?",
+    "options": [
+      "The Godfather", "Titanic", "The Lord of the Rings: The Return of the King",
+      "Parasite", "Pulp Fiction", "Forrest Gump"
+    ],
+    "correct_answer": "Pulp Fiction",
+    "image_url": "https://upload.wikimedia.org/wikipedia/en/thumb/2/2d/Oscars_logo.svg/330px-Oscars_logo.svg.png"
+  },
+  {
+    "question": "Which of these books was NOT written by Stephen King?",
+    "options": [
+      "It", "The Shining", "Misery",
+      "Carrie", "The Stand", "The Silence of the Lambs"
+    ],
+    "correct_answer": "The Silence of the Lambs",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Stephen_King%2C_Comicon.jpg/800px-Stephen_King%2C_Comicon.jpg"
+  },
+  {
+    "question": "Which of these is NOT a type of pasta?",
+    "options": [
+      "Penne", "Spaghetti", "Fusilli",
+      "Farfalle", "Rigatoni", "Gnocchi"
+    ],
+    "correct_answer": "Gnocchi",
+    "image_url": null
+  },
+  {
+    "question": "Which of these characters did NOT appear in the first Star Wars film 'A New Hope' (1977)?",
+    "options": [
+      "Luke Skywalker", "Han Solo", "Princess Leia",
+      "Darth Vader", "C-3PO", "Yoda"
+    ],
+    "correct_answer": "Yoda",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Star_Wars_Logo.svg/500px-Star_Wars_Logo.svg.png"
+  },
+  {
+    "question": "Which of these is NOT a programming language?",
+    "options": [
+      "Python", "Java", "C++",
+      "JavaScript", "Ruby", "HTML"
+    ],
+    "correct_answer": "HTML",
+    "image_url": null
+  },
+  {
+    "question": "Which of these is NOT considered a brass instrument?",
+    "options": [
+      "Trumpet", "Trombone", "Tuba",
+      "French Horn", "Clarinet", "Cornet"
+    ],
+    "correct_answer": "Clarinet",
+    "image_url": null
+  },
+  {
+    "question": "Which of these was NOT one of the original 13 American Colonies?",
+    "options": [
+      "Virginia", "Massachusetts", "Georgia",
+      "New York", "Pennsylvania", "Florida"
+    ],
+    "correct_answer": "Florida",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Flag_of_the_United_States.svg/800px-Flag_of_the_United_States.svg.png"
+  }
+]
