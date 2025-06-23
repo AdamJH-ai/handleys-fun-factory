@@ -1,0 +1,30 @@
+{# templates/_tap_the_pic_turn_results.html #}
+{# Expects: question_text, correct_answer, results #}
+<div id="tap-the-pic-results">
+
+    <h2>Results!</h2>
+    <h3>{{ question_text }}</h3>
+
+    {# Clearly state the correct answer #}
+    <h4>The correct answer was: <span style="color: var(--accent-gold);">{{ correct_answer }}</span></h4>
+
+    {# Reuse our standard results list component #}
+    <ul class="round-results-list">
+        {% for result in results %}
+            <li class="{{ 'highlight' if result.is_correct }}">
+                <span class="player-name">{{ result.name }}</span>
+                <span class="player-answer">
+                    Guessed: {{ result.guess }}
+                </span>
+                <span class="player-points">
+                    {% if result.is_correct %}
+                        +1 pt (Total: {{ result.round_score }})
+                    {% else %}
+                        0 pts (Total: {{ result.round_score }})
+                    {% endif %}
+                </span>
+            </li>
+        {% endfor %}
+    </ul>
+
+</div>

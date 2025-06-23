@@ -1,0 +1,25 @@
+{# templates/_tap_the_pic_turn_display.html #}
+{# Expects: turn, total_turns, question_text, image_url, players_status #}
+<div id="tap-the-pic-content">
+
+    <h2>Tap The Pic! (Turn {{ turn }}/{{ total_turns }})</h2>
+
+    {# This reuses the image style we already created #}
+    {% if image_url %}
+        <img class="question-image ttp-image" src="{{ url_for('static', filename=image_url) }}" alt="Question Image">
+    {% endif %}
+
+    {# The main question text #}
+    <h3>{{ question_text }}</h3>
+
+    {# We reuse the exact same player status list component #}
+    <div class="player-status-list" style="margin-top: 30px;">
+        <h4>Waiting for players to answer...</h4>
+        <ul>
+            {% for p_status in players_status %}
+                <li id="player-status-{{ p_status.name | replace('[^a-zA-Z0-9-_]', '_') }}">{{ p_status.name }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+</div>

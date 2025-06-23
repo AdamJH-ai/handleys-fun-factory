@@ -248,6 +248,24 @@
         #true-button { background-color: var(--color-success); }
         #false-button { background-color: var(--color-danger); }
 
+        /* --- TTP: Tap The Pic --- */
+        #tap-the-pic-area {
+            display: grid;
+            /* This creates a flexible grid that will wrap nicely */
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            grid-gap: 10px;
+            margin-top: 20px;
+            max-width: 300px; /* Limit width to keep it keypad-like */
+            margin-left: auto;
+            margin-right: auto;
+        }
+        #tap-the-pic-area button {
+            width: 100%;
+            margin: 0;
+            padding: 20px 10px;
+            font-size: 1.5em; /* Big, easy-to-read numbers */
+        }
+
     </style>
 </head>
 <body>
@@ -301,6 +319,11 @@
                 <button id="true-button" data-answer="true">True</button>
                 <button id="false-button" data-answer="false">False</button>
             </div>    
+
+            <!-- Area for Tap The Pic keypad -->
+            <div id="tap-the-pic-area" class="hidden">
+                <!-- Buttons will be dynamically generated here by JavaScript -->
+            </div>
         </div>
 
         <!-- Status Message Area -->
@@ -317,6 +340,7 @@
         let currentClientRoundType = null;
         let sortableInstance = null;
         let trueOrFalseArea, trueButton, falseButton;
+        let tapThePicArea;
 
         // Variables for Quick Pairs logic
         let qpSelectedFromListA = null; // Stores the text of the item selected from list A
@@ -405,6 +429,12 @@
                 trueOrFalseArea.classList.add('hidden');
             }
 
+            // Hide/reset ttp if not 'tpp' round
+            if (roundType !== 'tap_the_pic') {
+                tapThePicArea.classList.add('hidden');
+                tapThePicArea.innerHTML = ''; // Clear old buttons
+            }
+
             // --- Now, selectively show/enable elements based on roundType ---
             if (roundType === 'gta' || roundType === 'gty') {
                 console.log("   Configuring for GTA/GTY");
@@ -434,7 +464,11 @@
                 guessingArea.classList.remove('hidden'); // Also ensure the parent is visible
                 trueOrFalseArea.classList.remove('hidden');
                 // The prompt handler will enable/disable buttons
-            } else { // Waiting, round over, or unknown state
+            } else if (roundType === 'tap_the_pic') {
+                console.log("   Configuring for Tap The Pic");
+                tapThePicArea.classList.remove('hidden');
+            }
+            else { // Waiting, round over, or unknown state
                 console.log("   Configuring for Waiting/Unknown state (all specific inputs should be hidden)");
                 // All specific inputs are already hidden by the default hiding logic at the top of this function.
             }
@@ -855,6 +889,46 @@
             statusMessage.textContent = 'Guess submitted! Waiting...';
         }
 
+        function handleTapThePicChoice(event) {
+            const chosenNumber = event.target.dataset.answer; // This will be a string "1", "2", etc.
+            console.log(`Tap The Pic choice: ${chosenNumber}`);
+            socket.emit('submit_ttp_guess', { 'guess': parseInt(chosenNumber, 10) }); // Send it as a number
+
+            // Disable all keypad buttons after choosing one
+            const buttons = tapThePicArea.querySelectorAll('button');
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                // Highlight the selected one
+                if (btn === event.target) {
+                    btn.style.backgroundColor = 'var(--color-success)';
+                }
+            });
+            statusMessage.textContent = 'Guess submitted! Waiting...';
+        }
+
+        // Add this new socket listener with the others
+        socket.on('tap_the_pic_player_prompt', (data) => {
+            // data: { question: "...", num_options: 4 }
+            console.log('--- Event: tap_the_pic_player_prompt received ---', data);
+            currentClientRoundType = 'tap_the_pic';
+            
+            showArea('guessing-area');
+            configureInputArea('tap_the_pic');
+
+            if (guessLabel) guessLabel.textContent = data.question;
+            if (statusMessage) statusMessage.textContent = 'Choose the correct number!';
+            
+            // Dynamically create the keypad buttons
+            tapThePicArea.innerHTML = ''; // Clear previous buttons
+            for (let i = 1; i <= data.num_options; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                button.dataset.answer = i;
+                button.addEventListener('click', handleTapThePicChoice);
+                tapThePicArea.appendChild(button);
+            }
+        });
+
             
 
         // --- Attach Listeners and Get Elements After DOM Loaded ---
@@ -888,8 +962,9 @@
              trueOrFalseArea = document.getElementById('true-or-false-area');
              trueButton = document.getElementById('true-button');
              falseButton = document.getElementById('false-button');
+             tapThePicArea = document.getElementById('tap-the-pic-area');
 
-             if (!nameEntryArea || !guessingArea || !statusMessage || !nameInput || !joinButton || !guessInput || !submitGuessButton || !wddiOptionsArea || !ouItemsListContainer || !ouItemsList || !submitOrderButton || !qpPairingArea || !qpListA || !qpListB || !submitPairsButton || !qpFormedPairsDisplay || !trueOrFalseArea || !trueButton || !falseButton) {
+             if (!nameEntryArea || !guessingArea || !statusMessage || !nameInput || !joinButton || !guessInput || !submitGuessButton || !wddiOptionsArea || !ouItemsListContainer || !ouItemsList || !submitOrderButton || !qpPairingArea || !qpListA || !qpListB || !submitPairsButton || !qpFormedPairsDisplay || !trueOrFalseArea || !trueButton || !falseButton  || !tapThePicArea) {
                  console.error("CRITICAL ERROR: One or more essential player controller elements not found!");
                  if (statusMessage) statusMessage.textContent = "Page Load Error!";
                  return;
