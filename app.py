@@ -13,15 +13,16 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'a_super_secret_key_chan
 socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
 
 # === GAME CONFIG ===
-GAME_ROUNDS_TOTAL = 5
-AVAILABLE_ROUND_TYPES = ['guess_the_age', 'guess_the_year', 'who_didnt_do_it', 'order_up', 'quick_pairs']
-#AVAILABLE_ROUND_TYPES = ['who_didnt_do_it']
+GAME_ROUNDS_TOTAL = 6
+AVAILABLE_ROUND_TYPES = ['guess_the_age', 'guess_the_year', 'who_didnt_do_it', 'order_up', 'quick_pairs', 'true_or_false']
+#AVAILABLE_ROUND_TYPES = ['true_or_false']
 MAX_PLAYERS = 8
 gta_target_turns = 10
 gty_target_turns = 10
 wddi_target_turns = 10
 ou_target_turns = 10
 qp_target_turns = 10
+tf_target_turns = 10
 QP_NUM_PAIRS_PER_QUESTION = 3
 
 # === ROUND DETAILS ===
@@ -31,6 +32,7 @@ ROUND_RULES = {
     'who_didnt_do_it': "Identify the option that doesn't fit the question! Score based on correct answers (most wins).",
     'order_up': "Arrange the items in the correct order! Score 1 point for each perfect order.",
     'quick_pairs': "Quickly match all pairs! Fastest correct gets 2 points, others correct get 1.",
+    'true_or_false': "Decide if the statement is true or false. You get one point for each correct answer.",
 }
 ROUND_DISPLAY_NAMES = {
     'guess_the_age': "Guess The Age",
@@ -38,13 +40,15 @@ ROUND_DISPLAY_NAMES = {
     'who_didnt_do_it': "Who Didn't Do It?",
     'order_up': "Order Up!",
     'quick_pairs': "Quick Pairs",
+    'true_or_false': "True or False",
 }
 ROUND_JINGLES = {
     'guess_the_age': 'gta_jingle.mp3',
     'guess_the_year': 'gty_jingle.mp3',
     'who_didnt_do_it': 'wddi_jingle.mp3',
     'order_up': 'ou_jingle.mp3',
-    'quick_pairs': 'qp_jingle.mp3'
+    'quick_pairs': 'qp_jingle.mp3',
+    'true_or_false': 'tf_jingle.mp3'
     # 'team_round': 'team_jingle.mp3' # For the future
 }
 ROUND_INTRO_DELAY = 8 # Seconds
@@ -74,7 +78,7 @@ wddi_actual_turns_this_round = 0 # Number of turns/questions in this specific ro
 wddi_current_shuffled_options = [] # Holds the shuffled options for the *current* turn
 # Note: We will add wddi_current_guess to the players dict later
 
-# === ORDER UP STATE ===  # <-- Add this new section
+# === ORDER UP STATE ===  # 
 ou_questions = []  # Holds all loaded "Order Up!" questions
 ou_shuffled_questions_this_round = [] # Holds questions selected for the current round
 ou_current_question_data = None # Holds the full data for the current turn's question (incl. correct order)
@@ -82,13 +86,20 @@ ou_current_question_index = -1 # Index for the current turn/question
 ou_actual_turns_this_round = 0 # Number of turns for this round
 # ou_current_shuffled_items_for_players = [] # We'll generate this on the fly in next_order_up_turn
 
-# === QUICK PAIRS STATE ===  # <-- Add this new section
+# === QUICK PAIRS STATE ===  # 
 qp_questions = []  # Holds all loaded "Quick Pairs" questions
 qp_shuffled_questions_this_round = [] # Holds questions selected for the current round
 qp_current_question_data = None # Holds the full data for the current turn's question (incl. correct pairs)
 qp_current_question_index = -1
 qp_actual_turns_this_round = 0
 # qp_player_completion_times = {} # Will store {sid: completion_time_ms} for players who get all pairs correct
+
+# === TRUE OR FALSE STATE ===  # 
+tf_questions = []
+tf_shuffled_questions_this_round = []
+tf_current_question = None
+tf_current_question_index = -1
+tf_actual_turns_this_round = 0
 
 # === ROOMS ===
 MAIN_ROOM = 'main_room'; PLAYERS_ROOM = 'players_room'
@@ -230,6 +241,18 @@ def load_quick_pairs_data(filename="quick_pairs_questions.json"): # <-- Add this
         print(f"[QP_Data] ERROR: Failed to parse JSON in {filename}: {e}")
     except Exception as e:
         print(f"[QP_Data] Load Fail for Quick Pairs: An unexpected error occurred: {e}")
+
+def load_true_or_false_data(filename="true_or_false_questions.json"):
+    global tf_questions
+    try:
+        with open(filename, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        print(f"[TF_Data] Loaded {len(data)} potential questions from {filename}")
+        # Basic validation
+        tf_questions = [q for q in data if 'statement' in q and 'correct_answer' in q and isinstance(q['correct_answer'], bool)]
+        print(f"[TF_Data] OK: {len(tf_questions)} valid 'True or False' questions loaded.")
+    except Exception as e:
+        print(f"[TF_Data] Load Fail: {e}")
 
 # === HELPERS ===
 def update_main_screen_html(target_selector, template_name, context):
@@ -389,6 +412,7 @@ def start_next_game_round():
     elif round_type_key == 'who_didnt_do_it': setup_who_didnt_do_it_round()
     elif round_type_key == 'order_up': setup_order_up_round()
     elif round_type_key == 'quick_pairs': setup_quick_pairs_round() 
+    elif round_type_key == 'true_or_false': setup_true_or_false_round()
     else: print(f"ERR: Unknown/Removed type {round_type_key}. Skip."); socketio.sleep(1); start_next_game_round()
 
 def end_overall_game():
@@ -1398,6 +1422,158 @@ def end_quick_pairs_round():
     else:
         print(f"WARN: Game state changed during QP summary sleep ({game_state}).")
 
+# === TRUE OR FALSE LOGIC ===
+
+def check_all_guesses_received_tf():
+    if not players: return True
+    return all(p.get('tf_current_guess') is not None for p in players.values())
+
+def setup_true_or_false_round():
+    global game_state, tf_shuffled_questions_this_round, tf_current_question_index, tf_actual_turns_this_round
+    print("--- Setup True or False Round ---")
+    game_state = "true_or_false_ongoing"
+
+    if not tf_questions:
+        print("ERROR: No questions for True or False. Skipping.")
+        start_next_game_round()
+        return
+
+    for sid in players:
+        players[sid]['round_score'] = 0
+        players[sid]['tf_current_guess'] = None
+
+    tf_actual_turns_this_round = min(tf_target_turns, len(tf_questions))
+    tf_shuffled_questions_this_round = random.sample(tf_questions, tf_actual_turns_this_round)
+    tf_current_question_index = -1
+
+    print(f"True or False Round starting with {tf_actual_turns_this_round} questions.")
+    emit_game_state_update()
+    socketio.sleep(0.5)
+    next_true_or_false_turn()
+
+def next_true_or_false_turn():
+    global game_state, tf_current_question, tf_current_question_index
+
+    tf_current_question_index += 1
+
+    if tf_current_question_index >= tf_actual_turns_this_round:
+        end_true_or_false_round()
+        return
+
+    game_state = "true_or_false_ongoing"
+    tf_current_question = tf_shuffled_questions_this_round[tf_current_question_index]
+
+    for sid in players:
+        players[sid]['tf_current_guess'] = None
+
+    print(f"\n-- TF Turn {tf_current_question_index + 1}/{tf_actual_turns_this_round} --")
+    print(f"   Statement: {tf_current_question['statement']}")
+    print(f"   Correct: {tf_current_question['correct_answer']}")
+
+    main_screen_context = {
+        'turn': tf_current_question_index + 1,
+        'total_turns': tf_actual_turns_this_round,
+        'statement': tf_current_question['statement'],
+        'players_status': [{'name': p['name']} for p in players.values()]
+    }
+    update_main_screen_html('#round-content-area', '_true_or_false_turn_display.html', main_screen_context)
+
+    player_payload = {'statement': tf_current_question['statement']}
+    socketio.emit('true_or_false_player_prompt', player_payload, room=PLAYERS_ROOM)
+
+@socketio.on('submit_true_or_false_guess')
+def handle_submit_tf_guess(data):
+    player_sid = request.sid
+    if player_sid not in players or game_state != "true_or_false_ongoing": return
+
+    guess = data.get('guess')
+    if guess is None or not isinstance(guess, bool):
+        print(f"Invalid TF guess from {players[player_sid]['name']}: {guess}")
+        return
+
+    if players[player_sid].get('tf_current_guess') is None:
+        players[player_sid]['tf_current_guess'] = guess
+        player_name = players[player_sid]['name']
+        print(f"TF Guess '{guess}' received from {player_name}")
+        socketio.emit('player_submitted_update', {'name': player_name}, room=main_screen_sid)
+
+        if check_all_guesses_received_tf():
+            print("   All TF guesses received.")
+            socketio.sleep(0.5)
+            process_true_or_false_turn_results()
+
+def process_true_or_false_turn_results():
+    global game_state
+    if game_state != "true_or_false_ongoing": return
+    game_state = "tf_results_display"
+    
+    correct_answer = tf_current_question['correct_answer']
+    turn_results_list = []
+
+    for sid, p_info in players.items():
+        guess = p_info.get('tf_current_guess')
+        was_correct = (guess == correct_answer)
+        
+        if was_correct:
+            p_info['round_score'] += 1
+
+        turn_results_list.append({
+            'name': p_info['name'],
+            'guess_text': "True" if guess else "False" if guess is not None else "N/A",
+            'is_correct': was_correct,
+            'round_score': p_info['round_score']
+        })
+    
+    turn_results_list.sort(key=lambda x: (-int(x['is_correct']), x['name']))
+
+    results_context = {
+        'statement': tf_current_question['statement'],
+        'correct_answer_text': "TRUE" if correct_answer else "FALSE",
+        'results': turn_results_list,
+    }
+    update_main_screen_html('#results-area', '_true_or_false_turn_results.html', results_context)
+    socketio.emit('results_on_main_screen', room=PLAYERS_ROOM)
+
+    socketio.sleep(6) # Show results for 6 seconds
+    if game_state == "tf_results_display":
+        next_true_or_false_turn()
+
+def end_true_or_false_round():
+    global game_state
+    game_state = "true_or_false_results"
+    print("\n--- Ending True or False Round ---")
+
+    active_players = [(sid, p.get('round_score', 0)) for sid, p in players.items()]
+    sorted_by_round = sorted(active_players, key=lambda item: (-item[1], players.get(item[0], {}).get('name','')))
+    sorted_sids = [item[0] for item in sorted_by_round]
+    
+    points_awarded = award_game_points(sorted_sids)
+    emit_game_state_update()
+
+    rankings_this_round = []
+    for rank, sid in enumerate(sorted_sids):
+        if sid in players:
+            rankings_this_round.append({
+                'rank': rank + 1,
+                'name': players[sid]['name'],
+                'round_score': players[sid]['round_score'],
+                'points_awarded': points_awarded.get(sid, 0)
+            })
+
+    current_overall_scores_list = [{'name': p['name'], 'game_score': overall_game_scores.get(sid, 0)} for sid, p in players.items()]
+    current_overall_scores_list.sort(key=lambda x: x['game_score'], reverse=True)
+
+    summary_context = {
+        'round_type': ROUND_DISPLAY_NAMES.get('true_or_false', 'True or False'),
+        'rankings': rankings_this_round,
+        'overall_scores': current_overall_scores_list
+    }
+    update_main_screen_html('#results-area', '_round_summary.html', summary_context)
+
+    socketio.sleep(12)
+    if game_state == "true_or_false_results":
+        start_next_game_round()
+
 # === MAIN EXECUTION ===
 if __name__ == '__main__':
     print("Loading round data...");
@@ -1406,6 +1582,7 @@ if __name__ == '__main__':
     load_who_didnt_do_it_data()
     load_order_up_data()
     load_quick_pairs_data()
+    load_true_or_false_data()
     print("Starting Flask-SocketIO server..."); use_debug = False
     socketio.run(app, host='0.0.0.0', port=5000, debug=use_debug)
     print("Server stopped.")

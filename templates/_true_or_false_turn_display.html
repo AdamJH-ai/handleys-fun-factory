@@ -1,0 +1,20 @@
+{# templates/_true_or_false_turn_display.html #}
+{# Expects: turn, total_turns, statement, players_status #}
+<div id="true-or-false-content">
+
+    <h2>True or False? (Turn {{ turn }}/{{ total_turns }})</h2>
+    
+    {# The statement is the main "question" #}
+    <h3>{{ statement }}</h3>
+
+    {# We reuse the exact same player status list component #}
+    <div class="player-status-list" style="margin-top: 50px;">
+        <h4>Waiting for players to answer...</h4>
+        <ul>
+            {% for p_status in players_status %}
+                <li id="player-status-{{ p_status.name | replace('[^a-zA-Z0-9-_]', '_') }}">{{ p_status.name }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+</div>

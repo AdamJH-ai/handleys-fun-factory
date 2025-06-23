@@ -1,0 +1,42 @@
+[
+  {
+    "statement": "The Great Wall of China is visible from space with the naked eye.",
+    "correct_answer": false
+  },
+  {
+    "statement": "Humans share 50% of their DNA with bananas.",
+    "correct_answer": true
+  },
+  {
+    "statement": "The capital of Australia is Sydney.",
+    "correct_answer": false
+  },
+  {
+    "statement": "A 'jiffy' is an actual unit of time.",
+    "correct_answer": true
+  },
+  {
+    "statement": "There are more trees on Earth than stars in the Milky Way galaxy.",
+    "correct_answer": true
+  },
+  {
+    "statement": "Venus is the hottest planet in our solar system.",
+    "correct_answer": true
+  },
+  {
+    "statement": "The unicorn is the national animal of Scotland.",
+    "correct_answer": true
+  },
+  {
+    "statement": "Cleopatra was of Greek descent, not Egyptian.",
+    "correct_answer": true
+  },
+  {
+    "statement": "The Atlantic Ocean is the largest ocean on Earth.",
+    "correct_answer": false
+  },
+  {
+    "statement": "It is impossible to sneeze with your eyes open.",
+    "correct_answer": true
+  }
+]

@@ -233,6 +233,21 @@
             font-size: 0.9em;
         }
 
+        /* True or False States */
+        #true-or-false-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Two equal columns */
+            grid-gap: 15px;
+            margin-top: 20px;
+        }
+        #true-or-false-area button {
+            width: 100%;
+            margin: 0;
+            padding: 25px 10px; /* Make them nice and tall */
+        }
+        #true-button { background-color: var(--color-success); }
+        #false-button { background-color: var(--color-danger); }
+
     </style>
 </head>
 <body>
@@ -281,6 +296,11 @@
                 </div>
                 <button id="submitPairsButton" class="hidden" disabled>Submit Pairs</button>
             </div>
+            <!-- Area for True or False buttons -->
+            <div id="true-or-false-area" class="hidden">
+                <button id="true-button" data-answer="true">True</button>
+                <button id="false-button" data-answer="false">False</button>
+            </div>    
         </div>
 
         <!-- Status Message Area -->
@@ -296,6 +316,7 @@
         let ouItemsListContainer, ouItemsList, submitOrderButton;
         let currentClientRoundType = null;
         let sortableInstance = null;
+        let trueOrFalseArea, trueButton, falseButton;
 
         // Variables for Quick Pairs logic
         let qpSelectedFromListA = null; // Stores the text of the item selected from list A
@@ -379,6 +400,11 @@
                 qpFormedPairs = [];
             }
 
+            // Hide/reset True False if not 'tf' round
+            if (roundType !== 'true_or_false') {
+                trueOrFalseArea.classList.add('hidden');
+            }
+
             // --- Now, selectively show/enable elements based on roundType ---
             if (roundType === 'gta' || roundType === 'gty') {
                 console.log("   Configuring for GTA/GTY");
@@ -403,6 +429,11 @@
                 submitPairsButton.classList.remove('hidden');
                 submitPairsButton.disabled = true; // Will be enabled when appropriate
                 // QP List items are added by its specific prompt handler
+            } else if (roundType === 'true_or_false') {
+                console.log("   Configuring for True or False");
+                guessingArea.classList.remove('hidden'); // Also ensure the parent is visible
+                trueOrFalseArea.classList.remove('hidden');
+                // The prompt handler will enable/disable buttons
             } else { // Waiting, round over, or unknown state
                 console.log("   Configuring for Waiting/Unknown state (all specific inputs should be hidden)");
                 // All specific inputs are already hidden by the default hiding logic at the top of this function.
@@ -609,6 +640,25 @@
             console.log('Quick Pairs guessing area prepared and shown.');
         });
 
+        // --- True or False Listeners ---
+        socket.on('true_or_false_player_prompt', (data) => {
+            console.log('--- Event: true_or_false_player_prompt received ---', data);
+            currentClientRoundType = 'true_or_false';
+            
+            // STEP 1: Show the main parent container for all guess inputs.
+            showArea('guessing-area');
+            
+            // STEP 2: Configure the inputs INSIDE that container for this specific round.
+            configureInputArea('true_or_false');
+
+            // STEP 3: Update the labels and button states.
+            if(guessLabel) guessLabel.textContent = "Is this statement True or False?";
+            if(statusMessage) statusMessage.textContent = data.statement;
+
+            trueButton.disabled = false;
+            falseButton.disabled = false;
+        });
+
         // --- Common Listeners ---
         socket.on('results_on_main_screen', () => {
             console.log('Results on main screen notice.'); if(statusMessage) statusMessage.textContent = 'Check main screen!';
@@ -775,6 +825,7 @@
                 'time_ms': timeTakenMs
             });
 
+            // PASTE THE CODE HERE. It now correctly runs after the emit.
             // Disable UI after submission
             if(submitPairsButton) submitPairsButton.disabled = true;
             // Disable further clicks on list items
@@ -791,6 +842,20 @@
             }
             console.log("Quick Pairs submission sent. UI disabled.");
         }
+        
+        
+        function handleTrueFalseChoice(event) {
+            const chosenAnswer = event.target.dataset.answer === 'true'; // Convert string to boolean
+            console.log(`True/False choice: ${chosenAnswer}`);
+            socket.emit('submit_true_or_false_guess', { 'guess': chosenAnswer });
+
+            // Disable both buttons
+            trueButton.disabled = true;
+            falseButton.disabled = true;
+            statusMessage.textContent = 'Guess submitted! Waiting...';
+        }
+
+            
 
         // --- Attach Listeners and Get Elements After DOM Loaded ---
         document.addEventListener('DOMContentLoaded', (event) => {
@@ -820,8 +885,11 @@
              qpListB = document.getElementById('qp-list-b');
              qpFormedPairsDisplay = document.getElementById('qp-formed-pairs-display');
              submitPairsButton = document.getElementById('submitPairsButton');
+             trueOrFalseArea = document.getElementById('true-or-false-area');
+             trueButton = document.getElementById('true-button');
+             falseButton = document.getElementById('false-button');
 
-             if (!nameEntryArea || !guessingArea || !statusMessage || !nameInput || !joinButton || !guessInput || !submitGuessButton || !wddiOptionsArea || !ouItemsListContainer || !ouItemsList || !submitOrderButton || !qpPairingArea || !qpListA || !qpListB || !submitPairsButton || !qpFormedPairsDisplay) {
+             if (!nameEntryArea || !guessingArea || !statusMessage || !nameInput || !joinButton || !guessInput || !submitGuessButton || !wddiOptionsArea || !ouItemsListContainer || !ouItemsList || !submitOrderButton || !qpPairingArea || !qpListA || !qpListB || !submitPairsButton || !qpFormedPairsDisplay || !trueOrFalseArea || !trueButton || !falseButton) {
                  console.error("CRITICAL ERROR: One or more essential player controller elements not found!");
                  if (statusMessage) statusMessage.textContent = "Page Load Error!";
                  return;
@@ -884,6 +952,11 @@
 
              if(submitPairsButton) {
                 submitPairsButton.addEventListener('click', handleSubmitQuickPairs);
+             }
+
+             if(trueButton && falseButton) {
+                trueButton.addEventListener('click', handleTrueFalseChoice);
+                falseButton.addEventListener('click', handleTrueFalseChoice);
              }
 
              console.log("Player initial listeners setup complete.");
