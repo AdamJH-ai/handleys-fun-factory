@@ -5,6 +5,10 @@
     <h2>Results!</h2>
     <h3>{{ question_text }}</h3>
 
+    {% if image_url %}
+        <img class="question-image" src="{{ url_for('static', filename=image_url) }}" alt="Question Image" style="max-height: 150px; margin-bottom: 20px;">
+    {% endif %}
+
     {# Clearly state the correct answer #}
     <h4>The correct answer was: <span style="color: var(--accent-gold);">{{ correct_answer }}</span></h4>
 

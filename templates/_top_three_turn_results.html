@@ -1,0 +1,34 @@
+{# templates/_top_three_turn_results.html #}
+{# Expects: question_text, correct_answers, results #}
+<div id="top-three-results">
+
+    <h2>Results!</h2>
+    <h3>{{ question_text }}</h3>
+
+    <h4>The correct answers were:</h4>
+
+    {# Reuse our generic list to display the three correct answers #}
+    <ul class="correct-answer-list">
+        {% for answer in correct_answers %}
+            <li>{{ answer }}</li>
+        {% endfor %}
+    </ul>
+    
+    <h4>Player Scores:</h4>
+
+    {# Reuse our standard results list component #}
+    <ul class="round-results-list">
+        {% for result in results %}
+            <li class="{{ 'highlight' if result.num_correct > 0 }}">
+                <span class="player-name">{{ result.name }}</span>
+                <span class="player-answer">
+                    <strong>{{ result.num_correct }} / 3 Correct</strong>
+                </span>
+                <span class="player-points">
+                    +{{ result.points_this_turn }} pts (Total: {{ result.round_score }})
+                </span>
+            </li>
+        {% endfor %}
+    </ul>
+
+</div>

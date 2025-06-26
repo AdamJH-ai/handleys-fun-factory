@@ -4,5 +4,29 @@
     "image_url": "image/tapthepic/tennis_olympics.png",
     "num_options": 4,
     "correct_answer": 2
+  },
+  {
+    "question_text": "Who is the only girl to not win 'FHM's (UK) Sexiest Woman of the Year'?",
+    "image_url": "image/tapthepic/fhm_girls.png",
+    "num_options": 6,
+    "correct_answer": 1
+  },
+  {
+    "question_text": "Who is the only guy not to win 'People Magazine's Sexiest Man Alive'?",
+    "image_url": "image/tapthepic/people_men.png",
+    "num_options": 6,
+    "correct_answer": 4
+  },
+  {
+    "question_text": "Which of these girls appeared in BBC's 'Eastenders', before they were famous?",
+    "image_url": "image/tapthepic/spice_girls.png",
+    "num_options": 5,
+    "correct_answer": 3
+  },
+  {
+    "question_text": "Which of these movies is the only one to NOT feature characters that time travel",
+    "image_url": "image/tapthepic/time_travel.png",
+    "num_options": 5,
+    "correct_answer": 3
   }
 ]

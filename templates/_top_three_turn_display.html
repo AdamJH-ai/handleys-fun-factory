@@ -1,0 +1,27 @@
+{# templates/_top_three_turn_display.html (Updated) #}
+{# Expects: turn, total_turns, question_text, options, players_status #}
+<div id="top-three-content">
+
+    <h2>The Top Three (Turn {{ turn }}/{{ total_turns }})</h2>
+    <h3>{{ question_text }}</h3>
+
+    {# --- NEW: Display the options for the audience --- #}
+    {% if options %}
+        <div class="options-grid-2-col">
+            {% for option in options %}
+                <div>{{ option }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {# --------------------------------------------- #}
+
+    <div class="player-status-list">
+        <h4>Waiting for players to submit...</h4>
+        <ul>
+            {% for p_status in players_status %}
+                <li id="player-status-{{ p_status.name | replace('[^a-zA-Z0-9-_]', '_') }}">{{ p_status.name }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+</div>

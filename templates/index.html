@@ -266,6 +266,33 @@
             font-size: 1.5em; /* Big, easy-to-read numbers */
         }
 
+        /* --- TTT: The Top Three --- */
+        #top-three-options-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 15px 0;
+        }
+        #top-three-options-list li {
+            background-color: transparent;
+            color: var(--text-primary);
+            border: 2px solid var(--accent-blue);
+            padding: 12px 10px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.2s ease;
+        }
+        #top-three-options-list li.selected {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+            font-weight: 700;
+        }
+        #submitTopThreeButton {
+            background-color: var(--color-success);
+        }
+
     </style>
 </head>
 <body>
@@ -324,6 +351,17 @@
             <div id="tap-the-pic-area" class="hidden">
                 <!-- Buttons will be dynamically generated here by JavaScript -->
             </div>
+
+            <!-- Area for Tap The Pic keypad -->
+            <div id="tap-the-pic-area" class="hidden">...</div>
+
+            <!-- NEW: Area for The Top Three options -->
+            <div id="top-three-area" class="hidden">
+                <ul id="top-three-options-list">
+                    <!-- Tappable list items will be generated here by JavaScript -->
+                </ul>
+                <button id="submitTopThreeButton" disabled>Submit</button>
+            </div>
         </div>
 
         <!-- Status Message Area -->
@@ -341,6 +379,7 @@
         let sortableInstance = null;
         let trueOrFalseArea, trueButton, falseButton;
         let tapThePicArea;
+        let topThreeArea, topThreeOptionsList, submitTopThreeButton;
 
         // Variables for Quick Pairs logic
         let qpSelectedFromListA = null; // Stores the text of the item selected from list A
@@ -429,10 +468,16 @@
                 trueOrFalseArea.classList.add('hidden');
             }
 
-            // Hide/reset ttp if not 'tpp' round
+            // Hide/reset ttp if not 'ttp' round
             if (roundType !== 'tap_the_pic') {
                 tapThePicArea.classList.add('hidden');
                 tapThePicArea.innerHTML = ''; // Clear old buttons
+            }
+
+            // Hide/reset ttt if not 'ttt' round
+            if (roundType !== 'the_top_three') {
+                topThreeArea.classList.add('hidden');
+                topThreeOptionsList.innerHTML = '';
             }
 
             // --- Now, selectively show/enable elements based on roundType ---
@@ -467,6 +512,11 @@
             } else if (roundType === 'tap_the_pic') {
                 console.log("   Configuring for Tap The Pic");
                 tapThePicArea.classList.remove('hidden');
+            }
+            else if (roundType === 'the_top_three') {
+                console.log("   Configuring for The Top Three");
+                topThreeArea.classList.remove('hidden');
+                submitTopThreeButton.disabled = true; // Start with submit disabled
             }
             else { // Waiting, round over, or unknown state
                 console.log("   Configuring for Waiting/Unknown state (all specific inputs should be hidden)");
@@ -693,6 +743,28 @@
             falseButton.disabled = false;
         });
 
+        // --- The Top Three Listeners ---
+        socket.on('top_three_player_prompt', (data) => {
+            // data: { question: "...", options: [...] }
+            console.log('--- Event: top_three_player_prompt received ---', data);
+            currentClientRoundType = 'the_top_three';
+            
+            showArea('guessing-area');
+            configureInputArea('the_top_three');
+
+            if (guessLabel) guessLabel.textContent = data.question;
+            if (statusMessage) statusMessage.textContent = 'Select three options from the list below.';
+            
+            // Dynamically create the list of tappable options
+            topThreeOptionsList.innerHTML = ''; // Clear previous options
+            data.options.forEach(optionText => {
+                const li = document.createElement('li');
+                li.textContent = optionText;
+                li.addEventListener('click', handleTopThreeChoice);
+                topThreeOptionsList.appendChild(li);
+            });
+        });
+
         // --- Common Listeners ---
         socket.on('results_on_main_screen', () => {
             console.log('Results on main screen notice.'); if(statusMessage) statusMessage.textContent = 'Check main screen!';
@@ -906,6 +978,48 @@
             statusMessage.textContent = 'Guess submitted! Waiting...';
         }
 
+        function handleTopThreeChoice(event) {
+            const selectedItem = event.currentTarget; // Use currentTarget to get the <li>
+            const selectedCount = topThreeOptionsList.querySelectorAll('li.selected').length;
+
+            // Toggle the 'selected' class
+            // But prevent selecting a 4th item
+            if (!selectedItem.classList.contains('selected') && selectedCount >= 3) {
+                console.log("Cannot select more than 3 items.");
+                // Optional: give player feedback like a screen shake or message
+                return;
+            }
+            selectedItem.classList.toggle('selected');
+
+            // Check again how many are selected now
+            const newSelectedCount = topThreeOptionsList.querySelectorAll('li.selected').length;
+            
+            // Enable/disable the submit button based on the count
+            submitTopThreeButton.disabled = (newSelectedCount !== 3);
+        }
+
+        function handleSubmitTopThree() {
+            const selectedItems = topThreeOptionsList.querySelectorAll('li.selected');
+            const selectedAnswers = [];
+            selectedItems.forEach(item => {
+                selectedAnswers.push(item.textContent);
+            });
+
+            console.log("Submitting Top Three guess:", selectedAnswers);
+            socket.emit('submit_top_three_guess', { 'guess': selectedAnswers });
+
+            // Disable all options and the submit button
+            const allOptions = topThreeOptionsList.querySelectorAll('li');
+            allOptions.forEach(item => {
+                item.removeEventListener('click', handleTopThreeChoice);
+                if (!item.classList.contains('selected')) {
+                    item.style.opacity = '0.5';
+                }
+            });
+            submitTopThreeButton.disabled = true;
+            statusMessage.textContent = 'Guess submitted! Waiting...';
+        }
+
         // Add this new socket listener with the others
         socket.on('tap_the_pic_player_prompt', (data) => {
             // data: { question: "...", num_options: 4 }
@@ -928,8 +1042,6 @@
                 tapThePicArea.appendChild(button);
             }
         });
-
-            
 
         // --- Attach Listeners and Get Elements After DOM Loaded ---
         document.addEventListener('DOMContentLoaded', (event) => {
@@ -963,8 +1075,11 @@
              trueButton = document.getElementById('true-button');
              falseButton = document.getElementById('false-button');
              tapThePicArea = document.getElementById('tap-the-pic-area');
+             topThreeArea = document.getElementById('top-three-area');
+             topThreeOptionsList = document.getElementById('top-three-options-list');
+             submitTopThreeButton = document.getElementById('submitTopThreeButton');
 
-             if (!nameEntryArea || !guessingArea || !statusMessage || !nameInput || !joinButton || !guessInput || !submitGuessButton || !wddiOptionsArea || !ouItemsListContainer || !ouItemsList || !submitOrderButton || !qpPairingArea || !qpListA || !qpListB || !submitPairsButton || !qpFormedPairsDisplay || !trueOrFalseArea || !trueButton || !falseButton  || !tapThePicArea) {
+             if (!nameEntryArea || !guessingArea || !statusMessage || !nameInput || !joinButton || !guessInput || !submitGuessButton || !wddiOptionsArea || !ouItemsListContainer || !ouItemsList || !submitOrderButton || !qpPairingArea || !qpListA || !qpListB || !submitPairsButton || !qpFormedPairsDisplay || !trueOrFalseArea || !trueButton || !falseButton  || !tapThePicArea || !topThreeArea || !topThreeOptionsList || !submitTopThreeButton) {
                  console.error("CRITICAL ERROR: One or more essential player controller elements not found!");
                  if (statusMessage) statusMessage.textContent = "Page Load Error!";
                  return;
@@ -1032,6 +1147,10 @@
              if(trueButton && falseButton) {
                 trueButton.addEventListener('click', handleTrueFalseChoice);
                 falseButton.addEventListener('click', handleTrueFalseChoice);
+             }
+
+             if (submitTopThreeButton) {
+                submitTopThreeButton.addEventListener('click', handleSubmitTopThree);
              }
 
              console.log("Player initial listeners setup complete.");

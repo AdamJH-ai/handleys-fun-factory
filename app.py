@@ -14,8 +14,8 @@ socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
 
 # === GAME CONFIG ===
 GAME_ROUNDS_TOTAL = 7
-#AVAILABLE_ROUND_TYPES = ['guess_the_age', 'guess_the_year', 'who_didnt_do_it', 'order_up', 'quick_pairs', 'true_or_false', 'tap_the_pic']
-AVAILABLE_ROUND_TYPES = ['true_or_false', 'tap_the_pic']
+#AVAILABLE_ROUND_TYPES = ['guess_the_age', 'guess_the_year', 'who_didnt_do_it', 'order_up', 'quick_pairs', 'true_or_false', 'tap_the_pic', 'the_top_three']
+AVAILABLE_ROUND_TYPES = ['the_top_three']
 MAX_PLAYERS = 8
 gta_target_turns = 10
 gty_target_turns = 10
@@ -24,6 +24,7 @@ ou_target_turns = 10
 qp_target_turns = 10
 tf_target_turns = 10
 ttp_target_turns = 10
+ttt_target_turns = 10
 QP_NUM_PAIRS_PER_QUESTION = 3
 
 # === ROUND DETAILS ===
@@ -35,6 +36,7 @@ ROUND_RULES = {
     'quick_pairs': "Quickly match all pairs! Fastest correct gets 2 points, others correct get 1.",
     'true_or_false': "Decide if the statement is true or false. You get one point for each correct answer.",
     'tap_the_pic': "A question and a numbered image will be shown. Choose the number that correctly answers the question!",
+    'the_top_three': "A category and a list of options will appear. Select the three correct answers!",
 }
 ROUND_DISPLAY_NAMES = {
     'guess_the_age': "Guess The Age",
@@ -44,6 +46,7 @@ ROUND_DISPLAY_NAMES = {
     'quick_pairs': "Quick Pairs",
     'true_or_false': "True or False",
     'tap_the_pic': "Tap The Pic",
+    'the_top_three': "The Top Three",
 }
 ROUND_JINGLES = {
     'guess_the_age': 'gta_jingle.mp3',
@@ -53,6 +56,7 @@ ROUND_JINGLES = {
     'quick_pairs': 'qp_jingle.mp3',
     'true_or_false': 'tf_jingle.mp3',
     'tap_the_pic': 'ttp_jingle.mp3',
+    'the_top_three': 'your_ttt_jingle.mp3',
     # 'team_round': 'team_jingle.mp3' # For the future
 }
 ROUND_INTRO_DELAY = 8 # Seconds
@@ -111,6 +115,13 @@ ttp_shuffled_questions_this_round = []
 ttp_current_question = None
 ttp_current_question_index = -1
 ttp_actual_turns_this_round = 0
+
+# === THE TOP THREE STATE ===
+ttt_questions = []
+ttt_shuffled_questions_this_round = []
+ttt_current_question = None
+ttt_current_question_index = -1
+ttt_actual_turns_this_round = 0
 
 # === ROOMS ===
 MAIN_ROOM = 'main_room'; PLAYERS_ROOM = 'players_room'
@@ -277,6 +288,23 @@ def load_tap_the_pic_data(filename="tap_the_pic_questions.json"):
     except Exception as e:
         print(f"[TTP_Data] Load Fail: {e}")
 
+def load_top_three_data(filename="top_three_questions.json"):
+    global ttt_questions
+    try:
+        with open(filename, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        print(f"[TTT_Data] Loaded {len(data)} potential questions from {filename}")
+        # Validate that each question has the required keys and correct structure
+        ttt_questions = [
+            q for q in data if all(k in q for k in ('question_text', 'options', 'correct_answers')) and
+            isinstance(q.get('options'), list) and
+            isinstance(q.get('correct_answers'), list) and
+            len(q.get('correct_answers')) == 3
+        ]
+        print(f"[TTT_Data] OK: {len(ttt_questions)} valid 'The Top Three' questions loaded.")
+    except Exception as e:
+        print(f"[TTT_Data] Load Fail: {e}")
+
 # === HELPERS ===
 def update_main_screen_html(target_selector, template_name, context):
     """Renders a template fragment and sends it to the main screen."""
@@ -364,6 +392,7 @@ def handle_disconnect():
         elif game_state == 'quick_pairs_ongoing' and check_all_submissions_received_qp(): process_quick_pairs_turn_results()
         elif game_state == 'true_or_false_ongoing' and check_all_guesses_received_tf(): process_true_or_false_turn_results()
         elif game_state == 'tap_the_pic_ongoing' and check_all_guesses_received_ttp(): process_tap_the_pic_turn_results()
+        elif game_state == 'the_top_three_ongoing' and check_all_submissions_received_ttt(): process_the_top_three_turn_results()
     else: print(f"Unregistered client disconnected: {player_sid}")
 
 @socketio.on('register_main_screen')
@@ -382,7 +411,7 @@ def handle_register_player(data):
     if player_sid not in players:
         join_room(PLAYERS_ROOM, player_sid)
         # Initialize only GTA and GTY fields
-        players[player_sid] = {'name': player_name, 'round_score': 0, 'gta_current_guess': None, 'gty_current_guess': None, 'wddi_current_guess': None, 'ou_current_submission': None, 'qp_current_submission': None, 'qp_submission_time_ms': float('inf'), 'tf_current_guess': None, 'ttp_current_guess': None} # Store submission time, default to infinity
+        players[player_sid] = {'name': player_name, 'round_score': 0, 'gta_current_guess': None, 'gty_current_guess': None, 'wddi_current_guess': None, 'ou_current_submission': None, 'qp_current_submission': None, 'qp_submission_time_ms': float('inf'), 'tf_current_guess': None, 'ttp_current_guess': None, 'ttt_current_submission': None} # Store submission time, default to infinity
         overall_game_scores[player_sid] = 0; print(f"Player registered: {player_name} ({player_sid[:4]})")
         emit('message', {'data': f'Welcome {player_name}!'}, room=player_sid)
     else: players[player_sid]['name'] = player_name; emit('message', {'data': f'Rejoined as {player_name}.'}, room=player_sid)
@@ -439,6 +468,7 @@ def start_next_game_round():
     elif round_type_key == 'quick_pairs': setup_quick_pairs_round() 
     elif round_type_key == 'true_or_false': setup_true_or_false_round()
     elif round_type_key == 'tap_the_pic': setup_tap_the_pic_round()
+    elif round_type_key == 'the_top_three': setup_the_top_three_round()
     else: print(f"ERR: Unknown/Removed type {round_type_key}. Skip."); socketio.sleep(1); start_next_game_round()
 
 def end_overall_game():
@@ -1757,6 +1787,178 @@ def end_tap_the_pic_round():
     if game_state == "tap_the_pic_results":
         start_next_game_round()
 
+# === THE TOP THREE LOGIC ===
+
+def check_all_submissions_received_ttt():
+    if not players: return True
+    return all(p.get('ttt_current_submission') is not None for p in players.values())
+
+def setup_the_top_three_round():
+    global game_state, ttt_shuffled_questions_this_round, ttt_current_question_index, ttt_actual_turns_this_round
+    print("--- Setup The Top Three Round ---")
+    game_state = "the_top_three_ongoing"
+
+    if not ttt_questions:
+        print("ERROR: No questions for The Top Three. Skipping.")
+        start_next_game_round()
+        return
+
+    for sid in players:
+        players[sid]['round_score'] = 0
+        players[sid]['ttt_current_submission'] = None
+
+    ttt_actual_turns_this_round = min(ttt_target_turns, len(ttt_questions))
+    ttt_shuffled_questions_this_round = random.sample(ttt_questions, ttt_actual_turns_this_round)
+    ttt_current_question_index = -1
+
+    print(f"The Top Three Round starting with {ttt_actual_turns_this_round} questions.")
+    emit_game_state_update()
+    socketio.sleep(0.5)
+    next_the_top_three_turn()
+
+def next_the_top_three_turn():
+    global game_state, ttt_current_question, ttt_current_question_index
+
+    ttt_current_question_index += 1
+    if ttt_current_question_index >= ttt_actual_turns_this_round:
+        end_the_top_three_round()
+        return
+
+    game_state = "the_top_three_ongoing"
+    ttt_current_question = ttt_shuffled_questions_this_round[ttt_current_question_index]
+
+    for sid in players:
+        players[sid]['ttt_current_submission'] = None
+
+    print(f"\n-- TTT Turn {ttt_current_question_index + 1}/{ttt_actual_turns_this_round} --")
+    print(f"   Q: {ttt_current_question['question_text']}")
+
+    # --- THE FIX IS HERE ---
+    # 1. Create the list of options ONCE.
+    options_for_display_and_play = list(ttt_current_question['options'])
+    # 2. Shuffle it ONCE.
+    random.shuffle(options_for_display_and_play)
+
+    # 3. Use this SAME shuffled list for the main screen.
+    main_screen_context = {
+        'turn': ttt_current_question_index + 1,
+        'total_turns': ttt_actual_turns_this_round,
+        'question_text': ttt_current_question['question_text'],
+        'options': options_for_display_and_play, # Use the single shuffled list
+        'players_status': [{'name': p['name']} for p in players.values()]
+    }
+    update_main_screen_html('#round-content-area', '_top_three_turn_display.html', main_screen_context)
+
+    # 4. And use the SAME shuffled list for the player controllers.
+    player_payload = {
+        'question': ttt_current_question['question_text'],
+        'options': options_for_display_and_play # Use the single shuffled list
+    }
+    socketio.emit('top_three_player_prompt', player_payload, room=PLAYERS_ROOM)
+
+@socketio.on('submit_top_three_guess')
+def handle_submit_ttt_guess(data):
+    player_sid = request.sid
+    if player_sid not in players or game_state != "the_top_three_ongoing": return
+
+    guess = data.get('guess')
+    if not isinstance(guess, list) or len(guess) != 3:
+        print(f"Invalid TTT guess from {players[player_sid]['name']}: {guess}")
+        return
+
+    if players[player_sid].get('ttt_current_submission') is None:
+        players[player_sid]['ttt_current_submission'] = guess
+        player_name = players[player_sid]['name']
+        print(f"TTT Guess '{guess}' received from {player_name}")
+        socketio.emit('player_submitted_update', {'name': player_name}, room=main_screen_sid)
+
+        if check_all_submissions_received_ttt():
+            print("   All TTT guesses received.")
+            socketio.sleep(0.5)
+            process_the_top_three_turn_results()
+
+def process_the_top_three_turn_results():
+    global game_state
+    if game_state != "the_top_three_ongoing": return
+    game_state = "ttt_results_display"
+    
+    correct_answers = set(ttt_current_question['correct_answers'])
+    turn_results_list = []
+
+    for sid, p_info in players.items():
+        submission = p_info.get('ttt_current_submission')
+        num_correct = 0
+        points_for_turn = 0
+        if submission:
+            # Compare the sets to find the number of correct items
+            num_correct = len(set(submission) & correct_answers)
+
+        if num_correct == 3:
+            points_for_turn = 3
+        elif num_correct == 2:
+            points_for_turn = 1
+        else: # This covers the case for 1 or 0 correct
+            points_for_turn = 0
+        
+        p_info['round_score'] += points_for_turn
+
+        turn_results_list.append({
+            'name': p_info['name'],
+            'num_correct': num_correct,
+            'round_score': p_info['round_score'],
+            'points_this_turn': points_for_turn 
+        })
+    
+    turn_results_list.sort(key=lambda x: (-x['num_correct'], x['name']))
+
+    results_context = {
+        'question_text': ttt_current_question['question_text'],
+        'correct_answers': ttt_current_question['correct_answers'],
+        'results': turn_results_list
+    }
+    update_main_screen_html('#results-area', '_top_three_turn_results.html', results_context)
+    socketio.emit('results_on_main_screen', room=PLAYERS_ROOM)
+
+    socketio.sleep(10)
+    if game_state == "ttt_results_display":
+        next_the_top_three_turn()
+
+def end_the_top_three_round():
+    global game_state
+    game_state = "the_top_three_results"
+    print("\n--- Ending The Top Three Round ---")
+
+    active_players = [(sid, p.get('round_score', 0)) for sid, p in players.items()]
+    sorted_by_round = sorted(active_players, key=lambda item: (-item[1], players.get(item[0], {}).get('name','')))
+    sorted_sids = [item[0] for item in sorted_by_round]
+    
+    points_awarded = award_game_points(sorted_sids)
+    emit_game_state_update()
+
+    rankings_this_round = []
+    for rank, sid in enumerate(sorted_sids):
+        if sid in players:
+            rankings_this_round.append({
+                'rank': rank + 1,
+                'name': players[sid]['name'],
+                'round_score': players[sid]['round_score'],
+                'points_awarded': points_awarded.get(sid, 0)
+            })
+
+    current_overall_scores_list = [{'name': p['name'], 'game_score': overall_game_scores.get(sid, 0)} for sid, p in players.items()]
+    current_overall_scores_list.sort(key=lambda x: x['game_score'], reverse=True)
+
+    summary_context = {
+        'round_type': ROUND_DISPLAY_NAMES.get('the_top_three', 'The Top Three'),
+        'rankings': rankings_this_round,
+        'overall_scores': current_overall_scores_list
+    }
+    update_main_screen_html('#results-area', '_round_summary.html', summary_context)
+
+    socketio.sleep(12)
+    if game_state == "the_top_three_results":
+        start_next_game_round()
+
 # === MAIN EXECUTION ===
 if __name__ == '__main__':
     print("Loading round data...");
@@ -1767,6 +1969,7 @@ if __name__ == '__main__':
     load_quick_pairs_data()
     load_true_or_false_data()
     load_tap_the_pic_data()
+    load_top_three_data()
     print("Starting Flask-SocketIO server..."); use_debug = False
     socketio.run(app, host='0.0.0.0', port=5000, debug=use_debug)
     print("Server stopped.")
