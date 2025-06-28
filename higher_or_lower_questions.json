@@ -1,0 +1,38 @@
+[
+  {
+    "question": "How many episodes of the TV show 'Friends' were made?",
+    "answer": 236
+  },
+  {
+    "question": "In what year was the first iPhone released by Apple?",
+    "answer": 2007
+  },
+  {
+    "question": "What is the height of the Eiffel Tower in meters?",
+    "answer": 330
+  },
+  {
+    "question": "How many bones are in the adult human body?",
+    "answer": 206
+  },
+  {
+    "question": "What is the total number of dots on a standard pair of dice?",
+    "answer": 42
+  },
+  {
+    "question": "How many minutes are in a full week?",
+    "answer": 10080
+  },
+  {
+    "question": "What is the top speed, in mph, of a cheetah?",
+    "answer": 75
+  },
+  {
+    "question": "How many countries are members of the United Nations (as of 2023)?",
+    "answer": 193
+  },
+  {
+    "question": "What is the number of 'keys' on a standard piano?",
+    "answer": 88
+  }
+]

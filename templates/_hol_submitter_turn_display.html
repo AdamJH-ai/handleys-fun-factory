@@ -1,0 +1,16 @@
+{# templates/_hol_submitter_turn_display.html #}
+{# Expects: turn, total_turns, question_text, submitter_name #}
+
+<div id="hol-submitter-content">
+
+    <h2>Higher or Lower! (Turn {{ turn }}/{{ total_turns }})</h2>
+
+    <h3>{{ question_text }}</h3>
+
+    {# A nice big message indicating who is guessing #}
+    <div style="margin-top: 50px;">
+        <h3 style="color: var(--text-secondary); font-size: 1.8em;">Waiting for a guess from...</h3>
+        <h2 style="font-size: 4em; color: var(--accent-blue);">{{ submitter_name }}</h2>
+    </div>
+
+</div>

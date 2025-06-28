@@ -293,6 +293,28 @@
             background-color: var(--color-success);
         }
 
+                /* --- HOL: Higher or Lower --- */
+        #hol-guesser-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-gap: 15px;
+            margin-top: 20px;
+        }
+        #hol-guesser-area button {
+            width: 100%;
+            margin: 0;
+            padding: 25px 10px;
+        }
+        #hol-higher-button {
+            background-color: var(--color-success); /* Green for Higher */
+        }
+        #hol-lower-button {
+            background-color: var(--color-danger); /* Red for Lower */
+        }
+        #holSubmitterButton {
+             background-color: var(--color-success); /* Green for submit button */
+        }
+
     </style>
 </head>
 <body>
@@ -362,6 +384,19 @@
                 </ul>
                 <button id="submitTopThreeButton" disabled>Submit</button>
             </div>
+
+            <!-- NEW: Area for Higher or Lower (Submitter) -->
+            <div id="hol-submitter-area" class="hidden">
+                <input type="number" id="holSubmitterInput" placeholder="Enter number...">
+                <button id="holSubmitterButton">Submit Number</button>
+            </div>
+
+            <!-- NEW: Area for Higher or Lower (Guesser) -->
+            <div id="hol-guesser-area" class="hidden">
+                <!-- Buttons will be styled with CSS -->
+                <button id="hol-higher-button" data-answer="Higher">HIGHER</button>
+                <button id="hol-lower-button" data-answer="Lower">LOWER</button>
+            </div>
         </div>
 
         <!-- Status Message Area -->
@@ -380,6 +415,8 @@
         let trueOrFalseArea, trueButton, falseButton;
         let tapThePicArea;
         let topThreeArea, topThreeOptionsList, submitTopThreeButton;
+        let holSubmitterArea, holSubmitterInput, holSubmitterButton;
+        let holGuesserArea, holHigherButton, holLowerButton;
 
         // Variables for Quick Pairs logic
         let qpSelectedFromListA = null; // Stores the text of the item selected from list A
@@ -416,7 +453,7 @@
              console.log(`Player: Finished showArea attempt for ${areaToShowId}`);
          }
 
-        function configureInputArea(roundType) {
+        function configureInputArea(roundType, subType = null) {
             // Your existing check for element presence (now includes ou AND qp elements)
             if (!guessInput || !submitGuessButton || !wddiOptionsArea || 
                 !ouItemsListContainer || !submitOrderButton || !ouItemsList ||
@@ -480,6 +517,11 @@
                 topThreeOptionsList.innerHTML = '';
             }
 
+            if (roundType !== 'higher_or_lower') {
+                holSubmitterArea.classList.add('hidden');
+                holGuesserArea.classList.add('hidden');
+            }
+
             // --- Now, selectively show/enable elements based on roundType ---
             if (roundType === 'gta' || roundType === 'gty') {
                 console.log("   Configuring for GTA/GTY");
@@ -517,6 +559,26 @@
                 console.log("   Configuring for The Top Three");
                 topThreeArea.classList.remove('hidden');
                 submitTopThreeButton.disabled = true; // Start with submit disabled
+            }
+            else if (roundType === 'higher_or_lower') {
+                if (subType === 'submitter') {
+                    console.log("   Configuring for HOL Submitter");
+                    holSubmitterArea.classList.remove('hidden');
+                    holGuesserArea.classList.add('hidden');
+                    holSubmitterInput.value = '';
+                    holSubmitterInput.disabled = false;
+                    holSubmitterButton.disabled = false;
+                } else if (subType === 'guesser') {
+                    console.log("   Configuring for HOL Guesser");
+                    holSubmitterArea.classList.add('hidden');
+                    holGuesserArea.classList.remove('hidden');
+                    holHigherButton.disabled = false;
+                    holLowerButton.disabled = false;
+                } else { // This covers the 'wait' state for this round
+                    console.log("   Configuring for HOL Wait");
+                    holSubmitterArea.classList.add('hidden');
+                    holGuesserArea.classList.add('hidden');
+                }
             }
             else { // Waiting, round over, or unknown state
                 console.log("   Configuring for Waiting/Unknown state (all specific inputs should be hidden)");
@@ -763,6 +825,38 @@
                 li.addEventListener('click', handleTopThreeChoice);
                 topThreeOptionsList.appendChild(li);
             });
+        });
+
+        // --- Higher or Lower Listeners ---
+        socket.on('hol_submitter_prompt', (data) => {
+            console.log('--- Event: hol_submitter_prompt received ---', data);
+            currentClientRoundType = 'higher_or_lower';
+            showArea('guessing-area');
+            configureInputArea('higher_or_lower', 'submitter'); // Use the new sub-type
+
+            if (guessLabel) guessLabel.textContent = data.question;
+            if (statusMessage) statusMessage.textContent = "You're the Submitter! Enter a number.";
+            if (holSubmitterInput) holSubmitterInput.focus();
+        });
+
+        socket.on('hol_guesser_prompt', (data) => {
+            console.log('--- Event: hol_guesser_prompt received ---');
+            currentClientRoundType = 'higher_or_lower';
+            showArea('guessing-area');
+            configureInputArea('higher_or_lower', 'guesser'); // Use the new sub-type
+
+            if (guessLabel) guessLabel.textContent = "Is the real answer..."; // The main screen has the guess
+            if (statusMessage) statusMessage.textContent = "Guess Higher or Lower!";
+        });
+
+        socket.on('hol_wait_prompt', (data) => {
+            console.log('--- Event: hol_wait_prompt received ---', data);
+            currentClientRoundType = 'higher_or_lower'; // Still in the round
+            showArea('guessing-area');
+            configureInputArea('higher_or_lower', 'wait'); // Hide both input types
+
+            if (guessLabel) guessLabel.textContent = "Please Wait";
+            if (statusMessage) statusMessage.textContent = data.wait_message;
         });
 
         // --- Common Listeners ---
@@ -1020,6 +1114,33 @@
             statusMessage.textContent = 'Guess submitted! Waiting...';
         }
 
+        function handleSubmitHolNumber() {
+            const guess = holSubmitterInput.value;
+            if (guess !== '' && !isNaN(guess)) {
+                console.log(`Submitting HOL number: ${guess}`);
+                socket.emit('submit_hol_guess', { 'guess': parseInt(guess, 10) });
+                
+                // Disable the UI immediately after submitting
+                holSubmitterInput.disabled = true;
+                holSubmitterButton.disabled = true;
+                statusMessage.textContent = 'Number submitted! Waiting for others...';
+            } else {
+                statusMessage.textContent = 'Please enter a valid number.';
+            }
+        }
+
+        function handleHolHigherLowerChoice(event) {
+            const choice = event.target.dataset.answer; // 'Higher' or 'Lower'
+            console.log(`Submitting HOL choice: ${choice}`);
+            socket.emit('submit_hol_guess', { 'guess': choice });
+
+            // Disable both buttons
+            holHigherButton.disabled = true;
+            holLowerButton.disabled = true;
+            statusMessage.textContent = 'Guess locked in! Waiting...';
+        }
+
+
         // Add this new socket listener with the others
         socket.on('tap_the_pic_player_prompt', (data) => {
             // data: { question: "...", num_options: 4 }
@@ -1078,8 +1199,14 @@
              topThreeArea = document.getElementById('top-three-area');
              topThreeOptionsList = document.getElementById('top-three-options-list');
              submitTopThreeButton = document.getElementById('submitTopThreeButton');
+             holSubmitterArea = document.getElementById('hol-submitter-area');
+             holSubmitterInput = document.getElementById('holSubmitterInput');
+             holSubmitterButton = document.getElementById('holSubmitterButton');
+             holGuesserArea = document.getElementById('hol-guesser-area');
+             holHigherButton = document.getElementById('hol-higher-button');
+             holLowerButton = document.getElementById('hol-lower-button');
 
-             if (!nameEntryArea || !guessingArea || !statusMessage || !nameInput || !joinButton || !guessInput || !submitGuessButton || !wddiOptionsArea || !ouItemsListContainer || !ouItemsList || !submitOrderButton || !qpPairingArea || !qpListA || !qpListB || !submitPairsButton || !qpFormedPairsDisplay || !trueOrFalseArea || !trueButton || !falseButton  || !tapThePicArea || !topThreeArea || !topThreeOptionsList || !submitTopThreeButton) {
+             if (!nameEntryArea || !guessingArea || !statusMessage || !nameInput || !joinButton || !guessInput || !submitGuessButton || !wddiOptionsArea || !ouItemsListContainer || !ouItemsList || !submitOrderButton || !qpPairingArea || !qpListA || !qpListB || !submitPairsButton || !qpFormedPairsDisplay || !trueOrFalseArea || !trueButton || !falseButton  || !tapThePicArea || !topThreeArea || !topThreeOptionsList || !submitTopThreeButton || !holSubmitterArea || !holSubmitterInput || !holSubmitterButton || !holGuesserArea || !holHigherButton || !holLowerButton) {
                  console.error("CRITICAL ERROR: One or more essential player controller elements not found!");
                  if (statusMessage) statusMessage.textContent = "Page Load Error!";
                  return;
@@ -1151,6 +1278,23 @@
 
              if (submitTopThreeButton) {
                 submitTopThreeButton.addEventListener('click', handleSubmitTopThree);
+             }
+
+             if (holSubmitterButton) {
+                holSubmitterButton.addEventListener('click', handleSubmitHolNumber);
+             }
+             if (holSubmitterInput) { // Add Enter key press for submitter
+                holSubmitterInput.addEventListener('keypress', function (e) { 
+                    if (e.key === 'Enter' && holSubmitterButton && !holSubmitterButton.disabled) { 
+                        holSubmitterButton.click(); 
+                    }
+                });
+             }
+             if (holHigherButton) {
+                holHigherButton.addEventListener('click', handleHolHigherLowerChoice);
+             }
+             if (holLowerButton) {
+                holLowerButton.addEventListener('click', handleHolHigherLowerChoice);
              }
 
              console.log("Player initial listeners setup complete.");

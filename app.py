@@ -14,8 +14,8 @@ socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
 
 # === GAME CONFIG ===
 GAME_ROUNDS_TOTAL = 7
-#AVAILABLE_ROUND_TYPES = ['guess_the_age', 'guess_the_year', 'who_didnt_do_it', 'order_up', 'quick_pairs', 'true_or_false', 'tap_the_pic', 'the_top_three']
-AVAILABLE_ROUND_TYPES = ['the_top_three']
+#AVAILABLE_ROUND_TYPES = ['guess_the_age', 'guess_the_year', 'who_didnt_do_it', 'order_up', 'quick_pairs', 'true_or_false', 'tap_the_pic', 'the_top_three', 'higher_or_lower']
+AVAILABLE_ROUND_TYPES = ['higher_or_lower']
 MAX_PLAYERS = 8
 gta_target_turns = 10
 gty_target_turns = 10
@@ -25,6 +25,7 @@ qp_target_turns = 10
 tf_target_turns = 10
 ttp_target_turns = 10
 ttt_target_turns = 10
+hol_target_turns = 10
 QP_NUM_PAIRS_PER_QUESTION = 3
 
 # === ROUND DETAILS ===
@@ -37,6 +38,7 @@ ROUND_RULES = {
     'true_or_false': "Decide if the statement is true or false. You get one point for each correct answer.",
     'tap_the_pic': "A question and a numbered image will be shown. Choose the number that correctly answers the question!",
     'the_top_three': "A category and a list of options will appear. Select the three correct answers!",
+    'higher_or_lower': "One player guesses a number. Everyone else guesses if the real answer is Higher or Lower!",
 }
 ROUND_DISPLAY_NAMES = {
     'guess_the_age': "Guess The Age",
@@ -47,6 +49,7 @@ ROUND_DISPLAY_NAMES = {
     'true_or_false': "True or False",
     'tap_the_pic': "Tap The Pic",
     'the_top_three': "The Top Three",
+    'higher_or_lower': "Higher or Lower",
 }
 ROUND_JINGLES = {
     'guess_the_age': 'gta_jingle.mp3',
@@ -57,6 +60,7 @@ ROUND_JINGLES = {
     'true_or_false': 'tf_jingle.mp3',
     'tap_the_pic': 'ttp_jingle.mp3',
     'the_top_three': 'your_ttt_jingle.mp3',
+    'higher_or_lower': 'hol_jingle.mp3',
     # 'team_round': 'team_jingle.mp3' # For the future
 }
 ROUND_INTRO_DELAY = 8 # Seconds
@@ -122,6 +126,17 @@ ttt_shuffled_questions_this_round = []
 ttt_current_question = None
 ttt_current_question_index = -1
 ttt_actual_turns_this_round = 0
+
+# === HIGHER OR LOWER STATE ===
+hol_questions = []
+hol_shuffled_questions_this_round = []
+hol_current_question = None
+hol_current_turn_index = -1
+hol_actual_turns_this_round = 0
+hol_player_submitter_queue = [] # A queue of player SIDs who need to submit a number
+hol_current_submitter_sid = None # The SID of the player submitting the number this turn
+hol_submitter_guess = None # The number the submitter guessed
+hol_current_turn_stage = None # Can be 'AWAITING_SUBMISSION' or 'AWAITING_GUESSES'
 
 # === ROOMS ===
 MAIN_ROOM = 'main_room'; PLAYERS_ROOM = 'players_room'
@@ -305,6 +320,21 @@ def load_top_three_data(filename="top_three_questions.json"):
     except Exception as e:
         print(f"[TTT_Data] Load Fail: {e}")
 
+def load_higher_or_lower_data(filename="higher_or_lower_questions.json"):
+    """Loads questions for the 'Higher or Lower' round."""
+    global hol_questions
+    try:
+        with open(filename, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        print(f"[HOL_Data] Loaded {len(data)} potential questions from {filename}")
+        hol_questions = [
+            q for q in data if all(k in q for k in ('question', 'answer')) and
+            isinstance(q.get('answer'), int)
+        ]
+        print(f"[HOL_Data] OK: {len(hol_questions)} valid 'Higher or Lower' questions loaded.")
+    except Exception as e:
+        print(f"[HOL_Data] Load Fail: {e}")
+
 # === HELPERS ===
 def update_main_screen_html(target_selector, template_name, context):
     """Renders a template fragment and sends it to the main screen."""
@@ -393,6 +423,7 @@ def handle_disconnect():
         elif game_state == 'true_or_false_ongoing' and check_all_guesses_received_tf(): process_true_or_false_turn_results()
         elif game_state == 'tap_the_pic_ongoing' and check_all_guesses_received_ttp(): process_tap_the_pic_turn_results()
         elif game_state == 'the_top_three_ongoing' and check_all_submissions_received_ttt(): process_the_top_three_turn_results()
+        elif game_state == 'higher_or_lower_ongoing' and hol_current_turn_stage == 'AWAITING_GUESSES' and check_all_guesses_received_hol(): process_results_higher_or_lower()
     else: print(f"Unregistered client disconnected: {player_sid}")
 
 @socketio.on('register_main_screen')
@@ -411,7 +442,7 @@ def handle_register_player(data):
     if player_sid not in players:
         join_room(PLAYERS_ROOM, player_sid)
         # Initialize only GTA and GTY fields
-        players[player_sid] = {'name': player_name, 'round_score': 0, 'gta_current_guess': None, 'gty_current_guess': None, 'wddi_current_guess': None, 'ou_current_submission': None, 'qp_current_submission': None, 'qp_submission_time_ms': float('inf'), 'tf_current_guess': None, 'ttp_current_guess': None, 'ttt_current_submission': None} # Store submission time, default to infinity
+        players[player_sid] = {'name': player_name, 'round_score': 0, 'gta_current_guess': None, 'gty_current_guess': None, 'wddi_current_guess': None, 'ou_current_submission': None, 'qp_current_submission': None, 'qp_submission_time_ms': float('inf'), 'tf_current_guess': None, 'ttp_current_guess': None, 'ttt_current_submission': None, 'hol_current_guess': None} # Store submission time, default to infinity
         overall_game_scores[player_sid] = 0; print(f"Player registered: {player_name} ({player_sid[:4]})")
         emit('message', {'data': f'Welcome {player_name}!'}, room=player_sid)
     else: players[player_sid]['name'] = player_name; emit('message', {'data': f'Rejoined as {player_name}.'}, room=player_sid)
@@ -469,6 +500,7 @@ def start_next_game_round():
     elif round_type_key == 'true_or_false': setup_true_or_false_round()
     elif round_type_key == 'tap_the_pic': setup_tap_the_pic_round()
     elif round_type_key == 'the_top_three': setup_the_top_three_round()
+    elif round_type_key == 'higher_or_lower': setup_higher_or_lower_round()
     else: print(f"ERR: Unknown/Removed type {round_type_key}. Skip."); socketio.sleep(1); start_next_game_round()
 
 def end_overall_game():
@@ -1959,6 +1991,265 @@ def end_the_top_three_round():
     if game_state == "the_top_three_results":
         start_next_game_round()
 
+# === HIGHER OR LOWER LOGIC ===
+
+def check_all_guesses_received_hol():
+    """Checks if all GUESSERS (not submitter) have submitted their H/L guess."""
+    if not players: return True
+    # We only check players who are NOT the current submitter
+    return all(p.get('hol_current_guess') is not None for sid, p in players.items() if sid != hol_current_submitter_sid)
+
+def setup_higher_or_lower_round():
+    """Sets up the state for a 'Higher or Lower' round based on player count."""
+    global game_state, hol_shuffled_questions_this_round, hol_current_turn_index
+    global hol_actual_turns_this_round, hol_player_submitter_queue
+
+    print("--- Setup Higher or Lower Round ---")
+    game_state = "higher_or_lower_ongoing"
+
+    if not hol_questions:
+        print("ERROR: No questions for Higher or Lower. Skipping.")
+        start_next_game_round()
+        return
+    
+    num_players = len(players)
+    if num_players < 2:
+        print("ERROR: Not enough players for Higher or Lower. Skipping.")
+        start_next_game_round()
+        return
+
+    # Turn calculation logic based on your rules
+    turn_configs = {
+        2: {'turns': 10, 'submits_per_player': 5}, 3: {'turns': 9, 'submits_per_player': 3},
+        4: {'turns': 12, 'submits_per_player': 3}, 5: {'turns': 10, 'submits_per_player': 2},
+        6: {'turns': 12, 'submits_per_player': 2}, 7: {'turns': 7, 'submits_per_player': 1},
+        8: {'turns': 8, 'submits_per_player': 1}
+    }
+    config = turn_configs.get(num_players, {'turns': num_players, 'submits_per_player': 1})
+    hol_actual_turns_this_round = config['turns']
+    submits_per_player = config['submits_per_player']
+
+    # Ensure we have enough questions
+    if len(hol_questions) < hol_actual_turns_this_round:
+        print(f"WARN: Not enough questions for HOL ({len(hol_questions)} < {hol_actual_turns_this_round}). Using all available.")
+        hol_actual_turns_this_round = len(hol_questions)
+
+    hol_shuffled_questions_this_round = random.sample(hol_questions, hol_actual_turns_this_round)
+    
+    # Create the randomized, repeating submitter queue
+    player_sids = list(players.keys())
+    random.shuffle(player_sids)
+    hol_player_submitter_queue = (player_sids * submits_per_player)
+    
+    # Reset round scores and guesses
+    for sid in players:
+        players[sid]['round_score'] = 0
+        players[sid]['hol_current_guess'] = None
+    
+    hol_current_turn_index = -1
+    print(f"HOL Round starting: {num_players} players, {hol_actual_turns_this_round} turns, {submits_per_player} submits each.")
+    emit_game_state_update()
+    socketio.sleep(0.5)
+    next_turn_higher_or_lower()
+
+def next_turn_higher_or_lower():
+    """Starts the next turn, designating a submitter (Stage 1)."""
+    global game_state, hol_current_question, hol_current_turn_index, hol_current_turn_stage
+    global hol_current_submitter_sid, hol_submitter_guess
+
+    hol_current_turn_index += 1
+    if hol_current_turn_index >= hol_actual_turns_this_round:
+        end_round_higher_or_lower()
+        return
+
+    game_state = "higher_or_lower_ongoing"
+    hol_current_turn_stage = 'AWAITING_SUBMISSION'
+    hol_current_question = hol_shuffled_questions_this_round[hol_current_turn_index]
+    hol_current_submitter_sid = hol_player_submitter_queue[hol_current_turn_index]
+    hol_submitter_guess = None
+    
+    # Reset all player guesses for the new turn
+    for sid in players:
+        players[sid]['hol_current_guess'] = None
+
+    submitter_name = players[hol_current_submitter_sid]['name']
+    print(f"\n-- HOL Turn {hol_current_turn_index + 1}/{hol_actual_turns_this_round} --")
+    print(f"   Stage 1: Awaiting submission from {submitter_name}")
+    print(f"   Q: {hol_current_question['question']} (Ans: {hol_current_question['answer']})")
+
+    # Update Main Screen for Stage 1
+    main_screen_context = {
+        'turn': hol_current_turn_index + 1, 'total_turns': hol_actual_turns_this_round,
+        'question_text': hol_current_question['question'], 'submitter_name': submitter_name
+    }
+    update_main_screen_html('#round-content-area', '_hol_submitter_turn_display.html', main_screen_context)
+
+    # Prompt only the Submitter
+    socketio.emit('hol_submitter_prompt', {'question': hol_current_question['question']}, room=hol_current_submitter_sid)
+    # Tell everyone else to wait
+    for sid, p_info in players.items():
+        if sid != hol_current_submitter_sid:
+            socketio.emit('hol_wait_prompt', {'wait_message': f"Waiting for {submitter_name} to guess..."}, room=sid)
+
+@socketio.on('submit_hol_guess')
+def handle_submit_hol_guess(data):
+    """Handles both guess types: number from submitter, and H/L from guessers."""
+    # Move the global declaration to the top of the function
+    global hol_submitter_guess, hol_current_turn_stage
+
+    player_sid = request.sid
+    if player_sid not in players or game_state != "higher_or_lower_ongoing": return
+
+    player_name = players[player_sid]['name']
+
+    # --- Case 1: The Submitter sends their number guess ---
+    if player_sid == hol_current_submitter_sid and hol_current_turn_stage == 'AWAITING_SUBMISSION':
+        try:
+            guess = int(data.get('guess'))
+            # Store the guess and advance the turn stage
+            hol_submitter_guess = guess
+            hol_current_turn_stage = 'AWAITING_GUESSES'
+            print(f"   Stage 2: {player_name}'s guess is {guess}. Awaiting H/L from others.")
+
+            # Update Main Screen for Stage 2
+            main_screen_context = {
+                'turn': hol_current_turn_index + 1, 'total_turns': hol_actual_turns_this_round,
+                'question_text': hol_current_question['question'], 'submitter_name': player_name,
+                'submitter_guess': hol_submitter_guess,
+                'players_status': [{'name': p['name']} for sid, p in players.items() if sid != hol_current_submitter_sid]
+            }
+            update_main_screen_html('#round-content-area', '_hol_guesser_turn_display.html', main_screen_context)
+
+            # Prompt all OTHER players to guess Higher or Lower
+            for sid in players:
+                if sid != hol_current_submitter_sid:
+                    socketio.emit('hol_guesser_prompt', {}, room=sid)
+            # Tell the submitter to wait now
+            socketio.emit('hol_wait_prompt', {'wait_message': "Waiting for others to guess Higher or Lower..."}, room=player_sid)
+
+        except (ValueError, TypeError):
+            print(f"Invalid number submission from submitter {player_name}: {data}")
+            emit('message', {'data': 'Invalid guess. Please enter a number.'}, room=player_sid)
+
+    # --- Case 2: A Guesser sends their "Higher" or "Lower" choice ---
+    elif player_sid != hol_current_submitter_sid and hol_current_turn_stage == 'AWAITING_GUESSES':
+        guess = data.get('guess') # Expecting 'Higher' or 'Lower'
+        if guess in ['Higher', 'Lower'] and players[player_sid].get('hol_current_guess') is None:
+            players[player_sid]['hol_current_guess'] = guess
+            print(f"   H/L Guess '{guess}' from {player_name}")
+            
+            # Update main screen to show this player has guessed
+            socketio.emit('player_submitted_update', {'name': player_name}, room=main_screen_sid)
+            # Tell player to wait
+            emit('hol_wait_prompt', {'wait_message': 'Guess locked in! Waiting for others...'}, room=player_sid)
+
+            if check_all_guesses_received_hol():
+                print("   All H/L guesses received.")
+                socketio.sleep(0.5)
+                process_results_higher_or_lower()
+        else:
+            print(f"Invalid H/L guess or duplicate from {player_name}: {guess}")
+
+def process_results_higher_or_lower():
+    """Calculates scores for the turn and displays results."""
+    global game_state
+    if game_state != "higher_or_lower_ongoing": return
+    game_state = "hol_results_display"
+
+    print("--- Processing HOL Turn Results ---")
+    correct_answer = hol_current_question['answer']
+    submitter_guess = hol_submitter_guess
+    submitter_points_this_turn = 0
+    results_list = []
+    
+    print(f"   Actual Answer: {correct_answer} | Submitter Guess: {submitter_guess}")
+
+    # Case 1: Submitter guessed the exact answer ("Submitter Sweep")
+    if submitter_guess == correct_answer:
+        print("   Submitter guessed EXACTLY! Submitter sweep.")
+        submitter_points_this_turn = len(players) - 1
+    # Case 2: Standard Higher/Lower logic
+    else:
+        for sid, p_info in players.items():
+            if sid == hol_current_submitter_sid: continue # Skip the submitter for now
+
+            player_guess = p_info.get('hol_current_guess') # 'Higher' or 'Lower'
+            was_correct = False
+            if player_guess == 'Higher' and correct_answer > submitter_guess:
+                was_correct = True
+            elif player_guess == 'Lower' and correct_answer < submitter_guess:
+                was_correct = True
+
+            if was_correct:
+                p_info['round_score'] += 1
+                print(f"   - {p_info['name']} guessed '{player_guess}' CORRECTLY. +1pt.")
+            else:
+                submitter_points_this_turn += 1
+                print(f"   - {p_info['name']} guessed '{player_guess}' INCORRECTLY. Submitter +1pt.")
+            
+            results_list.append({'name': p_info['name'], 'guess': player_guess, 'is_correct': was_correct})
+    
+    # Award points to the submitter
+    players[hol_current_submitter_sid]['round_score'] += submitter_points_this_turn
+    print(f"   Submitter {players[hol_current_submitter_sid]['name']} awarded {submitter_points_this_turn} points.")
+
+    # Prepare context for the template
+    results_context = {
+        'question_text': hol_current_question['question'],
+        'submitter_name': players[hol_current_submitter_sid]['name'],
+        'submitter_guess': submitter_guess,
+        'correct_answer': correct_answer,
+        'guesser_results': sorted(results_list, key=lambda x: x['name']),
+        'submitter_points_awarded': submitter_points_this_turn,
+        'final_round_scores': sorted([{'name': p['name'], 'score': p['round_score']} for p in players.values()], key=lambda x: -x['score'])
+    }
+    update_main_screen_html('#results-area', '_hol_turn_results.html', results_context)
+    socketio.emit('results_on_main_screen', room=PLAYERS_ROOM)
+
+    turn_results_display_time = 10
+    socketio.sleep(turn_results_display_time)
+
+    if game_state == "hol_results_display":
+        next_turn_higher_or_lower()
+
+def end_round_higher_or_lower():
+    """Finalizes the HOL round, awards game points, and transitions."""
+    global game_state
+    game_state = "higher_or_lower_results"
+    print("\n--- Ending Higher or Lower Round ---")
+
+    # Higher score is better
+    active_players = [(sid, p.get('round_score', 0)) for sid, p in players.items()]
+    sorted_by_round = sorted(active_players, key=lambda item: (-item[1], players.get(item[0],{}).get('name','')))
+    sorted_sids = [item[0] for item in sorted_by_round]
+
+    points_awarded = award_game_points(sorted_sids)
+    emit_game_state_update()
+
+    rankings_this_round = []
+    for rank, sid in enumerate(sorted_sids):
+        if sid in players:
+            rankings_this_round.append({
+                'rank': rank + 1,
+                'name': players[sid]['name'],
+                'round_score': players[sid]['round_score'],
+                'points_awarded': points_awarded.get(sid, 0)
+            })
+
+    current_overall_scores_list = [{'name': p['name'], 'game_score': overall_game_scores.get(sid, 0)} for sid, p in players.items()]
+    current_overall_scores_list.sort(key=lambda x: x['game_score'], reverse=True)
+
+    summary_context = {
+        'round_type': ROUND_DISPLAY_NAMES.get('higher_or_lower', 'Higher or Lower'),
+        'rankings': rankings_this_round,
+        'overall_scores': current_overall_scores_list
+    }
+    update_main_screen_html('#results-area', '_round_summary.html', summary_context)
+
+    socketio.sleep(12)
+    if game_state == "higher_or_lower_results":
+        start_next_game_round()
+
 # === MAIN EXECUTION ===
 if __name__ == '__main__':
     print("Loading round data...");
@@ -1970,6 +2261,7 @@ if __name__ == '__main__':
     load_true_or_false_data()
     load_tap_the_pic_data()
     load_top_three_data()
+    load_higher_or_lower_data()
     print("Starting Flask-SocketIO server..."); use_debug = False
     socketio.run(app, host='0.0.0.0', port=5000, debug=use_debug)
     print("Server stopped.")

@@ -1,0 +1,59 @@
+{# templates/_hol_turn_results.html #}
+{# Expects: question_text, submitter_name, submitter_guess, correct_answer, submitter_points_awarded, guesser_results, final_round_scores #}
+
+<div id="hol-results-content">
+
+    <h2>Results!</h2>
+    <h3>{{ question_text }}</h3>
+
+    {# Show the comparison #}
+    <div style="display: flex; justify-content: space-around; align-items: center; max-width: 800px; margin: 20px auto; padding: 15px; background-color: var(--bg-secondary); border-radius: 8px;">
+        <div>
+            <h4>{{ submitter_name }}'s Guess</h4>
+            <p style="font-size: 3em; font-family: var(--font-display); color: var(--accent-blue);">
+                {{ "{:,.0f}".format(submitter_guess) }}
+            </p>
+        </div>
+        <div>
+            <h4>Correct Answer</h4>
+            <p style="font-size: 3em; font-family: var(--font-display); color: var(--accent-gold);">
+                {{ "{:,.0f}".format(correct_answer) }}
+            </p>
+        </div>
+    </div>
+
+    {# Show who guessed correctly #}
+    <h4>Guesser Results:</h4>
+    <ul class="round-results-list" style="margin-bottom: 30px;">
+        {% for result in guesser_results %}
+            <li class="{{ 'highlight' if result.is_correct }}">
+                <span class="player-name">{{ result.name }}</span>
+                <span class="player-answer">Guessed: {{ result.guess }}</span>
+                <span class="player-points">
+                    {% if result.is_correct %}+1 pt{% else %}0 pts{% endif %}
+                </span>
+            </li>
+        {% else %}
+             <li>No other players guessed.</li>
+        {% endfor %}
+    </ul>
+
+    {# Show points for the submitter #}
+    <h4>Submitter Points:</h4>
+    <p style="font-size: 1.5em; margin-bottom: 25px;">
+        {{ submitter_name }} earned 
+        <span style="color: var(--accent-gold); font-weight: bold;">{{ submitter_points_awarded }}</span> 
+        points from incorrect guesses!
+    </p>
+
+    {# Show total round scores so far #}
+    <h4>Current Round Scores:</h4>
+    <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 10px;">
+    {% for score in final_round_scores %}
+        <span style="background-color: var(--accent-blue); color: var(--text-primary); padding: 5px 15px; border-radius: 5px; font-size: 1.2em;">
+            {{ score.name }}: {{ score.score }}
+        </span>
+    {% endfor %}
+    </div>
+
+</div>

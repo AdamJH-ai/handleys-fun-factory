@@ -1,0 +1,30 @@
+{# templates/_hol_guesser_turn_display.html #}
+{# Expects: turn, total_turns, question_text, submitter_name, submitter_guess, players_status #}
+
+<div id="hol-guesser-content">
+
+    <h2>Higher or Lower! (Turn {{ turn }}/{{ total_turns }})</h2>
+
+    <h3>{{ question_text }}</h3>
+
+    {# Display the submitter's guess clearly #}
+    <div style="margin: 40px auto; background-color: var(--bg-secondary); padding: 20px; border-radius: 10px; max-width: 700px;">
+        <h4 style="margin:0;">{{ submitter_name }} guessed:</h4>
+        <p style="font-family: var(--font-display); font-size: 6em; color: var(--accent-gold); line-height: 1.1;">
+            {{ "{:,.0f}".format(submitter_guess) }}
+        </p>
+        <h3 style="font-size: 2em; color: var(--accent-blue);">Is the real answer Higher or Lower?</h3>
+    </div>
+
+    {# Reuse the player status list for the guessers #}
+    <div class="player-status-list" style="margin-top: 30px;">
+        <h4>Waiting for players to answer...</h4>
+        <ul>
+            {% for p_status in players_status %}
+                {# The ID here is crucial for the JS to find and update it #}
+                <li id="player-status-{{ p_status.name | replace('[^a-zA-Z0-9-_]', '_') }}">{{ p_status.name }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+</div>
