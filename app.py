@@ -14,8 +14,8 @@ socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
 
 # === GAME CONFIG ===
 GAME_ROUNDS_TOTAL = 10
-AVAILABLE_ROUND_TYPES = ['guess_the_age', 'guess_the_year', 'who_didnt_do_it', 'order_up', 'quick_pairs', 'true_or_false', 'tap_the_pic', 'the_top_three', 'higher_or_lower', 'averagers_assemble']
-#AVAILABLE_ROUND_TYPES = ['averagers_assemble']
+#AVAILABLE_ROUND_TYPES = ['guess_the_age', 'guess_the_year', 'who_didnt_do_it', 'order_up', 'quick_pairs', 'true_or_false', 'tap_the_pic', 'the_top_three', 'higher_or_lower', 'averagers_assemble']
+AVAILABLE_ROUND_TYPES = ['averagers_assemble', 'higher_or_lower']
 MAX_PLAYERS = 8
 gta_target_turns = 10
 gty_target_turns = 10
@@ -719,7 +719,7 @@ def process_guess_the_year_turn_results():
     socketio.sleep(5);
     if game_state == "guess_the_year_ongoing": print("DEBUG: Proceeding next GTY turn."); next_guess_the_year_turn()
     else: print(f"DEBUG: State changed GTY sleep ({game_state}).")
-    
+
 def end_guess_the_year_round():
     global game_state;
     game_state = "guess_the_year_results"; # Set state FIRST

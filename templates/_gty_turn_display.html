@@ -4,19 +4,24 @@
 
     <h2>Guess The Year (Turn {{ turn }}/{{ total_turns }})</h2>
 
-    {# Add the 'ttp-image' class to make the image larger #}
     {% if question_data and question_data.image_url %}
-        <img class="question-image ttp-image" src="{{ url_for('static', filename=question_data.image_url) }}" alt="Question Image">
+        {# --- THIS IS THE FIX --- #}
+        {# Check if the URL is external (starts with http) or local #}
+        {% if question_data.image_url.startswith('http') %}
+            {# It's an external URL, so we use the src directly #}
+            <img class="question-image gty-image" src="{{ question_data.image_url }}" alt="Question Image">
+        {% else %}
+            {# It's a local file, so we use url_for to build the path #}
+            <img class="question-image gty-image" src="{{ url_for('static', filename=question_data.image_url) }}" alt="Question Image">
+        {% endif %}
     {% endif %}
 
-    {# Use the prominent class for the question text #}
     <h3 class="question-text-prominent">{{ question_data.question or 'Question loading...' }}</h3>
     
     {% if question_data.category %}
         <p style="color: var(--text-secondary);">Category: {{ question_data.category }}</p>
     {% endif %}
 
-    {# Player status list remains the same #}
     <div class="player-status-list" style="margin-top: 30px;">
         <h4>Waiting for players to guess...</h4>
         <ul>

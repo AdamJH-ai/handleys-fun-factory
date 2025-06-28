@@ -1,14 +1,14 @@
 [
   {
-    "question_text": "Which three of these films have grossed over $2 billion at the worldwide box office?",
+    "question_text": "Which three of these players have scored the most Premier League goals?",
     "options": [
-      "Avatar", "Titanic", "Star Wars: The Force Awakens", "Jurassic World",
-      "The Lion King (2019)", "Avengers: Endgame", "Frozen II", "Top Gun: Maverick"
+      "Wayne Rooney", "Harry Kane", "Andy Cole", "Sergio Agüero",
+      "Frank Lampard", "Thierry Henry", "Alan Shearer", "Robbie Fowler"
     ],
     "correct_answers": [
-      "Avatar",
-      "Avengers: Endgame",
-      "Titanic"
+      "Alan Shearer",
+      "Harry Kane",
+      "Wayne Rooney"
     ]
   },
   {
@@ -24,99 +24,99 @@
     ]
   },
   {
-    "question_text": "Which three of these are primary colors in the additive (RGB) color model?",
+    "question_text": "Which three of these countries have the largest land area?",
     "options": [
-      "Red", "Yellow", "Green", "Orange",
-      "Blue", "Purple", "Black", "White"
+      "United States", "China", "Russia", "Canada",
+      "Brazil", "Australia", "India", "Argentina"
     ],
     "correct_answers": [
-      "Red",
-      "Green",
-      "Blue"
+      "Russia",
+      "Canada",
+      "United States"
     ]
   },
   {
-    "question_text": "Which three of these singers were members of the Rat Pack?",
+    "question_text": "Which three of these book series have sold the most copies worldwide?",
     "options": [
-      "Frank Sinatra", "Dean Martin", "Tony Bennett", "Sammy Davis Jr.",
-      "Bing Crosby", "Perry Como", "Nat King Cole", "Bobby Darin"
+      "Harry Potter", "Goosebumps", "The Lord of the Rings", "Perry Mason",
+      "The Twilight Saga", "The Hunger Games", "The Chronicles of Narnia", "Diary of a Wimpy Kid"
     ],
     "correct_answers": [
-      "Frank Sinatra",
-      "Dean Martin",
-      "Sammy Davis Jr."
+      "Harry Potter",
+      "Goosebumps",
+      "The Lord of the Rings"
     ]
   },
   {
-    "question_text": "Which three of these are noble metals?",
+    "question_text": "Which three of these film franchises have grossed the most money worldwide (as of 2025)?",
     "options": [
-      "Gold", "Silver", "Iron", "Copper",
-      "Platinum", "Aluminum", "Lead", "Zinc"
+      "Marvel Cinematic Universe", "Star Wars", "Harry Potter / Wizarding World", "James Bond",
+      "Fast & Furious", "Spider-Man", "Batman", "The Lord of the Rings / Middle-earth"
     ],
     "correct_answers": [
-      "Gold",
-      "Silver",
-      "Platinum"
+      "Marvel Cinematic Universe",
+      "Star Wars",
+      "Harry Potter / Wizarding World"
     ]
   },
   {
-    "question_text": "Which three of these UK cities have a tube/metro system?",
+    "question_text": "Which three of these countries have won the most Olympic gold medals in history?",
     "options": [
-      "Manchester", "Birmingham", "Liverpool", "Glasgow",
-      "Leeds", "Sheffield", "Newcastle", "London"
+      "United States", "Germany", "Great Britain", "France",
+      "China", "Russia", "Italy", "Sweden"
     ],
     "correct_answers": [
-      "London",
-      "Glasgow",
-      "Newcastle"
+      "United States",
+      "Russia",
+      "Germany"
     ]
   },
   {
-    "question_text": "Which three of these social media apps were launched before 2007?",
+    "question_text": "Which three of these artists have had the most UK number one singles?",
     "options": [
-      "Instagram", "Facebook", "Snapchat", "Twitter",
-      "MySpace", "LinkedIn", "WhatsApp", "Pinterest"
+      "The Beatles", "Elvis Presley", "Cliff Richard", "Westlife",
+      "Madonna", "Calvin Harris", "Take That", "Spice Girls"
     ],
     "correct_answers": [
-      "LinkedIn",
-      "MySpace",
-      "Facebook"
+      "Elvis Presley",
+      "The Beatles",
+      "Cliff Richard"
     ]
   },
   {
-    "question_text": "Which three of these animals are marsupials?",
+    "question_text": "Which three of these cities have the largest metropolitan populations (2025 est.)?",
     "options": [
-      "Kangaroo", "Koala", "Beaver", "Wombat",
-      "Platypus", "Badger", "Hedgehog", "Capybara"
+      "Tokyo", "Delhi", "Shanghai", "São Paulo",
+      "Mexico City", "Cairo", "Mumbai", "Beijing"
     ],
     "correct_answers": [
-      "Kangaroo",
-      "Koala",
-      "Wombat"
+      "Tokyo",
+      "Delhi",
+      "Shanghai"
     ]
   },
   {
-    "question_text": "Which three of these authors wrote books in the 'A Song of Ice and Fire' series (on which Game of Thrones is based)?",
+    "question_text": "Which three of these British TV shows have run for the most years?",
     "options": [
-      "George R. R. Martin", "J.R.R. Tolkien", "J.K. Rowling", "Patrick Rothfuss",
-      "Brandon Sanderson", "Neil Gaiman", "Andrzej Sapkowski", "Robin Hobb"
+      "Coronation Street", "Doctor Who", "EastEnders", "Emmerdale",
+      "Blue Peter", "Panorama", "Match of the Day", "The Sky at Night"
     ],
     "correct_answers": [
-      "George R. R. Martin",
-      "Brandon Sanderson",
-      "J.R.R. Tolkien"
+      "Panorama",
+      "The Sky at Night",
+      "Blue Peter"
     ]
   },
   {
-    "question_text": "Which three of these are moons of Jupiter?",
+    "question_text": "Which three of these animals are the heaviest on average?",
     "options": [
-      "Titan", "Io", "Phobos", "Europa",
-      "Ganymede", "Triton", "Charon", "Enceladus"
+      "African Elephant", "Blue Whale", "Hippopotamus", "White Rhinoceros",
+      "Saltwater Crocodile", "Giraffe", "Walrus", "Kodiak Bear"
     ],
     "correct_answers": [
-      "Io",
-      "Europa",
-      "Ganymede"
+      "Blue Whale",
+      "African Elephant",
+      "White Rhinoceros"
     ]
   }
 ]

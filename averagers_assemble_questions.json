@@ -1,42 +1,78 @@
 [
   {
-    "question": "How many states are in the USA?",
-    "answer": 50
-  },
-  {
-    "question": "What is the boiling point of water in degrees Celsius?",
-    "answer": 100
-  },
-  {
-    "question": "How many days are in a leap year?",
-    "answer": 366
-  },
-  {
     "question": "How many moons does the planet Mars have?",
     "answer": 2
   },
   {
-    "question": "What is the maximum number of points you can score with three darts?",
-    "answer": 180
+    "question": "How many letters are in the Hawaiian alphabet?",
+    "answer": 13
   },
   {
-    "question": "In what year did the Titanic sink?",
-    "answer": 1912
+    "question": "How many days did the Falklands War last?",
+    "answer": 74
   },
   {
-    "question": "How many players are on a standard soccer team on the field at one time?",
+    "question": "How many Academy Awards did *The Lord of the Rings: The Return of the King* win?",
     "answer": 11
   },
   {
-    "question": "How many sides does a standard pencil have?",
-    "answer": 6
+    "question": "How many keys are there on a full-size computer keyboard (including function keys and numpad)?",
+    "answer": 104
   },
   {
-    "question": "What is the number of squares on a chessboard?",
-    "answer": 64
+    "question": "How many ribs does the human body have?",
+    "answer": 24
   },
   {
-    "question": "How many letters are in the Hawaiian alphabet?",
+    "question": "How many goals did Lionel Messi score for Barcelona in official matches?",
+    "answer": 672
+  },
+  {
+    "question": "How many official Disney animated feature films were released before the year 2000?",
+    "answer": 38
+  },
+  {
+    "question": "How many albums did The Beatles release in the UK?",
     "answer": 13
+  },
+  {
+    "question": "How many satellites are currently orbiting Earth (as of 2024)?",
+    "answer": 9000
+  },
+  {
+    "question": "How many cards are there in a standard Uno deck?",
+    "answer": 108
+  },
+  {
+    "question": "How many miles per hour is the speed of sound at sea level?",
+    "answer": 761
+  },
+  {
+    "question": "How many paintings did Picasso produce in his lifetime?",
+    "answer": 13500
+  },
+  {
+    "question": "How many countries does the Amazon River flow through?",
+    "answer": 7
+  },
+  {
+    "question": "How many years did the Hundred Years’ War actually last?",
+    "answer": 116
+  },
+  {
+    "question": "How many films have won Best Picture at the Oscars without winning any other awards?",
+    "answer": 3
+  },
+  {
+    "question": "How many people were estimated to attend the 1969 Woodstock Festival?",
+    "answer": 400000
+  },
+  {
+    "question": "How many rooms are there in Buckingham Palace?",
+    "answer": 775
+  },
+  {
+    "question": "How many years old was the oldest verified person ever?",
+    "answer": 122
   }
 ]

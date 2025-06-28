@@ -5,9 +5,13 @@
     <h2>Results!</h2>
     <h3>{{ question_text }}</h3>
 
-    {# Add the small version of the image here #}
     {% if image_url %}
-        <img class="question-image" src="{{ url_for('static', filename=image_url) }}" alt="Question Image" style="max-height: 150px; margin-bottom: 20px; border-radius: 6px;">
+        {# --- THIS IS THE SAME FIX --- #}
+        {% if image_url.startswith('http') %}
+            <img class="question-image" src="{{ image_url }}" alt="Question Image" style="max-height: 150px; margin-bottom: 20px; border-radius: 6px;">
+        {% else %}
+            <img class="question-image" src="{{ url_for('static', filename=image_url) }}" alt="Question Image" style="max-height: 150px; margin-bottom: 20px; border-radius: 6px;">
+        {% endif %}
     {% endif %}
 
     <h3>The correct year was: <span style="color: var(--accent-gold);">{{ correct_year if correct_year is not none else '--' }}</span></h3>
@@ -17,7 +21,6 @@
             <li class="{{ 'highlight' if res.diff == 0 }}">
                 <span class="player-name">{{ res.name }}</span>
                 <span class="player-answer">Guess: {{ res.guess }} (Off by {{ res.diff }})</span>
-                {# Clarified score display for a "lowest score wins" game #}
                 <span class="player-points">Total Diff: {{ res.round_score }}</span>
             </li>
         {% endfor %}

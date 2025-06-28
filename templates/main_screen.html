@@ -122,6 +122,12 @@
             margin-bottom: 25px; /* Add a bit more space below it */
         }
 
+        .gty-image {
+            max-width: 70%;
+            max-height: 45vh; /* A more reasonable height for this layout */
+            margin-bottom: 20px;
+        }
+
         /* ==========================================================================
         4. SPLASH SCREEN & LOBBY STYLES
         ========================================================================== */
@@ -398,6 +404,7 @@
         <audio id="jingle-wddi" src="/static/audio/wddi_jingle.mp3" preload="auto"></audio>
         <audio id="jingle-ou" src="/static/audio/ou_jingle.mp3" preload="auto"></audio>
         <audio id="jingle-qp" src="/static/audio/qp_jingle.mp3" preload="auto"></audio>
+        <audio id="jingle-aa" src="/static/audio/avengers_theme.mp3" preload="auto"></audio>
         <!-- <audio id="jingle-team" src="/static/audio/team_jingle.mp3" preload="auto"></audio> -->
     </div>
 
@@ -406,7 +413,7 @@
         let splashScreen, initiateGameButton, waitingArea, playerList, startGameButton;
         let roundContentArea, resultsArea, overallGameOverArea, statusBar, gameStateSpan;
         let overallScoreDisplay, connectIpSpan, themeMusic, muteButton, playAgainButton;
-        let jingleGTA, jingleGTY, jingleWDDI, jingleOU, jingleQP;
+        let jingleGTA, jingleGTY, jingleWDDI, jingleOU, jingleQP, jingleAA;
 
         let currentJingle = null;
 
@@ -544,6 +551,7 @@
             else if (jingleFile === 'wddi_jingle.mp3' && jingleWDDI) jingleToPlay = jingleWDDI;
             else if (jingleFile === 'ou_jingle.mp3' && jingleOU) jingleToPlay = jingleOU;
             else if (jingleFile === 'qp_jingle.mp3' && jingleQP) jingleToPlay = jingleQP;
+            else if (jingleFile === 'avengers_theme.mp3' && jingleAA) jingleToPlay = jingleAA;
 
             if (jingleToPlay) {
                 currentJingle = jingleToPlay;
@@ -594,6 +602,7 @@
             jingleWDDI = document.getElementById('jingle-wddi');
             jingleOU = document.getElementById('jingle-ou');
             jingleQP = document.getElementById('jingle-qp');
+            jingleAA = document.getElementById('jingle-aa');
             if (!themeMusic || !jingleGTA) {
                 console.warn("Audio elements (theme or jingles) might be missing!");
             }

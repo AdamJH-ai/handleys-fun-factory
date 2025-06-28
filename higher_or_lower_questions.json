@@ -4,24 +4,12 @@
     "answer": 236
   },
   {
-    "question": "In what year was the first iPhone released by Apple?",
-    "answer": 2007
-  },
-  {
     "question": "What is the height of the Eiffel Tower in meters?",
     "answer": 330
   },
   {
     "question": "How many bones are in the adult human body?",
     "answer": 206
-  },
-  {
-    "question": "What is the total number of dots on a standard pair of dice?",
-    "answer": 42
-  },
-  {
-    "question": "How many minutes are in a full week?",
-    "answer": 10080
   },
   {
     "question": "What is the top speed, in mph, of a cheetah?",
@@ -32,7 +20,55 @@
     "answer": 193
   },
   {
-    "question": "What is the number of 'keys' on a standard piano?",
-    "answer": 88
+    "question": "How many minutes does light take to travel from the Sun to Earth?",
+    "answer": 8
+  },
+    {
+    "question": "How many official James Bond films have been released (as of 2025)?",
+    "answer": 27
+  },
+    {
+    "question": "How many miles is the Earth’s equator in length?",
+    "answer": 24901
+  },
+    {
+    "question": "How many elements are there on the periodic table (as of 2025)?",
+    "answer": 118
+  },
+    {
+    "question": "How many paintings did Vincent van Gogh complete in his lifetime?",
+    "answer": 2100
+  },
+    {
+    "question": "How many Olympic gold medals did Michael Phelps win?",
+    "answer": 23
+  },
+    {
+    "question": "How many verses are there in the UK national anthem?",
+    "answer": 5
+  },
+    {
+    "question": "How many dimples are there on a standard golf ball?",
+    "answer": 336
+  },
+    {
+    "question": "How many films has Tom Hanks appeared in (as of 2025)?",
+    "answer": 94
+  },
+    {
+    "question": "How many stairs are there in the Empire State Building?",
+    "answer": 1860
+  },
+    {
+    "question": "How many islands make up the Philippines?",
+    "answer": 7641
+  },
+    {
+    "question": "How many people were on board the Titanic when it set sail?",
+    "answer": 2224
+  },
+  {
+    "question": "How many miles long is the Great Wall of China?",
+    "answer": 13000
   }
 ]

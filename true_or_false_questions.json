@@ -38,5 +38,17 @@
   {
     "statement": "It is impossible to sneeze with your eyes open.",
     "correct_answer": true
+  },
+  {
+    "statement": "Goldfish have a memory span of only three seconds.",
+    "correct_answer": false
+  },
+  {
+    "statement": "Mount Everest is the closest point on Earth to the Moon.",
+    "correct_answer": false
+  },
+  {
+    "statement": "Lightning never strikes the same place twice.",
+    "correct_answer": false
   }
 ]
