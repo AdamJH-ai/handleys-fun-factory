@@ -1,0 +1,25 @@
+{# templates/_aa_picking_turn.html #}
+{# Expects: picker_name, teams_so_far #}
+<div id="aa-picking-content">
+    <h2>Averagers, Assemble!</h2>
+    <h3 class="question-text-prominent">Team Selection In Progress...</h3>
+
+    <div style="margin-top: 50px;">
+        <h3 style="color: var(--text-secondary); font-size: 1.8em;">Waiting for a teammate pick from...</h3>
+        <h2 style="font-size: 4em; color: var(--accent-blue);">{{ picker_name }}</h2>
+    </div>
+
+    {% if teams_so_far %}
+    <div style="margin-top: 40px;">
+        <h4>Teams Formed So Far:</h4>
+        <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+            {% for team in teams_so_far %}
+            <div style="background-color: var(--bg-secondary); padding: 15px; border-radius: 8px; min-width: 250px;">
+                <h4 style="color: var(--accent-gold);">{{ team.name }}</h4>
+                <p style="font-size: 1.2em;">{{ team.members | join(' & ') }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>

@@ -1,0 +1,42 @@
+[
+  {
+    "question": "How many states are in the USA?",
+    "answer": 50
+  },
+  {
+    "question": "What is the boiling point of water in degrees Celsius?",
+    "answer": 100
+  },
+  {
+    "question": "How many days are in a leap year?",
+    "answer": 366
+  },
+  {
+    "question": "How many moons does the planet Mars have?",
+    "answer": 2
+  },
+  {
+    "question": "What is the maximum number of points you can score with three darts?",
+    "answer": 180
+  },
+  {
+    "question": "In what year did the Titanic sink?",
+    "answer": 1912
+  },
+  {
+    "question": "How many players are on a standard soccer team on the field at one time?",
+    "answer": 11
+  },
+  {
+    "question": "How many sides does a standard pencil have?",
+    "answer": 6
+  },
+  {
+    "question": "What is the number of squares on a chessboard?",
+    "answer": 64
+  },
+  {
+    "question": "How many letters are in the Hawaiian alphabet?",
+    "answer": 13
+  }
+]

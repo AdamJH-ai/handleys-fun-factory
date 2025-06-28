@@ -1,23 +1,23 @@
-{# templates/_gty_turn_display.html (Rewritten) #}
+{# templates/_gty_turn_display.html #}
 {# Expects: turn, total_turns, question_data, players_status #}
 <div id="gty-content">
 
     <h2>Guess The Year (Turn {{ turn }}/{{ total_turns }})</h2>
 
-    {# Using the generic image class again for instant consistency #}
+    {# Add the 'ttp-image' class to make the image larger #}
     {% if question_data and question_data.image_url %}
-        <img class="question-image" src="{{ question_data.image_url }}" alt="{{ question_data.category or 'Question Image' }}">
+        <img class="question-image ttp-image" src="{{ url_for('static', filename=question_data.image_url) }}" alt="Question Image">
     {% endif %}
 
-    {# The main question text is a prominent h3 #}
-    <h3>{{ question_data.question or 'Question loading...' }}</h3>
+    {# Use the prominent class for the question text #}
+    <h3 class="question-text-prominent">{{ question_data.question or 'Question loading...' }}</h3>
     
     {% if question_data.category %}
-        <p>Category: {{ question_data.category }}</p>
+        <p style="color: var(--text-secondary);">Category: {{ question_data.category }}</p>
     {% endif %}
 
-    {# Reusing the exact same player status component as GTA #}
-    <div class="player-status-list">
+    {# Player status list remains the same #}
+    <div class="player-status-list" style="margin-top: 30px;">
         <h4>Waiting for players to guess...</h4>
         <ul>
             {% for p_status in players_status %}

@@ -1,0 +1,18 @@
+{# templates/_aa_team_reveal.html #}
+{# Expects: teams (a list of teams with member names) #}
+<div id="aa-reveal-content">
+    <h2>Averagers, Assemble!</h2>
+    <h3 class="question-text-prominent">The Teams Are Set!</h3>
+
+    <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 30px;">
+        {% for team in teams %}
+        <div style="background-color: var(--bg-secondary); padding: 20px; border-radius: 8px; min-width: 300px;">
+            <h2 style="color: var(--accent-blue); font-size: 2.5em;">{{ team.name }}</h2>
+            <p style="font-size: 1.5em; font-weight: bold; margin-top: 10px;">
+                {{ team.members | join(' & ') }}
+            </p>
+        </div>
+        {% endfor %}
+    </div>
+    <h3 style="margin-top: 40px;">Get ready to guess...</h3>
+</div>

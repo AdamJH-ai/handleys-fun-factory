@@ -1,0 +1,15 @@
+{# templates/_aa_turn_display.html #}
+{# Expects: turn, total_turns, question_text, players_status #}
+<div id="aa-gameplay-content">
+    <h2>Averagers, Assemble! (Turn {{ turn }}/{{ total_turns }})</h2>
+    <h3 class="question-text-prominent">{{ question_text }}</h3>
+
+    <div class="player-status-list" style="margin-top: 30px;">
+        <h4>Waiting for players to submit their guess...</h4>
+        <ul>
+            {% for p_status in players_status %}
+                <li id="player-status-{{ p_status.name | replace('[^a-zA-Z0-9-_]', '_') }}">{{ p_status.name }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>

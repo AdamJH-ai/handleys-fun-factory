@@ -1,0 +1,43 @@
+{# templates/_aa_turn_results.html #}
+{# Expects: question_text, correct_answer, team_results #}
+<div id="aa-results-content">
+    <h2>Results!</h2>
+    <h3>{{ question_text }}</h3>
+
+    <h4 style="margin-top: 25px;">The correct answer was: 
+        <span style="color: var(--accent-gold); font-size: 1.5em;">
+            {{ '{:,.0f}'.format(correct_answer) }}
+        </span>
+    </h4>
+
+    <div style="max-width: 900px; margin: 20px auto;">
+        {% for team in team_results %}
+        {# Highlight the winning team(s) using the new 'points_this_turn' value #}
+        <div class="round-results-list {{ 'highlight' if team.points_this_turn > 0 }}" style="display: block; text-align: left; padding: 20px; margin-bottom: 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h4 style="color: var(--accent-blue); font-size: 1.5em; margin-bottom: 0;">{{ team.name }}</h4>
+                <div style="text-align: right;">
+                    <span style="font-size: 1.1em;">Team Average:</span>
+                    <span style="font-family: var(--font-display); font-size: 2.5em; color: var(--accent-gold);">
+                        {{ '{:,.0f}'.format(team.average) }}
+                    </span>
+                    {# --- NEW SCORING DISPLAY (OPTION 3) --- #}
+                    <div style="font-size: 1.1em; color: var(--text-primary);">
+                        {% if team.points_this_turn > 0 %}
+                            <span style="color: var(--color-success); font-weight: bold;">(+{{ team.points_this_turn }} pt)</span>
+                        {% endif %}
+                        <span>| Total: {{ team.total_round_score }}</span>
+                    </div>
+                </div>
+            </div>
+            {# --- BIGGER FONT FOR INDIVIDUAL GUESSES --- #}
+            <div style="font-size: 1.1em; color: var(--text-secondary); border-top: 1px solid var(--bg-primary); padding-top: 10px;">
+                Individual Guesses: 
+                {% for name, guess in team.member_guesses.items() %}
+                    <span style="color: var(--text-primary);">{{ name }}: {{ guess if guess != 'N/A' else 'N/A' }}</span>{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>

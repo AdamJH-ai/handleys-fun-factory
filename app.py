@@ -13,9 +13,9 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'a_super_secret_key_chan
 socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
 
 # === GAME CONFIG ===
-GAME_ROUNDS_TOTAL = 7
-#AVAILABLE_ROUND_TYPES = ['guess_the_age', 'guess_the_year', 'who_didnt_do_it', 'order_up', 'quick_pairs', 'true_or_false', 'tap_the_pic', 'the_top_three', 'higher_or_lower']
-AVAILABLE_ROUND_TYPES = ['higher_or_lower']
+GAME_ROUNDS_TOTAL = 10
+AVAILABLE_ROUND_TYPES = ['guess_the_age', 'guess_the_year', 'who_didnt_do_it', 'order_up', 'quick_pairs', 'true_or_false', 'tap_the_pic', 'the_top_three', 'higher_or_lower', 'averagers_assemble']
+#AVAILABLE_ROUND_TYPES = ['averagers_assemble']
 MAX_PLAYERS = 8
 gta_target_turns = 10
 gty_target_turns = 10
@@ -26,6 +26,7 @@ tf_target_turns = 10
 ttp_target_turns = 10
 ttt_target_turns = 10
 hol_target_turns = 10
+aa_target_turns = 10
 QP_NUM_PAIRS_PER_QUESTION = 3
 
 # === ROUND DETAILS ===
@@ -39,6 +40,7 @@ ROUND_RULES = {
     'tap_the_pic': "A question and a numbered image will be shown. Choose the number that correctly answers the question!",
     'the_top_three': "A category and a list of options will appear. Select the three correct answers!",
     'higher_or_lower': "One player guesses a number. Everyone else guesses if the real answer is Higher or Lower!",
+    'averagers_assemble': "Form teams and work together! The team whose average guess is closest to the answer wins the point.",
 }
 ROUND_DISPLAY_NAMES = {
     'guess_the_age': "Guess The Age",
@@ -50,6 +52,7 @@ ROUND_DISPLAY_NAMES = {
     'tap_the_pic': "Tap The Pic",
     'the_top_three': "The Top Three",
     'higher_or_lower': "Higher or Lower",
+    'averagers_assemble': "Averagers, Assemble!"
 }
 ROUND_JINGLES = {
     'guess_the_age': 'gta_jingle.mp3',
@@ -61,7 +64,7 @@ ROUND_JINGLES = {
     'tap_the_pic': 'ttp_jingle.mp3',
     'the_top_three': 'your_ttt_jingle.mp3',
     'higher_or_lower': 'hol_jingle.mp3',
-    # 'team_round': 'team_jingle.mp3' # For the future
+    'averagers_assemble': 'avengers_theme.mp3',
 }
 ROUND_INTRO_DELAY = 8 # Seconds
 
@@ -137,6 +140,18 @@ hol_player_submitter_queue = [] # A queue of player SIDs who need to submit a nu
 hol_current_submitter_sid = None # The SID of the player submitting the number this turn
 hol_submitter_guess = None # The number the submitter guessed
 hol_current_turn_stage = None # Can be 'AWAITING_SUBMISSION' or 'AWAITING_GUESSES'
+
+# === AVERAGERS, ASSEMBLE STATE ===
+aa_questions = []
+aa_shuffled_questions_this_round = []
+aa_current_question = None
+aa_current_turn_index = -1
+aa_actual_turns_this_round = 0
+aa_round_phase = None # Tracks the phase: 'selection' or 'gameplay'
+aa_teams = [] # List of finalized teams. e.g. [{'name':'Team Cap', 'members':[sid1, sid2]}]
+aa_unpicked_players = [] # Sorted list of SIDs for the picking draft
+aa_current_picker_sid = None # The SID of the player currently picking a teammate
+AA_TEAM_NAMES = ["Team Cap", "Team Iron Man", "Team Thor", "Team Spidey"] # Hardcoded team names
 
 # === ROOMS ===
 MAIN_ROOM = 'main_room'; PLAYERS_ROOM = 'players_room'
@@ -335,6 +350,21 @@ def load_higher_or_lower_data(filename="higher_or_lower_questions.json"):
     except Exception as e:
         print(f"[HOL_Data] Load Fail: {e}")
 
+def load_averagers_assemble_data(filename="averagers_assemble_questions.json"):
+    """Loads questions for the 'Averagers, Assemble' round."""
+    global aa_questions
+    try:
+        with open(filename, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        print(f"[AA_Data] Loaded {len(data)} potential questions from {filename}")
+        aa_questions = [
+            q for q in data if all(k in q for k in ('question', 'answer')) and
+            isinstance(q.get('answer'), int)
+        ]
+        print(f"[AA_Data] OK: {len(aa_questions)} valid 'Averagers, Assemble' questions loaded.")
+    except Exception as e:
+        print(f"[AA_Data] Load Fail: {e}")
+
 # === HELPERS ===
 def update_main_screen_html(target_selector, template_name, context):
     """Renders a template fragment and sends it to the main screen."""
@@ -424,6 +454,7 @@ def handle_disconnect():
         elif game_state == 'tap_the_pic_ongoing' and check_all_guesses_received_ttp(): process_tap_the_pic_turn_results()
         elif game_state == 'the_top_three_ongoing' and check_all_submissions_received_ttt(): process_the_top_three_turn_results()
         elif game_state == 'higher_or_lower_ongoing' and hol_current_turn_stage == 'AWAITING_GUESSES' and check_all_guesses_received_hol(): process_results_higher_or_lower()
+        elif game_state == 'averagers_assemble_ongoing' and aa_round_phase == 'gameplay' and check_all_guesses_received_aa(): process_results_aa()
     else: print(f"Unregistered client disconnected: {player_sid}")
 
 @socketio.on('register_main_screen')
@@ -442,7 +473,7 @@ def handle_register_player(data):
     if player_sid not in players:
         join_room(PLAYERS_ROOM, player_sid)
         # Initialize only GTA and GTY fields
-        players[player_sid] = {'name': player_name, 'round_score': 0, 'gta_current_guess': None, 'gty_current_guess': None, 'wddi_current_guess': None, 'ou_current_submission': None, 'qp_current_submission': None, 'qp_submission_time_ms': float('inf'), 'tf_current_guess': None, 'ttp_current_guess': None, 'ttt_current_submission': None, 'hol_current_guess': None} # Store submission time, default to infinity
+        players[player_sid] = {'name': player_name, 'round_score': 0, 'gta_current_guess': None, 'gty_current_guess': None, 'wddi_current_guess': None, 'ou_current_submission': None, 'qp_current_submission': None, 'qp_submission_time_ms': float('inf'), 'tf_current_guess': None, 'ttp_current_guess': None, 'ttt_current_submission': None, 'hol_current_guess': None, 'aa_current_guess': None} # Store submission time, default to infinity
         overall_game_scores[player_sid] = 0; print(f"Player registered: {player_name} ({player_sid[:4]})")
         emit('message', {'data': f'Welcome {player_name}!'}, room=player_sid)
     else: players[player_sid]['name'] = player_name; emit('message', {'data': f'Rejoined as {player_name}.'}, room=player_sid)
@@ -501,6 +532,7 @@ def start_next_game_round():
     elif round_type_key == 'tap_the_pic': setup_tap_the_pic_round()
     elif round_type_key == 'the_top_three': setup_the_top_three_round()
     elif round_type_key == 'higher_or_lower': setup_higher_or_lower_round()
+    elif round_type_key == 'averagers_assemble': setup_averagers_assemble_round()
     else: print(f"ERR: Unknown/Removed type {round_type_key}. Skip."); socketio.sleep(1); start_next_game_round()
 
 def end_overall_game():
@@ -660,12 +692,21 @@ def handle_submit_gty_guess(data):
                 if check_all_guesses_received_gty(): print("All GTY guesses received."); socketio.sleep(0.5); process_guess_the_year_turn_results()
             else: emit('message', {'data': 'Already guessed.'}, room=player_sid)
         except Exception as e: emit('message', {'data': 'Invalid year.'}, room=player_sid); print(f"Invalid GTY guess: {e}")
+
 def process_guess_the_year_turn_results():
     global game_state; print(f"DEBUG: Entered process_gty_turn_results. State: {game_state}");
     if game_state != "guess_the_year_ongoing": print("DEBUG: Exiting GTY process early."); return; print("--- Processing GTY Turn Results ---");
-    results_context = { 'results': [], 'correct_year': None, 'question_text': '' }; print("DEBUG: Defined results_context GTY.");
+    # Add 'image_url' to the context definition
+    results_context = { 'results': [], 'correct_year': None, 'question_text': '', 'image_url': None }; 
+    print("DEBUG: Defined results_context GTY.");
     if gty_current_question:
-        correct_year = gty_current_question['year']; results_context['correct_year'] = correct_year; results_context['question_text'] = gty_current_question['question']; print(f"Actual Year: {correct_year}"); round_results_list = []
+        correct_year = gty_current_question['year']
+        results_context['correct_year'] = correct_year
+        results_context['question_text'] = gty_current_question['question']
+        # <<< THE NEW LINE IS HERE >>>
+        results_context['image_url'] = gty_current_question.get('image_url') # Pass the image url
+
+        print(f"Actual Year: {correct_year}"); round_results_list = []
         active_players_copy = list(players.items()); print(f"DEBUG: GTY Processing for {len(active_players_copy)} players.");
         for sid, p_info in active_players_copy:
             print(f"DEBUG: GTY Loop - Player {p_info.get('name', '?')}"); guess = p_info.get('gty_current_guess'); print(f"DEBUG:   -> Guess: {guess}"); score_diff = abs(correct_year - guess) if guess is not None else None; print(f"DEBUG:   -> Diff: {score_diff}");
@@ -678,6 +719,7 @@ def process_guess_the_year_turn_results():
     socketio.sleep(5);
     if game_state == "guess_the_year_ongoing": print("DEBUG: Proceeding next GTY turn."); next_guess_the_year_turn()
     else: print(f"DEBUG: State changed GTY sleep ({game_state}).")
+    
 def end_guess_the_year_round():
     global game_state;
     game_state = "guess_the_year_results"; # Set state FIRST
@@ -2168,10 +2210,17 @@ def process_results_higher_or_lower():
     if submitter_guess == correct_answer:
         print("   Submitter guessed EXACTLY! Submitter sweep.")
         submitter_points_this_turn = len(players) - 1
+        # We still need to build the results list to show what people guessed.
+        for sid, p_info in players.items():
+            if sid == hol_current_submitter_sid: continue
+            player_guess = p_info.get('hol_current_guess')
+            # In an exact guess scenario, guessers are always "incorrect".
+            results_list.append({'name': p_info['name'], 'guess': player_guess, 'is_correct': False})
+
     # Case 2: Standard Higher/Lower logic
     else:
         for sid, p_info in players.items():
-            if sid == hol_current_submitter_sid: continue # Skip the submitter for now
+            if sid == hol_current_submitter_sid: continue
 
             player_guess = p_info.get('hol_current_guess') # 'Higher' or 'Lower'
             was_correct = False
@@ -2193,7 +2242,7 @@ def process_results_higher_or_lower():
     players[hol_current_submitter_sid]['round_score'] += submitter_points_this_turn
     print(f"   Submitter {players[hol_current_submitter_sid]['name']} awarded {submitter_points_this_turn} points.")
 
-    # Prepare context for the template
+    # Prepare context for the template (this part remains the same)
     results_context = {
         'question_text': hol_current_question['question'],
         'submitter_name': players[hol_current_submitter_sid]['name'],
@@ -2250,6 +2299,325 @@ def end_round_higher_or_lower():
     if game_state == "higher_or_lower_results":
         start_next_game_round()
 
+# === AVERAGERS, ASSEMBLE LOGIC ===
+
+def check_all_guesses_received_aa():
+    """Checks if all connected players have submitted a guess for the current AA turn."""
+    if not players: return True
+    return all(p.get('aa_current_guess') is not None for p in players.values())
+
+def start_next_team_pick():
+    """Manages the team selection draft loop. This is the heart of the selection phase."""
+    global aa_current_picker_sid, aa_round_phase
+
+    # --- THIS IS THE MODIFIED LOGIC ---
+    # The draft is now considered "over" if 2 or fewer players remain.
+    if len(aa_unpicked_players) <= 2:
+        
+        # Case 1: Exactly 2 players left. Form the final team automatically.
+        if len(aa_unpicked_players) == 2:
+            player1_sid = aa_unpicked_players[0]
+            player2_sid = aa_unpicked_players[1]
+            player1_name = players[player1_sid]['name']
+            player2_name = players[player2_sid]['name']
+            
+            team_name = AA_TEAM_NAMES[len(aa_teams)] if len(aa_teams) < len(AA_TEAM_NAMES) else f"Team {len(aa_teams) + 1}"
+            new_team = {'name': team_name, 'members': [player1_sid, player2_sid]}
+            aa_teams.append(new_team)
+            aa_unpicked_players.clear() # Both players are now picked
+            
+            print(f"   Draft complete. Automatically forming final team with {player1_name} and {player2_name}.")
+
+        # Case 2: Exactly 1 player left (odd number of total players).
+        elif len(aa_unpicked_players) == 1 and aa_teams:
+            odd_player_out_sid = aa_unpicked_players.pop(0)
+            aa_teams[0]['members'].append(odd_player_out_sid)
+            print(f"   Draft complete. {players[odd_player_out_sid]['name']} added to {aa_teams[0]['name']}.")
+        
+        # Now, proceed to the team reveal and gameplay phase.
+        print("--- All teams formed! ---")
+        aa_round_phase = 'gameplay'
+        
+        teams_for_display = []
+        for team in aa_teams:
+            member_names = [players[sid]['name'] for sid in team['members'] if sid in players]
+            teams_for_display.append({'name': team['name'], 'members': member_names})
+
+        update_main_screen_html('#round-content-area', '_aa_team_reveal.html', {'teams': teams_for_display})
+        
+        socketio.sleep(8)
+        if game_state == "averagers_assemble_ongoing":
+             next_turn_averagers_assemble()
+        return
+
+    # --- THIS PART REMAINS THE SAME ---
+    # Draft continues: Identify the next picker if more than 2 players are left.
+    aa_current_picker_sid = aa_unpicked_players[0]
+    picker_name = players[aa_current_picker_sid]['name']
+    
+    choosable_players = []
+    for sid in aa_unpicked_players[1:]:
+        if sid in players:
+            choosable_players.append({'sid': sid, 'name': players[sid]['name']})
+
+    print(f"   Next picker is {picker_name}. They can choose from {len(choosable_players)} players.")
+    
+    # Prepare a display-friendly version of the teams so far
+    teams_so_far_display = []
+    for team in aa_teams:
+        member_names = [players[sid]['name'] for sid in team['members'] if sid in players]
+        teams_so_far_display.append({'name': team['name'], 'members': member_names})
+    main_screen_context = {'picker_name': picker_name, 'teams_so_far': teams_so_far_display}
+    update_main_screen_html('#round-content-area', '_aa_picking_turn.html', main_screen_context)
+
+    socketio.emit('aa_pick_teammate_prompt', {'players_to_choose_from': choosable_players}, room=aa_current_picker_sid)
+    
+    for sid in players:
+        if sid != aa_current_picker_sid:
+            socketio.emit('aa_wait_prompt', {'wait_message': f"Waiting for {picker_name} to pick a teammate..."}, room=sid)
+
+def setup_averagers_assemble_round():
+    """Sets up the entire 'Averagers, Assemble' round."""
+    global game_state, aa_round_phase, aa_shuffled_questions_this_round, aa_actual_turns_this_round
+    global aa_current_turn_index, aa_teams, aa_unpicked_players
+
+    print("--- Setup Averagers, Assemble Round ---")
+    game_state = "averagers_assemble_ongoing"
+    
+    if not aa_questions:
+        print("ERROR: No questions for Averagers, Assemble. Skipping.")
+        start_next_game_round()
+        return
+
+    num_players = len(players)
+    if num_players < 2:
+        print("ERROR: Not enough players for Averagers, Assemble. Skipping.")
+        start_next_game_round()
+        return
+
+    # Reset round-specific state
+    aa_teams = []
+    aa_unpicked_players = []
+    aa_current_turn_index = -1
+    for sid in players:
+        players[sid]['round_score'] = 0
+        players[sid]['aa_current_guess'] = None
+    
+    aa_actual_turns_this_round = min(aa_target_turns, len(aa_questions))
+    aa_shuffled_questions_this_round = random.sample(aa_questions, aa_actual_turns_this_round)
+
+    # --- Handle Team Selection vs. Individual Play ---
+    if num_players <= 3:
+        # Individual play
+        print("   2-3 players detected. Playing as individuals.")
+        aa_round_phase = 'gameplay'
+        # Create a "team" for each player
+        for i, sid in enumerate(players):
+            team_name = players[sid]['name'] # Team name is just the player's name
+            aa_teams.append({'name': team_name, 'members': [sid]})
+        emit_game_state_update()
+        socketio.sleep(0.5)
+        next_turn_averagers_assemble() # Go straight to gameplay
+    else:
+        # Team play selection phase
+        print(f"   {num_players} players detected. Starting team selection draft.")
+        aa_round_phase = 'selection'
+        
+        # Sort players by score, lowest first. random() breaks ties.
+        sorted_players = sorted(players.items(), key=lambda item: (overall_game_scores.get(item[0], 0), random.random()))
+        aa_unpicked_players = [sid for sid, data in sorted_players]
+
+        emit_game_state_update()
+        socketio.sleep(0.5)
+        start_next_team_pick() # Start the draft
+
+@socketio.on('submit_team_pick')
+def handle_submit_team_pick(data):
+    """Handles a picker choosing their teammate."""
+    picker_sid = request.sid
+    if aa_round_phase != 'selection' or picker_sid != aa_current_picker_sid:
+        return # Ignore if not in selection phase or not the current picker
+
+    picked_sid = data.get('picked_sid')
+    
+    # --- THIS IS THE CORRECTED VALIDATION ---
+    # It simply checks if the picked SID is valid and currently in the unpicked list.
+    if not picked_sid or picked_sid not in aa_unpicked_players:
+        print(f"WARN: Invalid team pick '{picked_sid}' from {players[picker_sid]['name']}. Not in unpicked list.")
+        return
+
+    # Also, a player cannot pick themselves.
+    if picked_sid == picker_sid:
+        print(f"WARN: Player {players[picker_sid]['name']} tried to pick themselves.")
+        return
+
+    # Form the new team
+    # Use a default name if we run out of themed names
+    team_name = AA_TEAM_NAMES[len(aa_teams)] if len(aa_teams) < len(AA_TEAM_NAMES) else f"Team {len(aa_teams) + 1}"
+    new_team = {'name': team_name, 'members': [picker_sid, picked_sid]}
+    aa_teams.append(new_team)
+    
+    print(f"   Team formed: {team_name} is {players[picker_sid]['name']} and {players[picked_sid]['name']}.")
+
+    # Remove both players from the unpicked list
+    aa_unpicked_players.remove(picker_sid)
+    aa_unpicked_players.remove(picked_sid)
+    
+    # Continue the draft
+    start_next_team_pick()
+
+def next_turn_averagers_assemble():
+    """Starts a regular gameplay turn after teams have been formed."""
+    global game_state, aa_current_question, aa_current_turn_index
+    
+    aa_current_turn_index += 1
+    if aa_current_turn_index >= aa_actual_turns_this_round:
+        end_round_averagers_assemble()
+        return
+
+    game_state = "averagers_assemble_ongoing"
+    aa_current_question = aa_shuffled_questions_this_round[aa_current_turn_index]
+    
+    for sid in players:
+        players[sid]['aa_current_guess'] = None
+    
+    print(f"\n-- AA Turn {aa_current_turn_index + 1}/{aa_actual_turns_this_round} --")
+    print(f"   Q: {aa_current_question['question']} (Ans: {aa_current_question['answer']})")
+
+    # Update Main Screen
+    main_screen_context = {
+        'turn': aa_current_turn_index + 1, 'total_turns': aa_actual_turns_this_round,
+        'question_text': aa_current_question['question'],
+        'players_status': [{'name': p['name']} for p in players.values()]
+    }
+    update_main_screen_html('#round-content-area', '_aa_turn_display.html', main_screen_context)
+    
+    # Prompt ALL players for a number guess
+    socketio.emit('aa_player_prompt', {'question': aa_current_question['question']}, room=PLAYERS_ROOM)
+
+@socketio.on('submit_aa_guess')
+def handle_submit_aa_guess(data):
+    """Handles a player submitting their individual number guess."""
+    player_sid = request.sid
+    if player_sid not in players or game_state != "averagers_assemble_ongoing" or aa_round_phase != 'gameplay':
+        return
+        
+    try:
+        guess = int(data.get('guess'))
+        if players[player_sid].get('aa_current_guess') is None:
+            players[player_sid]['aa_current_guess'] = guess
+            player_name = players[player_sid]['name']
+            print(f"AA Guess {guess} from {player_name}")
+            
+            socketio.emit('player_submitted_update', {'name': player_name}, room=main_screen_sid)
+            # You can emit a wait message back to the player here if you want
+            
+            if check_all_guesses_received_aa():
+                print("   All AA guesses received.")
+                socketio.sleep(0.5)
+                process_results_aa()
+    except (ValueError, TypeError):
+        print(f"Invalid AA guess from {players[player_sid]['name']}: {data}")
+
+def process_results_aa():
+    """Calculates team averages and awards points for the turn."""
+    global game_state
+    if game_state != "averagers_assemble_ongoing" or aa_round_phase != 'gameplay': return
+    game_state = "aa_results_display"
+    
+    print("--- Processing AA Turn Results ---")
+    correct_answer = aa_current_question['answer']
+    team_averages = []
+    
+    # --- Step 1: Calculate team averages and differences ---
+    for team in aa_teams:
+        total_guess = 0
+        num_guesses = 0
+        member_guesses = {}
+        for member_sid in team['members']:
+            guess = players[member_sid].get('aa_current_guess')
+            member_guesses[players[member_sid]['name']] = guess if guess is not None else "N/A"
+            if guess is not None:
+                total_guess += guess
+                num_guesses += 1
+        
+        average = round(total_guess / num_guesses) if num_guesses > 0 else 0
+        diff = abs(correct_answer - average)
+        team_averages.append({
+            'name': team['name'], 'average': average, 'diff': diff,
+            'members': team['members'], 'member_guesses': member_guesses,
+            'points_this_turn': 0, 'total_round_score': 0 # Add placeholders
+        })
+        
+    # --- Step 2: Find the winning team(s) and award points ---
+    if not team_averages: return
+    min_diff = min(t['diff'] for t in team_averages)
+    
+    for team_result in team_averages:
+        if team_result['diff'] == min_diff:
+            print(f"   Winning Team: {team_result['name']} (Diff: {min_diff})")
+            team_result['points_this_turn'] = 1 # Mark points for this turn
+            for member_sid in team_result['members']:
+                players[member_sid]['round_score'] += 1
+    
+    # --- Step 3: Calculate final round scores for each team ---
+    # This loop runs AFTER points are awarded to get the new total.
+    for team_result in team_averages:
+        # The score for a team is the score of its first member (since they're all the same).
+        first_member_sid = team_result['members'][0]
+        team_result['total_round_score'] = players[first_member_sid]['round_score']
+
+    # --- Step 4: Prepare context for template ---
+    results_context = {
+        'question_text': aa_current_question['question'],
+        'correct_answer': correct_answer,
+        'team_results': sorted(team_averages, key=lambda x: x['diff']),
+        # 'winning_diff' is no longer needed since we have 'points_this_turn'
+    }
+    update_main_screen_html('#results-area', '_aa_turn_results.html', results_context)
+    
+    socketio.sleep(10)
+    if game_state == "aa_results_display":
+        next_turn_averagers_assemble()
+
+def end_round_averagers_assemble():
+    """Finalizes the AA round, awards game points, and transitions."""
+    global game_state
+    game_state = "averagers_assemble_results"
+    print("\n--- Ending Averagers, Assemble Round ---")
+
+    active_players = [(sid, p.get('round_score', 0)) for sid, p in players.items()]
+    sorted_by_round = sorted(active_players, key=lambda item: (-item[1], players.get(item[0],{}).get('name','')))
+    sorted_sids = [item[0] for item in sorted_by_round]
+    
+    points_awarded = award_game_points(sorted_sids)
+    emit_game_state_update()
+
+    rankings_this_round = []
+    for rank, sid in enumerate(sorted_sids):
+        if sid in players:
+            rankings_this_round.append({
+                'rank': rank + 1,
+                'name': players[sid]['name'],
+                'round_score': players[sid]['round_score'],
+                'points_awarded': points_awarded.get(sid, 0)
+            })
+            
+    current_overall_scores_list = [{'name': p['name'], 'game_score': overall_game_scores.get(sid, 0)} for sid, p in players.items()]
+    current_overall_scores_list.sort(key=lambda x: x['game_score'], reverse=True)
+
+    summary_context = {
+        'round_type': ROUND_DISPLAY_NAMES.get('averagers_assemble', 'Averagers, Assemble!'),
+        'rankings': rankings_this_round,
+        'overall_scores': current_overall_scores_list
+    }
+    update_main_screen_html('#results-area', '_round_summary.html', summary_context)
+
+    socketio.sleep(12)
+    if game_state == "averagers_assemble_results":
+        start_next_game_round()
+
+
 # === MAIN EXECUTION ===
 if __name__ == '__main__':
     print("Loading round data...");
@@ -2262,6 +2630,7 @@ if __name__ == '__main__':
     load_tap_the_pic_data()
     load_top_three_data()
     load_higher_or_lower_data()
+    load_averagers_assemble_data()
     print("Starting Flask-SocketIO server..."); use_debug = False
     socketio.run(app, host='0.0.0.0', port=5000, debug=use_debug)
     print("Server stopped.")

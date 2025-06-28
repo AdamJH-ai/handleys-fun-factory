@@ -315,6 +315,21 @@
              background-color: var(--color-success); /* Green for submit button */
         }
 
+        /* --- AA: Averagers, Assemble --- */
+        #aa-player-choice-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-gap: 10px;
+            margin-top: 15px;
+        }
+        #aa-player-choice-list button {
+            width: 100%;
+            margin: 0;
+            font-size: 1.2em;
+            padding: 15px 5px;
+            background-color: var(--accent-blue);
+        }
+
     </style>
 </head>
 <body>
@@ -397,6 +412,13 @@
                 <button id="hol-higher-button" data-answer="Higher">HIGHER</button>
                 <button id="hol-lower-button" data-answer="Lower">LOWER</button>
             </div>
+
+            <!-- NEW: Area for Averagers, Assemble (Team Picking) -->
+            <div id="aa-picking-area" class="hidden">
+                <div id="aa-player-choice-list">
+                    <!-- Buttons for players to pick will be generated here by JS -->
+                </div>
+            </div>
         </div>
 
         <!-- Status Message Area -->
@@ -417,6 +439,7 @@
         let topThreeArea, topThreeOptionsList, submitTopThreeButton;
         let holSubmitterArea, holSubmitterInput, holSubmitterButton;
         let holGuesserArea, holHigherButton, holLowerButton;
+        let aaPickingArea, aaPlayerChoiceList;
 
         // Variables for Quick Pairs logic
         let qpSelectedFromListA = null; // Stores the text of the item selected from list A
@@ -454,135 +477,106 @@
          }
 
         function configureInputArea(roundType, subType = null) {
-            // Your existing check for element presence (now includes ou AND qp elements)
-            if (!guessInput || !submitGuessButton || !wddiOptionsArea || 
-                !ouItemsListContainer || !submitOrderButton || !ouItemsList ||
-                !qpPairingArea || !submitPairsButton || !qpListA || !qpListB || !qpFormedPairsDisplay) {
-                console.error("ERROR: Input configuration failed - one or more elements missing.");
+            // Check if all essential elements exist
+            if (!guessInput || !submitGuessButton || !wddiOptionsArea || !ouItemsListContainer || 
+                !submitOrderButton || !ouItemsList || !qpPairingArea || !submitPairsButton || 
+                !qpListA || !qpListB || !qpFormedPairsDisplay || !trueOrFalseArea || !tapThePicArea ||
+                !topThreeArea || !holSubmitterArea || !holGuesserArea || !aaPickingArea) {
+                console.error("ERROR: Input configuration failed - one or more essential elements missing.");
                 return;
             }
-            console.log("Player: Configuring input for type:", roundType);
+            console.log("Player: Configuring input for type:", roundType, "Sub-type:", subType);
 
-            // --- Start by hiding/resetting elements that might have been used by other rounds ---
+            // --- 1. RESET PHASE: Unconditionally hide ALL special inputs ---
+            guessInput.classList.add('hidden');
+            submitGuessButton.classList.add('hidden');
+            wddiOptionsArea.classList.add('hidden');
+            ouItemsListContainer.classList.add('hidden');
+            submitOrderButton.classList.add('hidden');
+            qpPairingArea.classList.add('hidden');
+            submitPairsButton.classList.add('hidden');
+            trueOrFalseArea.classList.add('hidden');
+            tapThePicArea.classList.add('hidden');
+            topThreeArea.classList.add('hidden');
+            holSubmitterArea.classList.add('hidden');
+            holGuesserArea.classList.add('hidden');
+            aaPickingArea.classList.add('hidden');
 
-            // Hide/reset Order Up elements if not 'ou' round
-            if (roundType !== 'ou') {
-                ouItemsListContainer.classList.add('hidden');
-                submitOrderButton.classList.add('hidden');
-                ouItemsList.innerHTML = ''; // Clear previous OU list items
-                if (sortableInstance) { 
-                    sortableInstance.destroy();
-                    sortableInstance = null;
-                    // console.log("   Destroyed previous SortableJS instance."); // Keep if useful
-                }
-            }
+            // Cleanup
+            if (sortableInstance) { sortableInstance.destroy(); sortableInstance = null; }
+            wddiOptionsArea.innerHTML = '';
+            aaPlayerChoiceList.innerHTML = '';
 
-            // Hide/reset WDDI options if not 'wddi' round
-            if (roundType !== 'wddi') {
-                wddiOptionsArea.classList.add('hidden');
-                wddiOptionsArea.innerHTML = ''; // Clear WDDI buttons
-            }
 
-            // Hide/reset GTA/GTY input if not 'gta' or 'gty' round
-            if (roundType !== 'gta' && roundType !== 'gty') {
-                guessInput.classList.add('hidden');
-                submitGuessButton.classList.add('hidden');
-            }
-
-            // Hide/reset Quick Pairs elements if not 'qp' round
-            if (roundType !== 'qp') {
-                qpPairingArea.classList.add('hidden');
-                submitPairsButton.classList.add('hidden');
-                qpListA.innerHTML = ''; // Clear QP lists
-                qpListB.innerHTML = '';
-                qpFormedPairsDisplay.innerHTML = '';
-                qpSelectedFromListA = null; // Reset QP selection state
-                qpFormedPairs = [];
-            }
-
-            // Hide/reset True False if not 'tf' round
-            if (roundType !== 'true_or_false') {
-                trueOrFalseArea.classList.add('hidden');
-            }
-
-            // Hide/reset ttp if not 'ttp' round
-            if (roundType !== 'tap_the_pic') {
-                tapThePicArea.classList.add('hidden');
-                tapThePicArea.innerHTML = ''; // Clear old buttons
-            }
-
-            // Hide/reset ttt if not 'ttt' round
-            if (roundType !== 'the_top_three') {
-                topThreeArea.classList.add('hidden');
-                topThreeOptionsList.innerHTML = '';
-            }
-
-            if (roundType !== 'higher_or_lower') {
-                holSubmitterArea.classList.add('hidden');
-                holGuesserArea.classList.add('hidden');
-            }
-
-            // --- Now, selectively show/enable elements based on roundType ---
+            // --- 2. SETUP PHASE: Selectively show the correct inputs ---
             if (roundType === 'gta' || roundType === 'gty') {
-                console.log("   Configuring for GTA/GTY");
+                console.log(`   Configuring for number input round: ${roundType}`);
                 guessInput.classList.remove('hidden');
                 submitGuessButton.classList.remove('hidden');
-                submitGuessButton.disabled = true;
-                guessInput.disabled = true;
+                submitGuessButton.disabled = false;
+                guessInput.disabled = false;
                 guessInput.value = '';
-            } else if (roundType === 'wddi') {
+                guessInput.placeholder = (roundType === 'gty') ? 'Year (YYYY)' : 'Enter number...';
+            } 
+            else if (roundType === 'wddi') {
                 console.log("   Configuring for WDDI");
                 wddiOptionsArea.classList.remove('hidden');
-                // WDDI buttons are added by its specific prompt handler
-            } else if (roundType === 'ou') { // Order Up!
+            } 
+            else if (roundType === 'ou') {
                 console.log("   Configuring for Order Up!");
                 ouItemsListContainer.classList.remove('hidden');
                 submitOrderButton.classList.remove('hidden');
                 submitOrderButton.disabled = true;
-                // OU List items are added by its specific prompt handler
-            } else if (roundType === 'qp') { // Quick Pairs!
+            } 
+            else if (roundType === 'qp') {
                 console.log("   Configuring for Quick Pairs!");
                 qpPairingArea.classList.remove('hidden');
                 submitPairsButton.classList.remove('hidden');
-                submitPairsButton.disabled = true; // Will be enabled when appropriate
-                // QP List items are added by its specific prompt handler
-            } else if (roundType === 'true_or_false') {
+                submitPairsButton.disabled = true;
+            } 
+            else if (roundType === 'true_or_false') {
                 console.log("   Configuring for True or False");
-                guessingArea.classList.remove('hidden'); // Also ensure the parent is visible
                 trueOrFalseArea.classList.remove('hidden');
-                // The prompt handler will enable/disable buttons
-            } else if (roundType === 'tap_the_pic') {
+            } 
+            else if (roundType === 'tap_the_pic') {
                 console.log("   Configuring for Tap The Pic");
-                tapThePicArea.classList.remove('hidden');
-            }
+                tapThePicArea.classList.remove('hidden'); // <-- THIS IS THE MISSING LINE
+            } 
             else if (roundType === 'the_top_three') {
                 console.log("   Configuring for The Top Three");
                 topThreeArea.classList.remove('hidden');
-                submitTopThreeButton.disabled = true; // Start with submit disabled
-            }
+                submitTopThreeButton.disabled = true;
+            } 
             else if (roundType === 'higher_or_lower') {
                 if (subType === 'submitter') {
                     console.log("   Configuring for HOL Submitter");
                     holSubmitterArea.classList.remove('hidden');
-                    holGuesserArea.classList.add('hidden');
                     holSubmitterInput.value = '';
                     holSubmitterInput.disabled = false;
                     holSubmitterButton.disabled = false;
                 } else if (subType === 'guesser') {
                     console.log("   Configuring for HOL Guesser");
-                    holSubmitterArea.classList.add('hidden');
                     holGuesserArea.classList.remove('hidden');
                     holHigherButton.disabled = false;
                     holLowerButton.disabled = false;
-                } else { // This covers the 'wait' state for this round
-                    console.log("   Configuring for HOL Wait");
-                    holSubmitterArea.classList.add('hidden');
-                    holGuesserArea.classList.add('hidden');
                 }
-            }
-            else { // Waiting, round over, or unknown state
-                console.log("   Configuring for Waiting/Unknown state (all specific inputs should be hidden)");
-                // All specific inputs are already hidden by the default hiding logic at the top of this function.
+            } 
+            else if (roundType === 'averagers_assemble') {
+                if (subType === 'picker') {
+                    console.log("   Configuring for AA Picker");
+                    aaPickingArea.classList.remove('hidden');
+                } else if (subType === 'gameplay') {
+                    console.log("   Configuring for AA Gameplay (number input)");
+                    guessInput.classList.remove('hidden');
+                    submitGuessButton.classList.remove('hidden');
+                    submitGuessButton.disabled = false;
+                    guessInput.disabled = false;
+                    guessInput.value = '';
+                    guessInput.placeholder = 'Enter guess...';
+                }
+            } 
+            else { 
+                console.log("   Configuring for Waiting/Unknown state.");
             }
         }
 
@@ -857,6 +851,48 @@
 
             if (guessLabel) guessLabel.textContent = "Please Wait";
             if (statusMessage) statusMessage.textContent = data.wait_message;
+        });
+
+        // --- Averagers, Assemble Listeners ---
+        socket.on('aa_pick_teammate_prompt', (data) => {
+            console.log('--- Event: aa_pick_teammate_prompt received ---', data);
+            currentClientRoundType = 'averagers_assemble';
+            showArea('guessing-area');
+            configureInputArea('averagers_assemble', 'picker');
+
+            if (guessLabel) guessLabel.textContent = "Choose Your Teammate!";
+            if (statusMessage) statusMessage.textContent = "Select one player from the list below.";
+            
+            // Generate the buttons for the picker
+            aaPlayerChoiceList.innerHTML = ''; // Clear old buttons
+            data.players_to_choose_from.forEach(player => {
+                const button = document.createElement('button');
+                button.textContent = player.name;
+                button.dataset.sid = player.sid; // CRUCIAL: Store the SID to send back
+                button.addEventListener('click', handleTeamPickChoice);
+                aaPlayerChoiceList.appendChild(button);
+            });
+        });
+
+        socket.on('aa_wait_prompt', (data) => {
+            console.log('--- Event: aa_wait_prompt received ---', data);
+            currentClientRoundType = 'averagers_assemble';
+            showArea('guessing-area');
+            configureInputArea('averagers_assemble', 'wait');
+
+            if (guessLabel) guessLabel.textContent = "Please Wait";
+            if (statusMessage) statusMessage.textContent = data.wait_message;
+        });
+
+        socket.on('aa_player_prompt', (data) => {
+            console.log('--- Event: aa_player_prompt received ---', data);
+            currentClientRoundType = 'averagers_assemble';
+            showArea('guessing-area');
+            configureInputArea('averagers_assemble', 'gameplay');
+
+            if (guessLabel) guessLabel.textContent = "Team Round!";
+            if (statusMessage) statusMessage.textContent = data.question;
+            if (guessInput) guessInput.focus();
         });
 
         // --- Common Listeners ---
@@ -1140,6 +1176,16 @@
             statusMessage.textContent = 'Guess locked in! Waiting...';
         }
 
+        function handleTeamPickChoice(event) {
+            const pickedSid = event.currentTarget.dataset.sid;
+            console.log(`Team Pick choice: SID=${pickedSid}`);
+            socket.emit('submit_team_pick', { 'picked_sid': pickedSid });
+
+            // Disable all buttons to prevent double picking
+            aaPlayerChoiceList.querySelectorAll('button').forEach(btn => btn.disabled = true);
+            if (statusMessage) statusMessage.textContent = "Teammate chosen! Waiting...";
+        }
+
 
         // Add this new socket listener with the others
         socket.on('tap_the_pic_player_prompt', (data) => {
@@ -1205,8 +1251,10 @@
              holGuesserArea = document.getElementById('hol-guesser-area');
              holHigherButton = document.getElementById('hol-higher-button');
              holLowerButton = document.getElementById('hol-lower-button');
+             aaPickingArea = document.getElementById('aa-picking-area');
+             aaPlayerChoiceList = document.getElementById('aa-player-choice-list');
 
-             if (!nameEntryArea || !guessingArea || !statusMessage || !nameInput || !joinButton || !guessInput || !submitGuessButton || !wddiOptionsArea || !ouItemsListContainer || !ouItemsList || !submitOrderButton || !qpPairingArea || !qpListA || !qpListB || !submitPairsButton || !qpFormedPairsDisplay || !trueOrFalseArea || !trueButton || !falseButton  || !tapThePicArea || !topThreeArea || !topThreeOptionsList || !submitTopThreeButton || !holSubmitterArea || !holSubmitterInput || !holSubmitterButton || !holGuesserArea || !holHigherButton || !holLowerButton) {
+             if (!nameEntryArea || !guessingArea || !statusMessage || !nameInput || !joinButton || !guessInput || !submitGuessButton || !wddiOptionsArea || !ouItemsListContainer || !ouItemsList || !submitOrderButton || !qpPairingArea || !qpListA || !qpListB || !submitPairsButton || !qpFormedPairsDisplay || !trueOrFalseArea || !trueButton || !falseButton  || !tapThePicArea || !topThreeArea || !topThreeOptionsList || !submitTopThreeButton || !holSubmitterArea || !holSubmitterInput || !holSubmitterButton || !holGuesserArea || !holHigherButton || !holLowerButton || !aaPickingArea || !aaPlayerChoiceList) {
                  console.error("CRITICAL ERROR: One or more essential player controller elements not found!");
                  if (statusMessage) statusMessage.textContent = "Page Load Error!";
                  return;
@@ -1254,7 +1302,20 @@
                           console.log("DEBUG: Processing as GTY guess...");
                           if (guess !== '' && !isNaN(guess)) { socket.emit('submit_gty_guess', { guess: parseInt(guess) }); console.log("DEBUG: submit_gty_guess emitted."); }
                           else { console.log("DEBUG: Invalid GTY guess."); if (statusMessage) statusMessage.textContent = 'Invalid year.'; }
-                     } else { console.log("DEBUG: No active round type known or submit clicked inappropriately."); if (statusMessage) statusMessage.textContent = "Not time to guess!"; }
+                     } 
+                     else if (currentClientRoundType === 'averagers_assemble') {
+                         console.log("DEBUG: Processing as AA guess...");
+                         if (guess !== '' && !isNaN(guess)) {
+                             socket.emit('submit_aa_guess', { guess: parseInt(guess) });
+                             guessInput.disabled = true;
+                             submitGuessButton.disabled = true;
+                             console.log("DEBUG: submit_aa_guess emitted.");
+                         } else {
+                             console.log("DEBUG: Invalid AA guess.");
+                             if (statusMessage) statusMessage.textContent = 'Invalid number.';
+                         }
+                     }
+                     else { console.log("DEBUG: No active round type known or submit clicked inappropriately."); if (statusMessage) statusMessage.textContent = "Not time to guess!"; }
                      console.log(">>> SUBMIT GUESS HANDLER FINISHED <<<");
                  });
                  console.log("DEBUG: Listener ATTACHED to submitGuessButton.");
