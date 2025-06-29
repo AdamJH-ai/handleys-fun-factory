@@ -405,7 +405,10 @@
         <audio id="jingle-ou" src="/static/audio/ou_jingle.mp3" preload="auto"></audio>
         <audio id="jingle-qp" src="/static/audio/qp_jingle.mp3" preload="auto"></audio>
         <audio id="jingle-aa" src="/static/audio/avengers_theme.mp3" preload="auto"></audio>
-        <!-- <audio id="jingle-team" src="/static/audio/team_jingle.mp3" preload="auto"></audio> -->
+        <audio id="jingle-tf" src="/static/audio/tf_jingle.mp3" preload="auto"></audio>
+        <audio id="jingle-ttp" src="/static/audio/ttp_jingle.mp3" preload="auto"></audio>
+        <audio id="jingle-ttt" src="/static/audio/ttt_jingle.mp3" preload="auto"></audio>
+        <audio id="jingle-hol" src="/static/audio/hol_jingle.mp3" preload="auto"></audio>
     </div>
 
     <script>
@@ -413,7 +416,7 @@
         let splashScreen, initiateGameButton, waitingArea, playerList, startGameButton;
         let roundContentArea, resultsArea, overallGameOverArea, statusBar, gameStateSpan;
         let overallScoreDisplay, connectIpSpan, themeMusic, muteButton, playAgainButton;
-        let jingleGTA, jingleGTY, jingleWDDI, jingleOU, jingleQP, jingleAA;
+        let jingleGTA, jingleGTY, jingleWDDI, jingleOU, jingleQP, jingleAA, jingleTF, jingleTTP, jingleTTT, jingleHOL;
 
         let currentJingle = null;
 
@@ -552,6 +555,10 @@
             else if (jingleFile === 'ou_jingle.mp3' && jingleOU) jingleToPlay = jingleOU;
             else if (jingleFile === 'qp_jingle.mp3' && jingleQP) jingleToPlay = jingleQP;
             else if (jingleFile === 'avengers_theme.mp3' && jingleAA) jingleToPlay = jingleAA;
+            else if (jingleFile === 'tf_jingle.mp3' && jingleTF) jingleToPlay = jingleTF;
+            else if (jingleFile === 'ttp_jingle.mp3' && jingleTTP) jingleToPlay = jingleTTP;
+            else if (jingleFile === 'ttt_jingle.mp3' && jingleTTT) jingleToPlay = jingleTTT;
+            else if (jingleFile === 'hol_jingle.mp3' && jingleHOL) jingleToPlay = jingleHOL;
 
             if (jingleToPlay) {
                 currentJingle = jingleToPlay;
@@ -603,6 +610,10 @@
             jingleOU = document.getElementById('jingle-ou');
             jingleQP = document.getElementById('jingle-qp');
             jingleAA = document.getElementById('jingle-aa');
+            jingleTF = document.getElementById('jingle-tf');
+            jingleTTP = document.getElementById('jingle-ttp');
+            jingleTTT = document.getElementById('jingle-ttt');
+            jingleHOL = document.getElementById('jingle-hol');
             if (!themeMusic || !jingleGTA) {
                 console.warn("Audio elements (theme or jingles) might be missing!");
             }

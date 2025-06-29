@@ -118,5 +118,18 @@
       "African Elephant",
       "White Rhinoceros"
     ]
+  },
+  {
+    "question_text": "Which three of these athletes have won the Laureus Sportsman of the Year award more than twice?",
+    "options": [
+      "Roger Federer", "Tiger Woods", "Usain Bolt", "Novak Djokovic",
+      "Michael Schumacher", "Cristiano Ronaldo", "LeBron James", "Lionel Messi"
+    ],
+    "correct_answers": [
+      "Roger Federer",
+      "Novak Djokovic",
+      "Usain Bolt"
+    ]
   }
+  
 ]

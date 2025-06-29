@@ -28,5 +28,35 @@
     "image_url": "image/tapthepic/time_travel.png",
     "num_options": 5,
     "correct_answer": 3
+  },
+  {
+    "question_text": "Which of these people starred alongside Jim Carrey in Ace Ventura: Pet Detective",
+    "image_url": "image/tapthepic/friends_tbbt.png",
+    "num_options": 9,
+    "correct_answer": 7
+  },
+  {
+    "question_text": "These guys teamed up for a Pepsi commercial in 2004, but which one of them is the youngest?",
+    "image_url": "image/tapthepic/pepsi_ad.png",
+    "num_options": 3,
+    "correct_answer": 2
+  },
+  {
+    "question_text": "Gillette, the best a man can get. Which one of these stars has been married twice?",
+    "image_url": "image/tapthepic/gillette_ad.png",
+    "num_options": 3,
+    "correct_answer": 2
+  },
+  {
+    "question_text": "These guys have all finished in the top three of BBC's Sports Personality of the Year at least 4 times each. But who has finished in the top three the most?",
+    "image_url": "image/tapthepic/spoty.png",
+    "num_options": 6,
+    "correct_answer": 5
+  },
+  {
+    "question_text": "These characters were all born on their show and have all made over 2,000 appearances. Which character (not actor) has made the most appearances?",
+    "image_url": "image/tapthepic/soap_kids.png",
+    "num_options": 4,
+    "correct_answer": 4
   }
 ]

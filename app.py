@@ -15,7 +15,7 @@ socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
 # === GAME CONFIG ===
 GAME_ROUNDS_TOTAL = 10
 #AVAILABLE_ROUND_TYPES = ['guess_the_age', 'guess_the_year', 'who_didnt_do_it', 'order_up', 'quick_pairs', 'true_or_false', 'tap_the_pic', 'the_top_three', 'higher_or_lower', 'averagers_assemble']
-AVAILABLE_ROUND_TYPES = ['averagers_assemble', 'higher_or_lower']
+AVAILABLE_ROUND_TYPES = ['tap_the_pic']
 MAX_PLAYERS = 8
 gta_target_turns = 10
 gty_target_turns = 10
@@ -62,7 +62,7 @@ ROUND_JINGLES = {
     'quick_pairs': 'qp_jingle.mp3',
     'true_or_false': 'tf_jingle.mp3',
     'tap_the_pic': 'ttp_jingle.mp3',
-    'the_top_three': 'your_ttt_jingle.mp3',
+    'the_top_three': 'ttt_jingle.mp3',
     'higher_or_lower': 'hol_jingle.mp3',
     'averagers_assemble': 'avengers_theme.mp3',
 }
