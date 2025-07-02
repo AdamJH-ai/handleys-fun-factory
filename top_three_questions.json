@@ -74,7 +74,7 @@
   {
     "question_text": "Which three of these artists have had the most UK number one singles?",
     "options": [
-      "The Beatles", "Elvis Presley", "Cliff Richard", "Westlife",
+      "The Beatles", "Elvis Presley", "Cliff Richard", "ABBA",
       "Madonna", "Calvin Harris", "Take That", "Spice Girls"
     ],
     "correct_answers": [
@@ -120,7 +120,7 @@
     ]
   },
   {
-    "question_text": "Which three of these athletes have won the Laureus Sportsman of the Year award more than twice?",
+    "question_text": "Which three of these athletes have won the Laureus Sportsman of the Year the most?",
     "options": [
       "Roger Federer", "Tiger Woods", "Usain Bolt", "Novak Djokovic",
       "Michael Schumacher", "Cristiano Ronaldo", "LeBron James", "Lionel Messi"

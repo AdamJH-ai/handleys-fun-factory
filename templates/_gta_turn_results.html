@@ -1,18 +1,26 @@
-{# templates/_gta_turn_results.html (Rewritten) #}
-{# Expects variables: actual_age, results #}
+{# templates/_gta_turn_results.html #}
+{# Expects: actual_age, image_url, results #}
 <div id="gta-results">
 
     <h2>Results!</h2>
-    <h3>The correct age was: <span style="color: var(--color-success);">{{ actual_age if actual_age is not none else '--' }}</span></h3>
+
+    {# Add the small version of the image here #}
+    {% if image_url %}
+        {% if image_url.startswith('http') %}
+            <img class="question-image" src="{{ image_url }}" alt="Celebrity Image" style="max-height: 150px; margin-bottom: 20px; border-radius: 6px;">
+        {% else %}
+            <img class="question-image" src="{{ url_for('static', filename=image_url) }}" alt="Celebrity Image" style="max-height: 150px; margin-bottom: 20px; border-radius: 6px;">
+        {% endif %}
+    {% endif %}
+
+    <h3>The correct age was: <span style="color: var(--accent-gold);">{{ actual_age if actual_age is not none else '--' }}</span></h3>
     
-    {# Using the generic list for round results #}
     <ul class="round-results-list">
         {% for res in results %}
-            {# The 'highlight' class is handled by our generic CSS #}
             <li class="{{ 'highlight' if res.diff == 0 }}">
                 <span class="player-name">{{ res.name }}</span>
-                <span class="player-answer">Guess: {{ res.guess }} ({{ res.diff }})</span>
-                <span class="player-points">+{{ res.round_score }} pts</span>
+                <span class="player-answer">Guess: {{ res.guess }} (Off by {{ res.diff }})</span>
+                <span class="player-points">Total Diff: {{ res.round_score }}</span>
             </li>
         {% endfor %}
     </ul>

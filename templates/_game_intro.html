@@ -1,0 +1,98 @@
+{# templates/_game_intro.html #}
+{# Expects: total_rounds, num_players, player_names, points_structure #}
+
+<style>
+    /* Scoped styles for the intro screen */
+    .game-intro-container {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        grid-gap: 20px;
+        align-items: center;
+        height: 80vh;
+        max-width: 1200px;
+        margin: auto;
+    }
+    .game-intro-logo-box {
+        background-color: var(--bg-secondary);
+        border-radius: 12px;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .game-intro-info-column {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .game-intro-info-box {
+        background-color: var(--bg-secondary);
+        border-radius: 12px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    /* --- NEW LAYOUT LOGIC --- */
+    /* The top box does not grow or shrink, it's just as big as its content. */
+    #intro-rounds-box {
+        flex-grow: 0;
+        flex-shrink: 0;
+    }
+    /* The other two boxes will grow to share the remaining space. */
+    #intro-players-box, #intro-points-box {
+        flex-grow: 1;
+    }
+    
+    .game-intro-info-box h3 {
+        color: var(--accent-blue);
+        margin-bottom: 10px;
+        font-size: 1.2em; /* Slightly smaller header for the boxes */
+    }
+    .game-intro-info-box p, .game-intro-info-box li {
+        font-size: 1.5em;
+        font-weight: bold;
+    }
+</style>
+
+<div id="game-intro-content">
+    <h2 style="font-size: 3em; margin-bottom: 20px;">WELCOME TO THE GAME!</h2>
+
+    <div class="game-intro-container">
+        <div class="game-intro-logo-box">
+            {# --- BIGGER LOGO --- #}
+            <img src="/static/image/colour_logo.jpeg" alt="Handley's Fun Factory Logo" style="max-width: 90%; max-height: 90%; object-fit: contain;">
+        </div>
+
+        <div class="game-intro-info-column">
+            {# --- ADDED IDs TO EACH BOX --- #}
+            <div id="intro-rounds-box" class="game-intro-info-box">
+                <h3>ROUNDS</h3>
+                <p>{{ total_rounds }}</p>
+            </div>
+            <div id="intro-players-box" class="game-intro-info-box">
+                <h3>PLAYERS</h3>
+                <ul>
+                {% for name in player_names %}
+                    <li>{{ name }}</li>
+                {% endfor %}
+                </ul>
+            </div>
+            <div id="intro-points-box" class="game-intro-info-box">
+                <h3>ROUND POINTS</h3>
+                <table style="width: 100%; font-size: 1.3em;">
+                    <tbody>
+                    {% for item in points_structure %}
+                        <tr>
+                            <td style="text-align: left; padding-right: 10px;">{{ item.rank_str }}:</td>
+                            <td style="text-align: right;">{{ item.points }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>

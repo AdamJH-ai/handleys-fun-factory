@@ -13,11 +13,11 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'a_super_secret_key_chan
 socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
 
 # === GAME CONFIG ===
-GAME_ROUNDS_TOTAL = 10
+GAME_ROUNDS_TOTAL = 1
 #AVAILABLE_ROUND_TYPES = ['guess_the_age', 'guess_the_year', 'who_didnt_do_it', 'order_up', 'quick_pairs', 'true_or_false', 'tap_the_pic', 'the_top_three', 'higher_or_lower', 'averagers_assemble']
-AVAILABLE_ROUND_TYPES = ['tap_the_pic']
+AVAILABLE_ROUND_TYPES = ['guess_the_age']
 MAX_PLAYERS = 8
-gta_target_turns = 10
+gta_target_turns = 1
 gty_target_turns = 10
 wddi_target_turns = 10
 ou_target_turns = 10
@@ -66,7 +66,80 @@ ROUND_JINGLES = {
     'higher_or_lower': 'hol_jingle.mp3',
     'averagers_assemble': 'avengers_theme.mp3',
 }
+
+ROUND_EXPLAINER_INFO = {
+    'guess_the_age': {
+        'audio_file': 'explainer_gta.mp3',
+        'screenshot': 'image/howto_gta.png',
+        'explanation_text': "You’ll be shown a series of photos of famous people. Your job? Guess their current age. The closer you are, the better your score!|For every year you’re off, you score a point. So if someone is 25 and you guess 30 — that’s 5 points added to your total.|Scores build up across all questions, and the player with the lowest total at the end wins the round."
+    },
+    'guess_the_year': {
+        'audio_file': 'explainer_gty.mp3',
+        'screenshot': 'image/howto_gty.png',
+        'explanation_text': "You’ll be shown a series of photos linked to big moments from the past. Your mission? Guess the year each event happened.|For every year you're off, you score a point. So if the event was in 1996 and you guessed 1991 — that’s 5 points added to your total.|Scores build across the round, and the player with the lowest total wins.|No pressure — just the entire history of everything ever."
+    },
+    'higher_or_lower': {
+        'audio_file': 'explainer_hol.mp3',
+        'screenshot': 'image/howto_hol.png',
+        'explanation_text': "One player will guess a number to set the target for a question.|Everyone else must decide: is the real answer higher or lower than that guess?|Guess correctly and earn a point. Guess wrong… and the Submitter scores instead!|Everyone will get a turn to set the target — so choose wisely"
+    },
+    'averagers_assemble': {
+        'audio_file': 'explainer_aa.mp3',
+        'screenshot': 'image/howto_aa.png',
+        'explanation_text': "Team up and take aim! Everyone on your team submits a guess.|Your team’s score is the average of all your guesses — so every number counts.|The team with the average closest to the correct answer wins the point!|Just hope your teammate isn’t the human equivalent of a random number generator."
+    },
+    'who_didnt_do_it': {
+        'audio_file': 'explainer_wddi.mp3',
+        'screenshot': 'image/howto_wddi.png',
+        'explanation_text': "You’ll get a question and six possible answers.|Five of them did the thing. One of them is completely innocent.|Your job? Spot the odd one out — the one who didn’t do it.|It’s not about knowing who’s guilty… it’s about sniffing out who got away with it."
+    },
+    'order_up': {
+        'audio_file': 'explainer_ou.mp3',
+        'screenshot': 'image/howto_ou.png',
+        'explanation_text': "You’ll get four options and a question that needs them sorted.|Your job? Put them in the correct order — earliest to latest, biggest to smallest… who knows what’s coming.|Get the full sequence right to score a point.|Close doesn’t count — it’s all or nothing in the world of order!"
+    },
+    'quick_pairs': {
+        'audio_file': 'explainer_qp.mp3',
+        'screenshot': 'image/howto_qp.png',
+        'explanation_text': "You’ll see two lists — your task is to pair them up correctly, based on the question.|Match all three pairs to earn 1 point. Be the fastest to get it right, and you’ll snag a bonus point too!|Think fast, tap faster — and no pressure, but everyone’s watching."
+    },
+    'true_or_false': {
+        'audio_file': 'explainer_tof.mp3',
+        'screenshot': 'image/howto_tof.png',
+        'explanation_text': "It doesn’t get simpler than this — each question has just two options: True or False.|Get it right, score a point. Get it wrong… well, that’s awkward.|Trust your instincts — or just flip an imaginary coin. We won’t judge."
+    },
+    'tap_the_pic': {
+        'audio_file': 'explainer_ttp.mp3',
+        'screenshot': 'image/howto_ttp.png',
+        'explanation_text': "You will be shown a picture and a question. The answer to the question is something on the picture.|Simply select the correct number on your keypad that corresponds to the area of the screen with the correct answer"
+    },
+    'the_top_three': {
+        'audio_file': 'explainer_ttt.mp3',
+        'screenshot': 'image/howto_ttt.png',
+        'explanation_text': "You will get a question and 8 possible answers. Everyone did what it says in the question.|You need to select the three that did this thing more than the others.|If you get all three correct, 3 points!. Get two correct, 1 point.|Get only 1, or 0, correct and that's no points for you"
+    }
+}
+
 ROUND_INTRO_DELAY = 8 # Seconds
+
+# === TIMING CONFIG (in seconds) ===
+GAME_INTRO_DURATION = 12 # Duration of the new overall game intro screen
+ROUND_TIMINGS = {
+    'default': {
+        'intro_card': 8,
+        'turn_results': 7,
+        'round_summary': 12
+    },
+    # Example of overriding a default for a specific round
+    'higher_or_lower': {
+        'intro_card': 12,
+        'turn_results': 10
+    },
+    'averagers_assemble': {
+        'team_reveal': 8, # A custom timing for this round
+        'turn_results': 10
+    }
+}
 
 # === GAME STATE ===
 game_state = "waiting"
@@ -426,6 +499,50 @@ def check_all_guesses_received_gta(): return all(p.get('gta_current_guess') is n
 def check_all_guesses_received_gty(): return all(p.get('gty_current_guess') is not None for p in players.values()) if players else True
 # REMOVED WDDI check
 
+def get_round_timing(timing_key):
+    """Gets a specific timing duration for the current round, falling back to default."""
+    current_round_key = selected_rounds_for_game[current_game_round_num - 1]
+    
+    # Get the specific timings for the current round, or an empty dict if none
+    round_specific_timings = ROUND_TIMINGS.get(current_round_key, {})
+    
+    # Return the specific timing if it exists, otherwise return the default
+    return round_specific_timings.get(timing_key, ROUND_TIMINGS['default'].get(timing_key, 5))
+
+def get_rank_suffix(rank):
+    """Returns the correct suffix (st, nd, rd, th) for a given rank number."""
+    if 11 <= rank <= 13:
+        return 'th'
+    last_digit = rank % 10
+    if last_digit == 1:
+        return 'st'
+    elif last_digit == 2:
+        return 'nd'
+    elif last_digit == 3:
+        return 'rd'
+    else:
+        return 'th'
+
+def get_points_structure(num_players):
+    """Returns a list of dictionaries with rank and points for the intro screen."""
+    if num_players == 0:
+        return []
+    
+    points_by_rank = {}
+    for rank in range(1, num_players + 1):
+        points_by_rank[rank] = (num_players + 1) if rank == 1 and num_players > 1 else (2 if rank == 1 and num_players == 1 else num_players - rank + 1)
+    
+    # Create the list of dictionaries for the template
+    structure = []
+    for rank, points in sorted(points_by_rank.items()):
+        # We sort by points descending to list 1st place first
+        structure.append({
+            'rank_str': f"{rank}{get_rank_suffix(rank)}",
+            'points': points
+        })
+        
+    return sorted(structure, key=lambda x: x['points'], reverse=True)
+
 # === ROUTES ===
 @app.route('/')
 def index(): return render_template('index.html')
@@ -490,39 +607,104 @@ def handle_start_overall_game_request():
     global game_state, current_game_round_num, selected_rounds_for_game, overall_game_scores
     if request.sid != main_screen_sid or game_state != "waiting": return
     if not players or not AVAILABLE_ROUND_TYPES: print("ERR: Cannot start."); return
-    print(f"Overall Game start request."); game_state = "game_ongoing"; current_game_round_num = 0
+    
+    print("--- Overall Game start request received ---");
+    
+    # --- Step 1: Basic Game Setup ---
+    game_state = "game_intro" # New state
+    current_game_round_num = 0
     overall_game_scores = {sid: 0 for sid in players};
+    # Select rounds for the game (this logic is unchanged)
     num_avail = len(AVAILABLE_ROUND_TYPES)
     if num_avail >= GAME_ROUNDS_TOTAL: selected_rounds_for_game = random.sample(AVAILABLE_ROUND_TYPES, GAME_ROUNDS_TOTAL)
     else: selected_rounds_for_game = (AVAILABLE_ROUND_TYPES * (GAME_ROUNDS_TOTAL // num_avail + 1))[:GAME_ROUNDS_TOTAL]; random.shuffle(selected_rounds_for_game)
-    print(f"Selected rounds: {selected_rounds_for_game}"); emit_game_state_update(); socketio.sleep(1); start_next_game_round()
+    print(f"Selected rounds: {selected_rounds_for_game}");
+    
+    # --- Step 2: Prepare data for the intro screen ---
+    num_players = len(players)
+    points_structure = get_points_structure(num_players)
+    player_names = [p['name'] for p in players.values()]
 
-# <<< Dispatcher only calls GTA and GTY >>>
+    intro_context = {
+        'total_rounds': GAME_ROUNDS_TOTAL,
+        'num_players': num_players,
+        'player_names': player_names,
+        'points_structure': points_structure
+    }
+    
+    # --- Step 3: Display the intro screen ---
+    # We will use the #results-area div, as it's a full-screen takeover
+    update_main_screen_html('#results-area', '_game_intro.html', intro_context)
+    
+    # --- Step 4: Tell the main screen to start its audio/visual sequence ---
+    socketio.emit('start_game_intro_sequence', {}, room=main_screen_sid)
+    
+    # The server now WAITS. It will not proceed until the main screen tells it the intro is finished.
+    print("   Game intro screen displayed. Waiting for client to signal completion...")
+
+@socketio.on('game_intro_finished')
+def handle_game_intro_finished():
+    """Called by the main screen when its intro audio sequence is done."""
+    global game_state
+    if request.sid != main_screen_sid or game_state != "game_intro":
+        return
+    
+    print("--- Client signaled game intro finished. Starting first round. ---")
+    game_state = "game_ongoing" # Update state
+    emit_game_state_update()
+    socketio.sleep(1) # Small pause for transition
+    start_next_game_round()
+
 def start_next_game_round():
     global current_game_round_num, game_state
-    current_game_round_num += 1; print(f"\n===== Prep Game Rnd {current_game_round_num}/{GAME_ROUNDS_TOTAL} =====")
-    if current_game_round_num > GAME_ROUNDS_TOTAL: end_overall_game(); return
+    current_game_round_num += 1
+    print(f"\n===== Prep Game Rnd {current_game_round_num}/{GAME_ROUNDS_TOTAL} =====")
+    if current_game_round_num > GAME_ROUNDS_TOTAL:
+        end_overall_game()
+        return
 
     round_type_key = selected_rounds_for_game[current_game_round_num - 1]
     round_type_name = ROUND_DISPLAY_NAMES.get(round_type_key, round_type_key)
     round_rules = ROUND_RULES.get(round_type_key, "No rules.")
 
-    print(f"Round Type: {round_type_name}"); game_state = "round_intro"; emit_game_state_update()
+    print(f"Round Type: {round_type_name}")
+    game_state = "round_intro"
+    emit_game_state_update()
 
-    # --- Play Jingle ---
+    # --- Step 1: Show Title Card & Play Jingle ---
     jingle_file = ROUND_JINGLES.get(round_type_key)
     if jingle_file and main_screen_sid:
-        print(f"   Emitting jingle: {jingle_file} for round {round_type_key}")
         socketio.emit('play_round_jingle', {'jingle_file': jingle_file}, room=main_screen_sid)
-    elif not jingle_file:
-        print(f"   WARN: No jingle found for round type: {round_type_key}")
-    # --------------------
-
+    
     intro_context = {'game_round_num': current_game_round_num, 'game_rounds_total': GAME_ROUNDS_TOTAL, 'round_type_name': round_type_name, 'round_rules': round_rules }
     update_main_screen_html('#results-area', '_round_intro.html', intro_context)
-    print(f"Show intro {ROUND_INTRO_DELAY}s..."); socketio.sleep(ROUND_INTRO_DELAY)
-    if game_state != "round_intro": print("WARN: State changed during intro."); return
-    # Dispatch to GTA or GTY only
+    
+    socketio.sleep(get_round_timing('intro_card'))
+    if game_state != "round_intro": return # State check
+
+    # --- Step 2: Check for and show "How to Play" screen ---
+    if round_type_key in ROUND_EXPLAINER_INFO:
+        print(f"   Found explainer for {round_type_key}. Showing how-to-play screen.")
+        explainer_data = ROUND_EXPLAINER_INFO[round_type_key]
+        
+        # Update the main screen with the explainer template
+        update_main_screen_html('#results-area', '_how_to_play.html', explainer_data)
+        
+        # Tell the client to play the audio and start its sequence
+        socketio.emit('show_how_to_play', {'audio_file': explainer_data['audio_file']}, room=main_screen_sid)
+        
+        # The server now STOPS and waits for the client to signal it's done.
+        return # End the function here for now.
+    
+    # --- Step 3: If no explainer, start the round directly ---
+    else:
+        print(f"   No explainer for {round_type_key}. Starting round directly.")
+        start_round_logic(round_type_key) # Use a helper to avoid repetition
+
+
+# We need a new helper function to avoid repeating the big if/else block
+def start_round_logic(round_type_key):
+    """Dispatches to the correct setup function for a given round key."""
     if round_type_key == 'guess_the_age': setup_guess_age_round()
     elif round_type_key == 'guess_the_year': setup_guess_the_year_round()
     elif round_type_key == 'who_didnt_do_it': setup_who_didnt_do_it_round()
@@ -533,18 +715,59 @@ def start_next_game_round():
     elif round_type_key == 'the_top_three': setup_the_top_three_round()
     elif round_type_key == 'higher_or_lower': setup_higher_or_lower_round()
     elif round_type_key == 'averagers_assemble': setup_averagers_assemble_round()
-    else: print(f"ERR: Unknown/Removed type {round_type_key}. Skip."); socketio.sleep(1); start_next_game_round()
+    else:
+        print(f"ERR: Unknown round type '{round_type_key}' in start_round_logic. Skipping.")
+        socketio.sleep(1)
+        start_next_game_round()
+
+# And we need the new listener for the handshake
+@socketio.on('how_to_play_finished')
+def handle_how_to_play_finished():
+    """Called by the main screen when the explainer audio is done."""
+    if request.sid != main_screen_sid or game_state != "round_intro":
+        return
+
+    print("--- Client signaled how-to-play finished. Starting round logic. ---")
+    round_type_key = selected_rounds_for_game[current_game_round_num - 1]
+    start_round_logic(round_type_key)
+
+@socketio.on('request_reset_game')
+def handle_request_reset_game():
+    """Triggered by the 'Play Again' button. Resets the game to the lobby."""
+    global game_state
+    if request.sid != main_screen_sid:
+        return
+        
+    print("--- Reset request received. Returning to waiting state. ---")
+    game_state = "waiting"
+    emit_game_state_update()
+    # Tell the main screen it's ready for a new game, which should take it to the lobby.
+    socketio.emit('ready_for_new_game', room=main_screen_sid)
 
 def end_overall_game():
-    global game_state; print("\n***** OVERALL GAME OVER *****"); game_state = "overall_game_over"
-    emit_game_state_update(); final_scores = []
+    global game_state
+    print("\n***** OVERALL GAME OVER *****")
+    game_state = "overall_game_over"
+    emit_game_state_update()
+    
+    final_scores = []
     sorted_players = sorted(overall_game_scores.items(), key=lambda item: item[1], reverse=True)
     final_scores = [{'rank': r+1, 'name': players.get(sid, {}).get('name', '?'), 'game_score': score} for r, (sid, score) in enumerate(sorted_players)]
+    
     print("Final Scores:", final_scores)
+    
+    # Render the final scores screen FIRST.
     update_main_screen_html('#overall-game-over-area', '_overall_game_over.html', {'scores': final_scores})
-    socketio.emit('overall_game_over_player', room=PLAYERS_ROOM); print("Sent overall game over notices.")
-    socketio.sleep(15); game_state = "waiting"; print("State reset to waiting.")
-    if main_screen_sid: emit_game_state_update(); socketio.emit('ready_for_new_game', room=main_screen_sid)
+    
+    # Tell players to look at the main screen.
+    socketio.emit('overall_game_over_player', room=PLAYERS_ROOM)
+    
+    # NOW, tell the client to start the audio sequence.
+    # A tiny delay ensures the HTML has time to render on the client.
+    socketio.sleep(0.1) 
+    socketio.emit('start_game_over_sequence', {}, room=main_screen_sid)
+    
+    print("Sent overall game over notices and sequence trigger.")
 
 # === GUESS THE AGE LOGIC ===
 # (setup_guess_age_round, next_guess_age_turn, handle_submit_gta_guess, process_guess_age_turn_results, end_guess_age_round - Reverted to the state before WDDI was added, includes debug logs)
@@ -577,12 +800,20 @@ def handle_submit_gta_guess(data):
                 if check_all_guesses_received_gta(): print("All GTA guesses received."); socketio.sleep(0.5); process_guess_age_turn_results()
             else: emit('message', {'data': 'Already guessed.'}, room=player_sid)
         except Exception as e: emit('message', {'data': 'Invalid guess (0-120).'}, room=player_sid); print(f"Invalid GTA guess: {e}")
+
 def process_guess_age_turn_results():
     global game_state; print(f"DEBUG: Entered process_guess_age_turn_results. State: {game_state}");
     if game_state != "guess_age_ongoing": print("DEBUG: Exiting GTA process early."); return; print("--- Processing GTA Turn Results ---");
-    results_context = { 'results': [], 'actual_age': None }; print("DEBUG: Defined results_context GTA.");
+    # Add 'image_url' to the context definition
+    results_context = { 'results': [], 'actual_age': None, 'image_url': None }; 
+    print("DEBUG: Defined results_context GTA.");
     if gta_current_celebrity:
-        actual_age = gta_current_celebrity['age']; results_context['actual_age'] = actual_age; print(f"Actual Age: {actual_age}"); round_results_list = []
+        actual_age = gta_current_celebrity['age']
+        results_context['actual_age'] = actual_age
+        # <<< THE NEW LINE IS HERE >>>
+        results_context['image_url'] = gta_current_celebrity.get('image_url') # Pass the image url
+
+        print(f"Actual Age: {actual_age}"); round_results_list = []
         active_players_copy = list(players.items()); print(f"DEBUG: GTA Processing for {len(active_players_copy)} players.");
         for sid, p_info in active_players_copy:
             print(f"DEBUG: GTA Loop - Player {p_info.get('name', '?')}"); guess = p_info.get('gta_current_guess'); print(f"DEBUG:   -> Guess: {guess}"); score_diff = abs(actual_age - guess) if guess is not None else None; print(f"DEBUG:   -> Diff: {score_diff}");
@@ -592,7 +823,7 @@ def process_guess_age_turn_results():
         print(f"DEBUG: GTA finished loop. List size: {len(round_results_list)}"); results_context['results'] = sorted(round_results_list, key=lambda r: r['diff'] if isinstance(r['diff'], int) else float('inf')); print(f"DEBUG: Final GTA results context: {results_context}")
         update_main_screen_html('#results-area', '_gta_turn_results.html', results_context)
     else: print("Error: process_gta_turn_results - no celeb.")
-    socketio.sleep(5);
+    socketio.sleep(get_round_timing('turn_results'));
     if game_state == "guess_age_ongoing": print("DEBUG: Proceeding next GTA turn."); next_guess_age_turn()
     else: print(f"DEBUG: State changed GTA sleep ({game_state}).")
 def end_guess_age_round():
@@ -653,7 +884,7 @@ def end_guess_age_round():
     # 4. Pause and move to the next *game* round
     round_summary_display_time = 12;
     print(f"Waiting {round_summary_display_time}s before next game round...")
-    socketio.sleep(round_summary_display_time)
+    socketio.sleep(get_round_timing('round_summary'))
 
     # Check state hasn't changed during sleep before proceeding
     if game_state == "guess_age_results":
@@ -716,7 +947,7 @@ def process_guess_the_year_turn_results():
         print(f"DEBUG: GTY finished loop. List size: {len(round_results_list)}"); results_context['results'] = sorted(round_results_list, key=lambda r: r['diff'] if isinstance(r['diff'], int) else float('inf')); print(f"DEBUG: Final GTY results context: {results_context}")
         update_main_screen_html('#results-area', '_gty_turn_results.html', results_context)
     else: print("Error: process_gty_turn_results - no question.")
-    socketio.sleep(5);
+    socketio.sleep(get_round_timing('turn_results'));
     if game_state == "guess_the_year_ongoing": print("DEBUG: Proceeding next GTY turn."); next_guess_the_year_turn()
     else: print(f"DEBUG: State changed GTY sleep ({game_state}).")
 
@@ -774,7 +1005,7 @@ def end_guess_the_year_round():
     # 4. Pause and move to next game round
     round_summary_display_time = 12;
     print(f"Waiting {round_summary_display_time}s before next game round...")
-    socketio.sleep(round_summary_display_time)
+    socketio.sleep(get_round_timing('round_summary'))
 
     if game_state == "guess_the_year_results":
         start_next_game_round()
@@ -1027,7 +1258,7 @@ def end_who_didnt_do_it_round():
     # 5. Pause and move to the next game round
     round_summary_display_time = 12 # Seconds
     print(f"   Waiting {round_summary_display_time}s before next game round...")
-    socketio.sleep(round_summary_display_time)
+    socketio.sleep(get_round_timing('round_summary'))
 
     # Check state hasn't changed during sleep before proceeding
     if game_state == "who_didnt_do_it_results":
@@ -1274,7 +1505,7 @@ def end_order_up_round():
 
     round_summary_display_time = 12
     print(f"   Waiting {round_summary_display_time}s before next game round...")
-    socketio.sleep(round_summary_display_time)
+    socketio.sleep(get_round_timing('round_summary'))
 
     if game_state == "order_up_results":
         start_next_game_round()
@@ -1545,7 +1776,7 @@ def end_quick_pairs_round():
     update_main_screen_html('#results-area', '_round_summary.html', summary_context)
 
     round_summary_display_time = 12
-    socketio.sleep(round_summary_display_time)
+    socketio.sleep(get_round_timing('round_summary'))
 
     if game_state == "quick_pairs_results":
         start_next_game_round()
@@ -1664,7 +1895,7 @@ def process_true_or_false_turn_results():
     update_main_screen_html('#results-area', '_true_or_false_turn_results.html', results_context)
     socketio.emit('results_on_main_screen', room=PLAYERS_ROOM)
 
-    socketio.sleep(6) # Show results for 6 seconds
+    socketio.sleep(get_round_timing('turn_results')) # Show results for 6 seconds
     if game_state == "tf_results_display":
         next_true_or_false_turn()
 
@@ -1821,7 +2052,7 @@ def process_tap_the_pic_turn_results():
     update_main_screen_html('#results-area', '_tap_the_pic_turn_results.html', results_context)
     socketio.emit('results_on_main_screen', room=PLAYERS_ROOM)
 
-    socketio.sleep(8) # Show results longer as they check the image
+    socketio.sleep(get_round_timing('turn_results')) # Show results longer as they check the image
     if game_state == "ttp_results_display":
         next_tap_the_pic_turn()
 
@@ -1993,7 +2224,7 @@ def process_the_top_three_turn_results():
     update_main_screen_html('#results-area', '_top_three_turn_results.html', results_context)
     socketio.emit('results_on_main_screen', room=PLAYERS_ROOM)
 
-    socketio.sleep(10)
+    socketio.sleep(get_round_timing('turn_results'))
     if game_state == "ttt_results_display":
         next_the_top_three_turn()
 
@@ -2345,7 +2576,7 @@ def start_next_team_pick():
 
         update_main_screen_html('#round-content-area', '_aa_team_reveal.html', {'teams': teams_for_display})
         
-        socketio.sleep(8)
+        socketio.sleep(get_round_timing('team_reveal'))
         if game_state == "averagers_assemble_ongoing":
              next_turn_averagers_assemble()
         return
@@ -2576,7 +2807,7 @@ def process_results_aa():
     }
     update_main_screen_html('#results-area', '_aa_turn_results.html', results_context)
     
-    socketio.sleep(10)
+    socketio.sleep(get_round_timing('turn_results'))
     if game_state == "aa_results_display":
         next_turn_averagers_assemble()
 

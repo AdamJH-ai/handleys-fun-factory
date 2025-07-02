@@ -1,19 +1,23 @@
-{# templates/_gta_turn_display.html (Rewritten) #}
-{# Expects variables: turn, total_turns, celebrity, players_status #}
+{# templates/_gta_turn_display.html #}
+{# Expects: turn, total_turns, celebrity, players_status #}
 <div id="gta-content">
 
     <h2>Guess The Age (Turn {{ turn }}/{{ total_turns }})</h2>
 
-    {# The 'question-image' class handles all styling for the image #}
+    {# Add the 'gty-image' class to make the image larger #}
     {% if celebrity and celebrity.image_url %}
-        <img class="question-image" src="{{ celebrity.image_url }}" alt="{{ celebrity.name or 'Celebrity' }}">
+        {% if celebrity.image_url.startswith('http') %}
+            <img class="question-image gty-image" src="{{ celebrity.image_url }}" alt="{{ celebrity.name }}">
+        {% else %}
+            <img class="question-image gty-image" src="{{ url_for('static', filename=celebrity.image_url) }}" alt="{{ celebrity.name }}">
+        {% endif %}
     {% endif %}
 
-    {# Using h3 and p tags which are now styled globally for consistency #}
-    <h3>{{ celebrity.name or 'Unknown Celebrity' }}</h3>
-    <p>{{ celebrity.description or 'No description available.' }}</p>
+    {# Display the celebrity's name and description #}
+    <h3 class="question-text-prominent">{{ celebrity.name or 'Name loading...' }}</h3>
+    <p style="color: var(--text-secondary); max-width: 700px; margin: -20px auto 30px auto;">{{ celebrity.description }}</p>
 
-    {# The generic player status component #}
+    {# Player status list remains the same #}
     <div class="player-status-list">
         <h4>Waiting for players to guess...</h4>
         <ul>

@@ -145,7 +145,7 @@
         }
 
         /* This targets BOTH start buttons for a consistent look */
-        #initiateGameButton, #startGameButton {
+        #initiateGameButton, #startGameButton, #playAgainButton {
             display: block;
             max-width: 400px;
             margin: 20px auto; /* Provides space around the button */
@@ -398,7 +398,9 @@
         <div id="results-area" class="hidden"></div>
         <div id="overall-game-over-area" class="hidden"></div>
         <div id="status-bar">Status: <span id="game-state">Initializing...</span><div id="overall-score-display"></div></div>
-        <audio id="theme-music" src="/static/audio/main-theme.mp3" loop preload="auto"></audio>
+        
+        <!--- MUSIC/AUDIO FILES --->
+        <audio id="theme-music" src="/static/audio/main-theme.mp3" preload="auto"></audio>
         <audio id="jingle-gta" src="/static/audio/gta_jingle.mp3" preload="auto"></audio>
         <audio id="jingle-gty" src="/static/audio/gty_jingle.mp3" preload="auto"></audio>
         <audio id="jingle-wddi" src="/static/audio/wddi_jingle.mp3" preload="auto"></audio>
@@ -409,6 +411,18 @@
         <audio id="jingle-ttp" src="/static/audio/ttp_jingle.mp3" preload="auto"></audio>
         <audio id="jingle-ttt" src="/static/audio/ttt_jingle.mp3" preload="auto"></audio>
         <audio id="jingle-hol" src="/static/audio/hol_jingle.mp3" preload="auto"></audio>
+
+
+        <!--- VOICE FILES --->
+        <audio id="audio-announcer-intro" src="/static/audio/announcer_intro.mp3" preload="auto"></audio>
+        <audio id="audio-host-welcome" src="/static/audio/host_welcome.mp3" preload="auto"></audio>
+
+        <!-- NEW AUDIO TAGS FOR GAME OVER -->
+        <audio id="audio-victory-music" src="/static/audio/we_are_the_champions.mp3" preload="auto"></audio>
+        <audio id="audio-host-congrats" src="/static/audio/host_congrats.mp3" preload="auto"></audio>
+
+        <!--- ROUND EXPLAINER -->
+        <audio id="audio-host-explainer" preload="auto"></audio>
     </div>
 
     <script>
@@ -417,6 +431,9 @@
         let roundContentArea, resultsArea, overallGameOverArea, statusBar, gameStateSpan;
         let overallScoreDisplay, connectIpSpan, themeMusic, muteButton, playAgainButton;
         let jingleGTA, jingleGTY, jingleWDDI, jingleOU, jingleQP, jingleAA, jingleTF, jingleTTP, jingleTTT, jingleHOL;
+        let announcerAudio, hostWelcomeAudio;
+        let hostExplainerAudio;
+        let victoryMusicAudio, hostCongratsAudio;
 
         let currentJingle = null;
 
@@ -471,6 +488,136 @@
             console.log('Main Screen Connected!'); if(gameStateSpan) gameStateSpan.textContent = 'Connected';
             socket.emit('register_main_screen'); showArea('splash-screen');
         });
+
+        socket.on('start_game_intro_sequence', (data) => {
+            console.log("--- Event: start_game_intro_sequence received ---");
+
+            // Ensure all audio is ready and not muted
+            if (!themeMusic || !announcerAudio || !hostWelcomeAudio || themeMusic.muted) {
+                console.log("Audio elements not ready or muted. Skipping sequence and telling server to continue.");
+                socket.emit('game_intro_finished');
+                return;
+            }
+
+            // Reset all audio to the beginning
+            themeMusic.currentTime = 0;
+            announcerAudio.currentTime = 0;
+            hostWelcomeAudio.currentTime = 0;
+            
+            themeMusic.volume = 0.4; // Start at a reasonable volume
+            themeMusic.play().catch(e => console.error("Theme music play error:", e));
+
+            // After 37 seconds, start fading the music and play the announcer
+            setTimeout(() => {
+                console.log("Starting theme music fade...");
+                // Fade out over 2 seconds
+                let fadeInterval = setInterval(() => {
+                    if (themeMusic.volume > 0.1) {
+                        themeMusic.volume -= 0.05;
+                    } else {
+                        themeMusic.volume = 0.1; // Settle at a low background volume
+                        clearInterval(fadeInterval);
+                    }
+                }, 100);
+
+                // Play announcer at the same time the fade starts
+                announcerAudio.play().catch(e => console.error("Announcer audio play error:", e));
+
+            }, 37000); // 37 seconds
+
+            // When the announcer finishes, wait one second, then play the host
+            announcerAudio.onended = () => {
+                console.log("Announcer finished. Waiting 1 second...");
+                setTimeout(() => {
+                    console.log("Now playing host welcome.");
+                    hostWelcomeAudio.play().catch(e => console.error("Host audio play error:", e));
+                }, 1000); // 1000 milliseconds = 1 second
+            };
+
+            // When the HOST finishes, the entire sequence is done. Tell the server.
+            hostWelcomeAudio.onended = () => {
+                console.log("Host welcome finished. Signaling server to start Round 1.");
+                socket.emit('game_intro_finished');
+            };
+        });
+
+        socket.on('ready_for_new_game', (data) => {
+            console.log("Server ready for new game. Showing waiting area.");
+            // This effectively takes us back to the lobby screen
+            showArea('waiting-area'); 
+        });
+
+        socket.on('start_game_over_sequence', (data) => {
+            console.log("--- Event: start_game_over_sequence received ---");
+            
+            // --- THIS IS THE FIX FOR THE BUTTON ---
+            // Find the button and attach its click listener right away.
+            const playAgainBtn = document.getElementById('playAgainButton');
+            if (playAgainBtn) {
+                playAgainBtn.disabled = true; // Disable button until sequence is over
+                playAgainBtn.addEventListener('click', () => {
+                    console.log("Play Again button clicked. Requesting reset.");
+                    // When clicked, emit the event to the server.
+                    socket.emit('request_reset_game');
+                });
+            } else {
+                console.error("Play Again button not found!");
+            }
+            // --- END OF BUTTON FIX ---
+
+            if (!victoryMusicAudio || !hostCongratsAudio || themeMusic.muted) {
+                console.log("Victory audio elements not ready or muted. Enabling button immediately.");
+                if (playAgainBtn) playAgainBtn.disabled = false;
+                return;
+            }
+
+            victoryMusicAudio.currentTime = 0;
+            hostCongratsAudio.currentTime = 0;
+            victoryMusicAudio.volume = 0.5;
+
+            victoryMusicAudio.play().catch(e => console.error("Victory music error:", e));
+
+            victoryMusicAudio.onended = () => {
+                hostCongratsAudio.play().catch(e => console.error("Host congrats error:", e));
+            };
+
+            // When the host finishes, the sequence is over. Enable the button.
+            hostCongratsAudio.onended = () => {
+                console.log("Game over sequence finished. Enabling Play Again button.");
+                if (playAgainBtn) playAgainBtn.disabled = false;
+            };
+        });
+
+        socket.on('show_how_to_play', (data) => {
+            console.log("--- Event: show_how_to_play received ---", data);
+            
+            // Ensure the audio player is ready
+            if (!hostExplainerAudio || themeMusic.muted) {
+                console.log("Explainer audio element not ready or muted. Skipping.");
+                socket.emit('how_to_play_finished');
+                return;
+            }
+            
+            // Set the source for the audio file for this specific round
+            hostExplainerAudio.src = `/static/audio/${data.audio_file}`;
+            hostExplainerAudio.currentTime = 0;
+            hostExplainerAudio.load(); // Load the new source
+            
+            // Play the audio
+            hostExplainerAudio.play().catch(e => {
+                console.error(`Error playing explainer audio ${data.audio_file}:`, e);
+                // If it fails to play, tell the server to continue anyway
+                socket.emit('how_to_play_finished');
+            });
+            
+            // When the audio clip finishes, tell the server we're done.
+            hostExplainerAudio.onended = () => {
+                console.log(`Explainer audio ${data.audio_file} finished.`);
+                socket.emit('how_to_play_finished');
+            };
+        });
+
+
         socket.on('disconnect', () => { if(gameStateSpan) gameStateSpan.textContent = 'DISCONNECTED!'; showArea('splash-screen'); });
         socket.on('message', (data) => { console.log('Server Message:', data.data); });
 
@@ -484,7 +631,13 @@
                  else if (data.target_selector === '#player-list') { if (splashScreen && splashScreen.classList.contains('hidden')) { showArea('waiting-area'); } }
                  else if (data.target_selector === '#overall-game-over-area') {
                      playAgainButton = document.getElementById('playAgainButton');
-                     if (playAgainButton) { playAgainButton.addEventListener('click', startGameHandler); }
+                     if (playAgainButton) {
+                        // Remove any old logic and attach our new, clean event emitter
+                        playAgainButton.addEventListener('click', () => {
+                            console.log("Play Again button clicked. Requesting reset.");
+                            socket.emit('request_reset_game');
+                        });
+                    }
                  }
                  // <<< NEW: Ensure inner content visible after injection >>>
                  if (data.target_selector === '#round-content-area') {
@@ -584,8 +737,8 @@
 
         // --- User Interaction Handlers ---
         function initiateGameHandler() {
-            console.log("Initiate button clicked."); showArea('waiting-area');
-            if (themeMusic && themeMusic.paused) { themeMusic.volume = 0.3; themeMusic.play().catch(e => console.error("Music Error:", e)); }
+            console.log("Initiate button clicked.");
+            showArea('waiting-area');
         }
         function startGameHandler() {
             console.log('Start/Play Again clicked.'); if(startGameButton) startGameButton.disabled = true; if(playAgainButton) playAgainButton.disabled = true;
@@ -614,6 +767,11 @@
             jingleTTP = document.getElementById('jingle-ttp');
             jingleTTT = document.getElementById('jingle-ttt');
             jingleHOL = document.getElementById('jingle-hol');
+            announcerAudio = document.getElementById('audio-announcer-intro');
+            hostWelcomeAudio = document.getElementById('audio-host-welcome');
+            hostExplainerAudio = document.getElementById('audio-host-explainer');
+            victoryMusicAudio = document.getElementById('audio-victory-music'); 
+            hostCongratsAudio = document.getElementById('audio-host-congrats');
             if (!themeMusic || !jingleGTA) {
                 console.warn("Audio elements (theme or jingles) might be missing!");
             }

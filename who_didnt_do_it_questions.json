@@ -60,7 +60,7 @@
       "Jack Nicholson", "Nicholas Cage","Tom Hanks"
     ],
     "correct_answer": "Tom Cruise",
-    "image_url": null
+    "image_url": "https://upload.wikimedia.org/wikipedia/en/thumb/2/2d/Oscars_logo.svg/1920px-Oscars_logo.svg.png"
   },
   {
     "question": "Which of these actresses has NOT won an Oscar",
@@ -69,7 +69,7 @@
       "Reese Witherspoon", "Nicole Kidman","Julia Roberts"
     ],
     "correct_answer": "Sigourney Weaver",
-    "image_url": null
+    "image_url": "https://upload.wikimedia.org/wikipedia/en/thumb/2/2d/Oscars_logo.svg/1920px-Oscars_logo.svg.png"
   },
   {
     "question": "Which of these celebrities was NOT a judge on Britain's Got Talent",

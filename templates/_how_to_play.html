@@ -1,0 +1,64 @@
+{# templates/_how_to_play.html #}
+{# Expects: screenshot, explanation_text #}
+
+<style>
+    /* Scoped styles for the how-to-play screen */
+    .how-to-play-container {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        grid-gap: 30px;
+        align-items: center;
+        height: 75vh;
+        max-width: 1300px;
+        margin: auto;
+    }
+    .how-to-play-box {
+        background-color: var(--bg-secondary);
+        border-radius: 12px;
+        height: 100%;
+        display: flex;
+        flex-direction: column; 
+        justify-content: center;
+        align-items: center;
+        padding: 30px; /* Increased padding */
+    }
+    .how-to-play-box img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        border-radius: 8px;
+    }
+    /* This class is applied to each generated paragraph */
+    .how-to-play-box .explanation-paragraph {
+        font-size: 1.7em; 
+        line-height: 1.5;
+        text-align: left;
+        width: 100%;
+        margin-bottom: 1.2em; /* Space between paragraphs */
+    }
+    .how-to-play-box .explanation-paragraph:last-child {
+        margin-bottom: 0; /* No margin on the last one */
+    }
+</style>
+
+<div id="how-to-play-content">
+    <h2 style="font-size: 3em; margin-bottom: 20px;">HOW TO PLAY</h2>
+
+    <div class="how-to-play-container">
+        <div class="how-to-play-box">
+            {# Checks for external or local URL #}
+            {% if screenshot.startswith('http') %}
+                <img src="{{ screenshot }}" alt="How to Play Screenshot">
+            {% else %}
+                <img src="{{ url_for('static', filename=screenshot) }}" alt="How to Play Screenshot">
+            {% endif %}
+        </div>
+        <div class="how-to-play-box">
+            {# --- THIS IS THE CRUCIAL LOGIC --- #}
+            {# It splits the text by '|' and loops through the parts, creating a new <p> tag for each one. #}
+            {% for paragraph in explanation_text.split('|') %}
+                <p class="explanation-paragraph">{{ paragraph.strip() }}</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
