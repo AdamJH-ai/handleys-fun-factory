@@ -5,6 +5,7 @@ from datetime import datetime
 from flask import Flask, render_template, request # Removed unused 'session' import
 from flask_socketio import SocketIO, emit, join_room, leave_room
 import eventlet # Recommended for stability
+import socket
 
 # --- Basic Setup ---
 app = Flask(__name__)
@@ -13,11 +14,11 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'a_super_secret_key_chan
 socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
 
 # === GAME CONFIG ===
-GAME_ROUNDS_TOTAL = 1
-#AVAILABLE_ROUND_TYPES = ['guess_the_age', 'guess_the_year', 'who_didnt_do_it', 'order_up', 'quick_pairs', 'true_or_false', 'tap_the_pic', 'the_top_three', 'higher_or_lower', 'averagers_assemble']
-AVAILABLE_ROUND_TYPES = ['guess_the_age']
+GAME_ROUNDS_TOTAL = 10
+AVAILABLE_ROUND_TYPES = ['guess_the_age', 'guess_the_year', 'who_didnt_do_it', 'order_up', 'quick_pairs', 'true_or_false', 'tap_the_pic', 'the_top_three', 'higher_or_lower', 'averagers_assemble']
+#AVAILABLE_ROUND_TYPES = ['guess_the_age']
 MAX_PLAYERS = 8
-gta_target_turns = 1
+gta_target_turns = 10
 gty_target_turns = 10
 wddi_target_turns = 10
 ou_target_turns = 10
@@ -33,7 +34,7 @@ QP_NUM_PAIRS_PER_QUESTION = 3
 ROUND_RULES = {
     'guess_the_age': "Guess the celebrity's current age! Score based on difference (lowest wins).",
     'guess_the_year': "Guess the year the event happened! Score based on difference (lowest wins).",
-    'who_didnt_do_it': "Identify the option that doesn't fit the question! Score based on correct answers (most wins).",
+    'who_didnt_do_it': "Identify the option that doesn't fit the question! Score based on correct answers.",
     'order_up': "Arrange the items in the correct order! Score 1 point for each perfect order.",
     'quick_pairs': "Quickly match all pairs! Fastest correct gets 2 points, others correct get 1.",
     'true_or_false': "Decide if the statement is true or false. You get one point for each correct answer.",
@@ -71,7 +72,7 @@ ROUND_EXPLAINER_INFO = {
     'guess_the_age': {
         'audio_file': 'explainer_gta.mp3',
         'screenshot': 'image/howto_gta.png',
-        'explanation_text': "You’ll be shown a series of photos of famous people. Your job? Guess their current age. The closer you are, the better your score!|For every year you’re off, you score a point. So if someone is 25 and you guess 30 — that’s 5 points added to your total.|Scores build up across all questions, and the player with the lowest total at the end wins the round."
+        'explanation_text': "You’ll be shown a series of photos of famous people. Your job? Guess their current age. The closer you are, the better your score!|For every year you’re off, you score a point. So if someone is 28 and you guess 30 — that’s 2 points added to your total.|Scores build up across all questions, and the player with the lowest total at the end wins the round."
     },
     'guess_the_year': {
         'audio_file': 'explainer_gty.mp3',
@@ -138,6 +139,21 @@ ROUND_TIMINGS = {
     'averagers_assemble': {
         'team_reveal': 8, # A custom timing for this round
         'turn_results': 10
+    },
+    'true_or_false': {
+        'intro_card': 9,
+    },
+    'tap_the_pic': {
+        'intro_card': 9,
+    },
+    'quick_pairs': {
+        'intro_card': 10,
+    },
+    'the_top_three': {
+        'intro_card': 11,
+    },
+    'who_didnt_do_it': {
+        'intro_card': 12,
     }
 }
 
@@ -2862,6 +2878,27 @@ if __name__ == '__main__':
     load_top_three_data()
     load_higher_or_lower_data()
     load_averagers_assemble_data()
+
+    hostname = socket.gethostname()
+    try:
+        # This is a reliable way to get the local IP on a network
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        local_ip = s.getsockname()[0]
+        s.close()
+    except Exception:
+        local_ip = '127.0.0.1' # Fallback if unable to connect
+    
+    port = 5000
+    print("\n" + "*"*50)
+    print("*" + " "*48 + "*")
+    print(f"*  Handley's Fun Factory is running! {' '*10}*")
+    print("*" + " "*48 + "*")
+    print(f"*  Connect player devices to: {' '*14}*")
+    print(f"*  http://{local_ip}:{port} {' '*(27-len(local_ip)-len(str(port)))}*")
+    print("*" + " "*48 + "*")
+    print("*"*50 + "\n")
+
     print("Starting Flask-SocketIO server..."); use_debug = False
     socketio.run(app, host='0.0.0.0', port=5000, debug=use_debug)
     print("Server stopped.")
