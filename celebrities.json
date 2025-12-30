@@ -1,23 +1,5 @@
 [
   {
-    "name": "Tom Hanks",
-    "dob": "1957-07-09",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/a/a9/Tom_Hanks_TIFF_2019.jpg",
-    "description": "An iconic American actor, beloved for his roles in films such as 'Forrest Gump,' 'Cast Away,' and as the voice of Woody in 'Toy Story'."
-  },
-  {
-    "name": "Zendaya",
-    "dob": "1996-09-01",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Zendaya_-_2019_by_Glenn_Francis.jpg/800px-Zendaya_-_2019_by_Glenn_Francis.jpg",
-    "description": "An American actress and singer who gained fame on the Disney Channel before starring in the 'Spider-Man' films and the hit series 'Euphoria'."
-  },
-  {
-    "name": "Taylor Swift",
-    "dob": "1989-12-13",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Taylor_Swift_at_the_2023_MTV_Video_Music_Awards_%283%29.png/800px-Taylor_Swift_at_the_2023_MTV_Video_Music_Awards_%283%29.png",
-    "description": "A global music superstar, this American singer-songwriter is known for her narrative songs and record-breaking concert tours like The Eras Tour."
-  },
-  {
     "name": "Morgan Freeman",
     "dob": "1937-06-01",
     "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Morgan_Freeman_1998.jpg/250px-Morgan_Freeman_1998.jpg",

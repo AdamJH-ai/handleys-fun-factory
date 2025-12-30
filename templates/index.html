@@ -1210,12 +1210,45 @@
             }
         });
 
+        // --- Persistent identity (Checkpoint A) ---
+        const HFF_PID_KEY = 'hff_pid_v1';
+        const HFF_NAME_KEY = 'hff_name_v1';
+
+        function getOrCreatePid() {
+        let pid = localStorage.getItem(HFF_PID_KEY);
+        if (!pid) {
+            // Use crypto.randomUUID if available, else fallback
+            pid = (window.crypto && crypto.randomUUID)
+            ? crypto.randomUUID()
+            : `pid_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+            localStorage.setItem(HFF_PID_KEY, pid);
+        }
+        return pid;
+        }
+
+        function saveName(name) {
+        localStorage.setItem(HFF_NAME_KEY, name);
+        }
+
+        function loadSavedName() {
+        return localStorage.getItem(HFF_NAME_KEY) || '';
+        }
+
+
         // --- Attach Listeners and Get Elements After DOM Loaded ---
         document.addEventListener('DOMContentLoaded', (event) => {
              console.log("Player DOM loaded.");
              // Get element references now
              nameEntryArea = document.getElementById('name-entry-area');
              nameInput = document.getElementById('nameInput');
+             // Prefill last used name (optional, but handy)
+            if (nameInput) {
+            const saved = loadSavedName();
+            if (saved) nameInput.value = saved;
+            }
+
+            // Ensure pid exists early (optional)
+            getOrCreatePid();
              joinButton = document.getElementById('joinButton');
              guessingArea = document.getElementById('guessing-area');
              // gameInfoDiv = document.getElementById('game-info'); // Removed for now
@@ -1269,7 +1302,10 @@
                      console.log(`DEBUG: Name entered: '${name}'`);
                      if (name) {
                          console.log(`Registering as player: ${name}`);
-                         socket.emit('register_player', { name: name });
+                         const pid = getOrCreatePid();
+                         saveName(name);
+
+                         socket.emit('register_player', { name: name, pid: pid });
                          console.log("DEBUG: register_player event emitted.");
                          showArea('guessing-area'); // Show the guessing area div
                          console.log("DEBUG: Called showArea('guessing-area').");

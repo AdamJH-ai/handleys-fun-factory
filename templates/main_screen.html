@@ -442,9 +442,13 @@
 
         // --- Helper Functions ---
         function showArea(areaToShowId) {
-            console.log(`Showing area: ${areaToShowId}`);
+            const ts = new Date().toISOString();
+            console.log(`[${ts}] showArea("${areaToShowId}") called`);
+            console.trace("showArea call stack"); // <- this tells us WHICH handler triggered it
+
             [splashScreen, waitingArea, roundContentArea, resultsArea, overallGameOverArea].forEach(area => {
-                if (!area) return; area.id === areaToShowId ? area.classList.remove('hidden') : area.classList.add('hidden');
+                if (!area) return;
+                area.id === areaToShowId ? area.classList.remove('hidden') : area.classList.add('hidden');
             });
             // Ensure specific content areas are hidden when not in round content view
             const gtaContent = document.getElementById('gta-content'); if (gtaContent && areaToShowId !== 'round-content-area') gtaContent.classList.add('hidden');
@@ -487,6 +491,7 @@
         socket.on('connect', () => {
             console.log('Main Screen Connected!'); if(gameStateSpan) gameStateSpan.textContent = 'Connected';
             socket.emit('register_main_screen'); showArea('splash-screen');
+            console.log(`[${new Date().toISOString()}] MAIN SCREEN socket CONNECT`);
         });
 
         socket.on('start_game_intro_sequence', (data) => {
@@ -543,6 +548,7 @@
 
         socket.on('ready_for_new_game', (data) => {
             console.log("Server ready for new game. Showing waiting area.");
+            console.log(`[${new Date().toISOString()}] ready_for_new_game`);
             // This effectively takes us back to the lobby screen
             showArea('waiting-area'); 
         });
@@ -618,17 +624,18 @@
         });
 
 
-        socket.on('disconnect', () => { if(gameStateSpan) gameStateSpan.textContent = 'DISCONNECTED!'; showArea('splash-screen'); });
+        socket.on('disconnect', () => { console.log(`[${new Date().toISOString()}] MAIN SCREEN socket DISCONNECT`); if(gameStateSpan) gameStateSpan.textContent = 'DISCONNECTED!'; showArea('splash-screen'); });
         socket.on('message', (data) => { console.log('Server Message:', data.data); });
 
         socket.on('update_html', (data) => {
             console.log(`Received HTML update for: ${data.target_selector}`);
+            console.log(`[${new Date().toISOString()}] update_html target=${data.target_selector}`);
             const targetElement = document.querySelector(data.target_selector);
             if (targetElement) {
                 targetElement.innerHTML = data.html; console.log(`Target ${data.target_selector} updated.`);
                 const parentArea = targetElement.closest('#round-content-area, #results-area, #overall-game-over-area');
                 if (parentArea) { showArea(parentArea.id); }
-                 else if (data.target_selector === '#player-list') { if (splashScreen && splashScreen.classList.contains('hidden')) { showArea('waiting-area'); } }
+                 else if (data.target_selector === '#player-list') { /* lobby list update only — do not change screen */ }
                  else if (data.target_selector === '#overall-game-over-area') {
                      playAgainButton = document.getElementById('playAgainButton');
                      if (playAgainButton) {
@@ -662,6 +669,7 @@
 
         socket.on('game_state_update', (data) => {
             console.log('Game State Update:', data);
+            console.log(`[${new Date().toISOString()}] game_state_update`, data);
             if(gameStateSpan) { /* Update status text */ }
             updateOverallScoresUI(data.overall_scores || []);
             if (data.game_state === 'waiting') {
