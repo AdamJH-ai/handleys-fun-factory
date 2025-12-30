@@ -18,16 +18,16 @@ GAME_ROUNDS_TOTAL = 10
 AVAILABLE_ROUND_TYPES = ['guess_the_age', 'guess_the_year', 'who_didnt_do_it', 'order_up', 'quick_pairs', 'true_or_false', 'tap_the_pic', 'the_top_three', 'higher_or_lower', 'averagers_assemble']
 #AVAILABLE_ROUND_TYPES = ['the_top_three']
 MAX_PLAYERS = 8
-gta_target_turns = 1
-gty_target_turns = 1
-wddi_target_turns = 1
-ou_target_turns = 1
-qp_target_turns = 1
-tf_target_turns = 1
-ttp_target_turns = 1
-ttt_target_turns = 1
-hol_target_turns = 1
-aa_target_turns = 1
+gta_target_turns = 10
+gty_target_turns = 10
+wddi_target_turns = 10
+ou_target_turns = 10
+qp_target_turns = 10
+tf_target_turns = 10
+ttp_target_turns = 10
+ttt_target_turns = 10
+hol_target_turns = 10
+aa_target_turns = 10
 QP_NUM_PAIRS_PER_QUESTION = 3
 
 # === ROUND DETAILS ===
