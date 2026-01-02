@@ -50,6 +50,11 @@
             list-style: none;
         }
 
+        html, body {
+            height: 100%;
+            overflow: hidden; /* TV rule: never scroll */
+        }
+
         /* ==========================================================================
         2. TYPOGRAPHY & HEADINGS
         ========================================================================== */
@@ -248,6 +253,19 @@
         }
         
         /* --- Results & Scoreboards --- */
+
+        /* Round Results: fixed grid stage (2 columns, up to 8 tiles) */
+        .round-results-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2x4 layout */
+            gap: 12px;
+            margin: 0 auto;
+            padding: 0;
+            list-style: none;
+            max-width: 1100px;
+        }
+
+
         /* List showing player results for a single round */
         .round-results-list li {
             display: flex;
@@ -256,21 +274,42 @@
             background-color: var(--bg-secondary);
             color: var(--text-primary);
             padding: 15px;
-            margin: 8px auto;
+            margin: 0;          /* grid controls spacing via gap */
+            width: 100%;
+            max-width: none;    /* grid controls width */
+            min-width: 0;       /* crucial for ellipsis */
             border-radius: 6px;
-            max-width: 700px;
         }
         .round-results-list li .player-name {
             font-weight: 700; font-size: 1.1em; text-align: left;
-            flex-basis: 40%; /* Stealing 10% from here */
+            flex-basis: 25%;
         }
         .round-results-list li .player-answer {
             text-align: center; font-style: italic;
-            flex-basis: 30%; /* Keeping this the same */
+            flex-basis: 45%;
         }
         .round-results-list li .player-points {
             font-weight: 700; font-size: 1.1em; text-align: right;
-            flex-basis: 30%; /* Giving the 10% here to prevent wrapping */
+            flex-basis: 30%;
+        }
+
+        /* Prevent long text from wrapping and making tiles taller */
+        .round-results-list li .player-name,
+        .round-results-list li .player-points {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .round-results-list li .player-answer {
+            min-width: 0;
+            overflow: hidden;
+            white-space: normal;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
         }
 
         /* --- NEW: Style the time display to be more subtle --- */
@@ -315,13 +354,31 @@
         }
 
         /* --- Prominent Question Text --- */
-        .question-text-prominent {
-            font-size: 2.2em;           /* Much larger font */
-            font-weight: 700;           /* Bolder text */
-            color: var(--text-primary); /* Use primary white text color */
-            line-height: 1.3;
-            max-width: 900px;           /* Allow it to be a bit wider if needed */
-            margin: 20px auto 40px auto; /* Adjust vertical spacing */
+        /* Base: good for most question screens */
+        .question-text-prominent{
+            font-size: clamp(2.0rem, 4.2vw, 4.0rem);
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+            max-width: min(1200px, 92vw);
+            margin: 18px auto 28px auto;
+        }
+
+        /* Bigger only when the screen is basically just a question */
+        .round-question-only .question-text-prominent{
+            font-size: clamp(2.8rem, 6.2vw, 5.2rem);
+            line-height: 1.15;
+            margin-bottom: 18px;
+        }
+
+        .round-question-only .player-status-list h4{
+            font-size: clamp(1.1rem, 2.2vw, 1.9rem);
+            opacity: 0.9;
+        }
+
+        .round-question-only .player-status-list li{
+            font-size: clamp(0.95rem, 1.8vw, 1.25rem);
+            padding: 10px 14px;
         }
 
         /* --- Final Game Scoreboard --- */

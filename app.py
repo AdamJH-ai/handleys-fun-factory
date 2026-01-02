@@ -15,19 +15,19 @@ socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
 
 # === GAME CONFIG ===
 GAME_ROUNDS_TOTAL = 10
-AVAILABLE_ROUND_TYPES = ['guess_the_age', 'guess_the_year', 'who_didnt_do_it', 'order_up', 'quick_pairs', 'true_or_false', 'tap_the_pic', 'the_top_three', 'higher_or_lower', 'averagers_assemble']
-#AVAILABLE_ROUND_TYPES = ['the_top_three']
+#AVAILABLE_ROUND_TYPES = ['guess_the_age', 'guess_the_year', 'who_didnt_do_it', 'order_up', 'quick_pairs', 'true_or_false', 'tap_the_pic', 'the_top_three', 'higher_or_lower', 'averagers_assemble']
+AVAILABLE_ROUND_TYPES = ['averagers_assemble']
 MAX_PLAYERS = 8
-gta_target_turns = 10
-gty_target_turns = 10
-wddi_target_turns = 10
-ou_target_turns = 10
-qp_target_turns = 10
-tf_target_turns = 10
-ttp_target_turns = 10
-ttt_target_turns = 10
-hol_target_turns = 10
-aa_target_turns = 10
+gta_target_turns = 1
+gty_target_turns = 1
+wddi_target_turns = 1
+ou_target_turns = 1
+qp_target_turns = 1
+tf_target_turns = 1
+ttp_target_turns = 1
+ttt_target_turns = 1
+hol_target_turns = 1
+aa_target_turns = 1
 QP_NUM_PAIRS_PER_QUESTION = 3
 
 # === ROUND DETAILS ===
@@ -1084,16 +1084,25 @@ def resend_current_prompt_to_player(player_sid):
 
         # Selection phase: IMPORTANT — align this payload with your index.html 'aa_pick_teammate_prompt' listener.
         if aa_round_phase == 'selection':
+            picker_name = players.get(aa_current_picker_sid, {}).get('name', 'a player')
+
             if player_sid == aa_current_picker_sid:
+                choosable_players = [
+                    {'sid': sid, 'name': players[sid]['name']}
+                    for sid in aa_unpicked_players
+                    if sid != aa_current_picker_sid and sid in players
+                ]
                 socketio.emit(
                     'aa_pick_teammate_prompt',
-                    {
-                        'choices': [{'sid': sid, 'name': players[sid]['name']} for sid in aa_unpicked_players if sid != aa_current_picker_sid]
-                    },
+                    {'players_to_choose_from': choosable_players},
                     room=player_sid
                 )
             else:
-                socketio.emit('aa_wait_prompt', {'wait_message': 'Waiting for team selection...'}, room=player_sid)
+                socketio.emit(
+                    'aa_wait_prompt',
+                    {'wait_message': f"Waiting for {picker_name} to pick a teammate..."},
+                    room=player_sid
+                )
             return
 
     # Fallback
