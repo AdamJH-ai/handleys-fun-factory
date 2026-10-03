@@ -30,7 +30,7 @@
         <ul>
              {% for p_status in players_status %}
                 {# The 'guessed' class for JS to add is handled by the generic '.player-status-list li.guessed' rule #}
-                <li id="player-status-{{ p_status.name | replace('[^a-zA-Z0-9-_]', '_') }}">{{ p_status.name }}</li>
+                <li id="player-status-{{ p_status.status_id }}">{{ p_status.name }}</li>
             {% endfor %}
         </ul>
     </div>

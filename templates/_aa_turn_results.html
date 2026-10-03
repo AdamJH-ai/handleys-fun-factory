@@ -19,7 +19,7 @@
                 <div style="text-align: right;">
                     <span style="font-size: 1.1em;">Team Average:</span>
                     <span style="font-family: var(--font-display); font-size: 2.5em; color: var(--accent-gold);">
-                        {{ '{:,.0f}'.format(team.average) }}
+                        {{ '{:,.2f}'.format(team.average).rstrip('0').rstrip('.') }}
                     </span>
                     {# --- NEW SCORING DISPLAY (OPTION 3) --- #}
                     <div style="font-size: 1.1em; color: var(--text-primary);">

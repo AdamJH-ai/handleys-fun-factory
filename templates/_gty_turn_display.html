@@ -25,7 +25,7 @@
         <h4>Waiting for players to guess...</h4>
         <ul>
             {% for p_status in players_status %}
-                <li id="player-status-{{ p_status.name | replace('[^a-zA-Z0-9-_]', '_') }}">{{ p_status.name }}</li>
+                <li id="player-status-{{ p_status.status_id }}">{{ p_status.name }}</li>
             {% endfor %}
         </ul>
     </div>

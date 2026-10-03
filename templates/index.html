@@ -599,6 +599,14 @@
             currentClientRoundType = null;
         });
 
+        socket.on('registration_rejected', (data) => {
+            showArea('name-entry-area');
+            configureInputArea(null);
+            currentClientRoundType = null;
+            if (joinButton) joinButton.disabled = false;
+            if (statusMessage) statusMessage.textContent = data.message;
+        });
+
         socket.on('message', (data) => {
             console.log('Player Server Message:', data.data);
             if (statusMessage) statusMessage.textContent = data.data;

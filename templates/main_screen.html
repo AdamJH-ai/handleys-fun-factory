@@ -482,6 +482,7 @@
         <audio id="audio-host-explainer" preload="auto"></audio>
     </div>
 
+    <script src="/static/js/main_screen_sequences.js"></script>
     <script>
         // --- Element Refs (obtained after DOM loaded) ---
         let splashScreen, initiateGameButton, waitingArea, playerList, startGameButton;
@@ -495,7 +496,8 @@
         let currentJingle = null;
 
         const serverIp = window.location.hostname;
-        const socket = io(`http://${serverIp}:5000`);
+        const socket = io(`http://${serverIp}:5000`, { autoConnect: false });
+        const audioSequences = createSequenceController();
 
         // --- Helper Functions ---
         function showArea(areaToShowId) {
@@ -513,175 +515,90 @@
             // WDDI content removed
         }
         function updateOverallScoresUI(scoresData) {
-             if (!overallScoreDisplay) return;
-             const scoreHtml = (scoresData || []).map(p => `<span>${p.name}: ${p.game_score}pts</span>`).join(' ');
-             overallScoreDisplay.innerHTML = scoreHtml;
-             const resultsScoreElement = document.getElementById('results-overall-score-display'); // Find dynamically if needed
-             if (resultsScoreElement) resultsScoreElement.innerHTML = scoreHtml;
+            [overallScoreDisplay, document.getElementById('results-overall-score-display')].forEach(element => {
+                if (!element) return;
+                element.replaceChildren();
+                (scoresData || []).forEach(player => {
+                    const span = document.createElement('span');
+                    span.textContent = `${player.name}: ${player.game_score}pts`;
+                    element.append(span, document.createTextNode(' '));
+                });
+            });
         }
 
-        /**
-         * Updates a player's status indicator on the main screen.
-         * @param {string} playerName - The name of the player to update.
-         * @param {boolean} hasGuessed - True to mark as guessed (green), false to mark as waiting (grey).
-         */
-        function updatePlayerStatus(playerName, hasGuessed) {
-            // 1. Create the same 'safe ID' for the player's <li> element that we create in the Jinja templates.
-            //    This is the crucial link!
-            const safePlayerId = 'player-status-' + playerName.replace(/[^a-zA-Z0-9-_]/g, '_');
-
-            // 2. Find that specific player's list item on the page.
-            const playerElement = document.getElementById(safePlayerId);
-
-            // 3. If we found it, add or remove the '.guessed' class.
-            if (playerElement) {
-                // .classList.toggle() with a boolean is perfect for this.
-                // If hasGuessed is true, it adds the class. If false, it removes it.
-                playerElement.classList.toggle('guessed', hasGuessed);
-                console.log(`Updated status for ${playerName} to guessed=${hasGuessed}`);
-            } else {
-                console.warn(`Could not find player element with ID: ${safePlayerId} to update status.`);
-            }
+        function updatePlayerStatus(statusId, hasGuessed) {
+            const element = document.getElementById('player-status-' + statusId);
+            if (element) element.classList.toggle('guessed', hasGuessed);
         }
 
         // --- Socket Event Listeners ---
         socket.on('connect', () => {
             console.log('Main Screen Connected!'); if(gameStateSpan) gameStateSpan.textContent = 'Connected';
-            socket.emit('register_main_screen'); showArea('splash-screen');
+            audioSequences.cancel();
+            showArea('splash-screen');
+            socket.emit('register_main_screen');
             console.log(`[${new Date().toISOString()}] MAIN SCREEN socket CONNECT`);
         });
 
         socket.on('start_game_intro_sequence', (data) => {
-            console.log("--- Event: start_game_intro_sequence received ---");
-
-            // Ensure all audio is ready and not muted
-            if (!themeMusic || !announcerAudio || !hostWelcomeAudio || themeMusic.muted) {
-                console.log("Audio elements not ready or muted. Skipping sequence and telling server to continue.");
-                socket.emit('game_intro_finished');
+            const sequence = audioSequences.start(() => {
+                socket.emit('game_intro_finished', { sequence_id: data.sequence_id });
+            });
+            // Reconnection restores the screen and continues instead of replaying the intro.
+            if (data.restored || !themeMusic || themeMusic.muted) {
+                sequence.finish();
                 return;
             }
-
-            // Reset all audio to the beginning
-            themeMusic.currentTime = 0;
-            announcerAudio.currentTime = 0;
-            hostWelcomeAudio.currentTime = 0;
-            
-            themeMusic.volume = 0.4; // Start at a reasonable volume
-            themeMusic.play().catch(e => console.error("Theme music play error:", e));
-
-            // After 37 seconds, start fading the music and play the announcer
-            setTimeout(() => {
-                console.log("Starting theme music fade...");
-                // Fade out over 2 seconds
-                let fadeInterval = setInterval(() => {
-                    if (themeMusic.volume > 0.1) {
-                        themeMusic.volume -= 0.05;
-                    } else {
-                        themeMusic.volume = 0.1; // Settle at a low background volume
-                        clearInterval(fadeInterval);
-                    }
-                }, 100);
-
-                // Play announcer at the same time the fade starts
-                announcerAudio.play().catch(e => console.error("Announcer audio play error:", e));
-
-            }, 37000); // 37 seconds
-
-            // When the announcer finishes, wait one second, then play the host
-            announcerAudio.onended = () => {
-                console.log("Announcer finished. Waiting 1 second...");
-                setTimeout(() => {
-                    console.log("Now playing host welcome.");
-                    hostWelcomeAudio.play().catch(e => console.error("Host audio play error:", e));
-                }, 1000); // 1000 milliseconds = 1 second
-            };
-
-            // When the HOST finishes, the entire sequence is done. Tell the server.
-            hostWelcomeAudio.onended = () => {
-                console.log("Host welcome finished. Signaling server to start Round 1.");
-                socket.emit('game_intro_finished');
-            };
+            themeMusic.volume = 0.4;
+            sequence.play(themeMusic);
+            sequence.delay(() => {
+                for (let step = 1; step <= 6; step++) {
+                    sequence.delay(() => { themeMusic.volume = Math.max(0.1, 0.4 - step * 0.05); }, step * 100);
+                }
+                sequence.play(announcerAudio, () => {
+                    sequence.delay(() => sequence.play(hostWelcomeAudio, sequence.finish), 1000);
+                });
+            }, 37000);
         });
 
-        socket.on('ready_for_new_game', (data) => {
-            console.log("Server ready for new game. Showing waiting area.");
-            console.log(`[${new Date().toISOString()}] ready_for_new_game`);
-            // This effectively takes us back to the lobby screen
-            showArea('waiting-area'); 
+        socket.on('ready_for_new_game', () => {
+            audioSequences.cancel();
+            document.querySelectorAll('audio').forEach(audio => audio.pause());
+            showArea('waiting-area');
         });
 
         socket.on('start_game_over_sequence', (data) => {
-            console.log("--- Event: start_game_over_sequence received ---");
-            
-            // --- THIS IS THE FIX FOR THE BUTTON ---
-            // Find the button and attach its click listener right away.
-            const playAgainBtn = document.getElementById('playAgainButton');
-            if (playAgainBtn) {
-                playAgainBtn.disabled = true; // Disable button until sequence is over
-                playAgainBtn.addEventListener('click', () => {
-                    console.log("Play Again button clicked. Requesting reset.");
-                    // When clicked, emit the event to the server.
-                    socket.emit('request_reset_game');
-                });
-            } else {
-                console.error("Play Again button not found!");
+            playAgainButton = document.getElementById('playAgainButton');
+            if (playAgainButton) {
+                playAgainButton.disabled = true;
+                playAgainButton.onclick = () => socket.emit('request_reset_game');
             }
-            // --- END OF BUTTON FIX ---
-
-            if (!victoryMusicAudio || !hostCongratsAudio || themeMusic.muted) {
-                console.log("Victory audio elements not ready or muted. Enabling button immediately.");
-                if (playAgainBtn) playAgainBtn.disabled = false;
+            const sequence = audioSequences.start(() => {
+                if (playAgainButton) playAgainButton.disabled = false;
+            });
+            if (data.restored || !themeMusic || themeMusic.muted) {
+                sequence.finish();
                 return;
             }
-
-            victoryMusicAudio.currentTime = 0;
-            hostCongratsAudio.currentTime = 0;
-            victoryMusicAudio.volume = 0.5;
-
-            victoryMusicAudio.play().catch(e => console.error("Victory music error:", e));
-
-            victoryMusicAudio.onended = () => {
-                hostCongratsAudio.play().catch(e => console.error("Host congrats error:", e));
-            };
-
-            // When the host finishes, the sequence is over. Enable the button.
-            hostCongratsAudio.onended = () => {
-                console.log("Game over sequence finished. Enabling Play Again button.");
-                if (playAgainBtn) playAgainBtn.disabled = false;
-            };
+            if (victoryMusicAudio) victoryMusicAudio.volume = 0.5;
+            sequence.play(victoryMusicAudio, () => {
+                sequence.play(hostCongratsAudio, sequence.finish);
+            });
         });
 
         socket.on('show_how_to_play', (data) => {
-            console.log("--- Event: show_how_to_play received ---", data);
-            
-            // Ensure the audio player is ready
-            if (!hostExplainerAudio || themeMusic.muted) {
-                console.log("Explainer audio element not ready or muted. Skipping.");
-                socket.emit('how_to_play_finished');
+            const sequence = audioSequences.start(() => {
+                socket.emit('how_to_play_finished', { sequence_id: data.sequence_id });
+            });
+            if (data.restored || !hostExplainerAudio || !themeMusic || themeMusic.muted) {
+                sequence.finish();
                 return;
             }
-            
-            // Set the source for the audio file for this specific round
             hostExplainerAudio.src = `/static/audio/${data.audio_file}`;
-            hostExplainerAudio.currentTime = 0;
-            hostExplainerAudio.load(); // Load the new source
-            
-            // Play the audio
-            hostExplainerAudio.play().catch(e => {
-                console.error(`Error playing explainer audio ${data.audio_file}:`, e);
-                // If it fails to play, tell the server to continue anyway
-                socket.emit('how_to_play_finished');
-            });
-            
-            // When the audio clip finishes, tell the server we're done.
-            hostExplainerAudio.onended = () => {
-                console.log(`Explainer audio ${data.audio_file} finished.`);
-                socket.emit('how_to_play_finished');
-            };
+            sequence.play(hostExplainerAudio, sequence.finish);
         });
 
-
-        socket.on('disconnect', () => { console.log(`[${new Date().toISOString()}] MAIN SCREEN socket DISCONNECT`); if(gameStateSpan) gameStateSpan.textContent = 'DISCONNECTED!'; showArea('splash-screen'); });
+        socket.on('disconnect', () => { audioSequences.cancel(); document.querySelectorAll('audio').forEach(audio => audio.pause()); console.log(`[${new Date().toISOString()}] MAIN SCREEN socket DISCONNECT`); if(gameStateSpan) gameStateSpan.textContent = 'DISCONNECTED!'; showArea('splash-screen'); });
         socket.on('message', (data) => { console.log('Server Message:', data.data); });
 
         socket.on('update_html', (data) => {
@@ -693,16 +610,6 @@
                 const parentArea = targetElement.closest('#round-content-area, #results-area, #overall-game-over-area');
                 if (parentArea) { showArea(parentArea.id); }
                  else if (data.target_selector === '#player-list') { /* lobby list update only — do not change screen */ }
-                 else if (data.target_selector === '#overall-game-over-area') {
-                     playAgainButton = document.getElementById('playAgainButton');
-                     if (playAgainButton) {
-                        // Remove any old logic and attach our new, clean event emitter
-                        playAgainButton.addEventListener('click', () => {
-                            console.log("Play Again button clicked. Requesting reset.");
-                            socket.emit('request_reset_game');
-                        });
-                    }
-                 }
                  // <<< NEW: Ensure inner content visible after injection >>>
                  if (data.target_selector === '#round-content-area') {
                      const gtaContentEl = targetElement.querySelector('#gta-content'); if (gtaContentEl) gtaContentEl.classList.remove('hidden');
@@ -740,11 +647,7 @@
 
         // This one listener now handles all rounds!
         socket.on('player_submitted_update', (data) => {
-            // The server now sends us { name: "Adam" }
-            console.log(`Player submitted update received for: ${data.name}`);
-            
-            // We call our universal status update function, telling it to mark this player as "guessed" (true)
-            updatePlayerStatus(data.name, true);
+            updatePlayerStatus(data.status_id, true);
         });
 
         socket.on('play_round_jingle', (data) => {
@@ -846,8 +749,15 @@
             if(initiateGameButton) initiateGameButton.addEventListener('click', initiateGameHandler);
             if(startGameButton) startGameButton.addEventListener('click', startGameHandler);
             // Play again listener attached when its area is rendered
-            if (muteButton && themeMusic) { muteButton.addEventListener('click', () => { themeMusic.muted = !themeMusic.muted; muteButton.textContent = themeMusic.muted ? 'Unmute' : 'Mute'; }); }
+            if (muteButton && themeMusic) {
+                muteButton.addEventListener('click', () => {
+                    const muted = !themeMusic.muted;
+                    document.querySelectorAll('audio').forEach(audio => { audio.muted = muted; });
+                    muteButton.textContent = muted ? 'Unmute' : 'Mute';
+                });
+            }
             console.log("Initial listeners attached."); showArea('splash-screen');
+            socket.connect();
         });
     </script>
 </body>
