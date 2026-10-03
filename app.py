@@ -6,6 +6,8 @@ from flask import Flask, render_template, request # Removed unused 'session' imp
 from flask_socketio import SocketIO, emit, join_room, leave_room
 import eventlet # Recommended for stability
 import socket
+from fractions import Fraction
+from uuid import uuid4
 
 # --- Basic Setup ---
 app = Flask(__name__)
@@ -164,6 +166,9 @@ selected_rounds_for_game = []
 overall_game_scores = {} # {sid: game_points}
 players = {} # {sid: {'name':'N', 'round_score':0, 'gta_guess':None, 'gty_guess':None}} # Removed WDDI fields
 main_screen_sid = None
+# Last visible content and pending audio handshake survive a main-screen reconnect.
+main_screen_view = None
+main_screen_sequence = None
 # Persistent identity maps (pid survives reconnects; sid does not)
 pid_to_sid = {}   # {pid: sid}
 sid_to_pid = {}   # {sid: pid}
@@ -462,17 +467,101 @@ def load_averagers_assemble_data(filename="averagers_assemble_questions.json"):
 
 # === HELPERS ===
 def update_main_screen_html(target_selector, template_name, context):
-    """Renders a template fragment and sends it to the main screen."""
-    print(f"[UPDATE_HTML] target={target_selector} state={game_state}")
+    """Remember the current view even when no main screen is connected."""
+    global main_screen_view
+    payload = {
+        'target_selector': target_selector,
+        'html': render_template(template_name, **context)
+    }
+    if target_selector != '#player-list':
+        main_screen_view = payload
     if main_screen_sid:
-        try:
-            html_content = render_template(template_name, **context)
-            socketio.emit('update_html', {
-                'target_selector': target_selector,
-                'html': html_content
-            }, room=main_screen_sid)
-        except Exception as e:
-            print(f"ERROR rendering template {template_name}: {e}")
+        socketio.emit('update_html', payload, room=main_screen_sid)
+
+
+def begin_main_screen_sequence(event, payload=None):
+    """Use a unique token so old/duplicate audio callbacks cannot advance a round."""
+    global main_screen_sequence
+    main_screen_sequence = {
+        'event': event,
+        'payload': {**(payload or {}), 'sequence_id': uuid4().hex}
+    }
+    if main_screen_sid:
+        socketio.emit(event, main_screen_sequence['payload'], room=main_screen_sid)
+
+
+def consume_main_screen_sequence(event, data):
+    global main_screen_sequence
+    if (request.sid != main_screen_sid or not main_screen_sequence
+            or main_screen_sequence['event'] != event
+            or not isinstance(data, dict)
+            or data.get('sequence_id') != main_screen_sequence['payload']['sequence_id']):
+        return False
+    main_screen_sequence = None
+    return True
+
+
+def player_statuses(exclude_sid=None):
+    return [{'name': p['name'], 'status_id': p['status_id']}
+            for sid, p in players.items() if sid != exclude_sid]
+
+
+def emit_player_submitted(player_sid):
+    if main_screen_sid:
+        socketio.emit('player_submitted_update', {
+            'status_id': players[player_sid]['status_id']
+        }, room=main_screen_sid)
+
+
+def restore_main_screen():
+    if game_state == 'waiting':
+        return
+    if main_screen_view:
+        socketio.emit('update_html', main_screen_view, room=main_screen_sid)
+    guess_fields = {
+        'guess_age_ongoing': 'gta_current_guess',
+        'guess_the_year_ongoing': 'gty_current_guess',
+        'who_didnt_do_it_ongoing': 'wddi_current_guess',
+        'order_up_ongoing': 'ou_current_submission',
+        'quick_pairs_ongoing': 'qp_current_submission',
+        'true_or_false_ongoing': 'tf_current_guess',
+        'tap_the_pic_ongoing': 'ttp_current_guess',
+        'the_top_three_ongoing': 'ttt_current_submission',
+        'higher_or_lower_ongoing': 'hol_current_guess',
+        'averagers_assemble_ongoing': 'aa_current_guess'
+    }
+    field = guess_fields.get(game_state)
+    if field:
+        for sid, player in players.items():
+            if player.get(field) is not None:
+                emit_player_submitted(sid)
+    if main_screen_sequence:
+        socketio.emit(main_screen_sequence['event'], {
+            **main_screen_sequence['payload'], 'restored': True
+        }, room=main_screen_sid)
+
+
+def remove_lobby_player(player_sid):
+    """Release a lobby place without dropping anybody's in-progress game state."""
+    players.pop(player_sid, None)
+    overall_game_scores.pop(player_sid, None)
+    pid = sid_to_pid.pop(player_sid, None)
+    if pid and pid_to_sid.get(pid) == player_sid:
+        pid_to_sid.pop(pid, None)
+
+
+def refresh_team_picker():
+    """Refresh connection IDs on the picker's phone after a candidate reconnects."""
+    if (game_state == 'averagers_assemble_ongoing'
+            and aa_round_phase == 'selection' and aa_current_picker_sid in players):
+        socketio.emit('aa_pick_teammate_prompt', {
+            'players_to_choose_from': [
+                {'sid': sid, 'name': players[sid]['name']}
+                for sid in aa_unpicked_players
+                if sid != aa_current_picker_sid and sid in players
+            ]
+        }, room=aa_current_picker_sid)
+
 
 def emit_player_list_update():
     """Sends updated player list HTML."""
@@ -629,6 +718,8 @@ def handle_disconnect():
         players[player_sid]['connected'] = False  # <-- NEW: mark offline, keep state
         print(f"Player {player_name} disconnected (state preserved).")
         leave_room(PLAYERS_ROOM, player_sid)
+        if game_state == 'waiting':
+            remove_lobby_player(player_sid)
         emit_player_list_update()
         emit_game_state_update()
         # Check results conditions for GTA and GTY only
@@ -652,6 +743,7 @@ def handle_register_main_screen():
     leave_room(PLAYERS_ROOM, player_sid); join_room(MAIN_ROOM, player_sid); main_screen_sid = player_sid
     print(f"Main Screen registered: {main_screen_sid}")
     emit_player_list_update(); emit_game_state_update()
+    restore_main_screen()
 
 @socketio.on('register_player')
 def handle_register_player(data):
@@ -664,20 +756,26 @@ def handle_register_player(data):
     if player_sid == main_screen_sid:
         return
 
-    # --- PID-based reconnect handling (SID migration) ---
-    if pid:
-        old_sid = pid_to_sid.get(pid)
-        if old_sid and old_sid != player_sid and old_sid in players:
-            migrate_player_sid(old_sid, player_sid)
-            sid_to_pid.pop(old_sid, None)
+    old_sid = pid_to_sid.get(pid) if pid else None
+    rejoining = player_sid in players or old_sid in players
+    if not rejoining and game_state != 'waiting':
+        emit('registration_rejected', {
+            'message': 'A game is in progress. New players can join in the lobby after it finishes.'
+        }, room=player_sid)
+        return
+    if not rejoining and len(players) >= MAX_PLAYERS:
+        emit('registration_rejected', {'message': 'Game full. Maximum 8 players.'}, room=player_sid)
+        return
 
+    migrated = bool(old_sid and old_sid != player_sid and old_sid in players)
+    if migrated:
+        # A previous tab must not continue receiving private prompts after migration.
+        leave_room(PLAYERS_ROOM, old_sid)
+        migrate_player_sid(old_sid, player_sid)
+        sid_to_pid.pop(old_sid, None)
+    if pid:
         pid_to_sid[pid] = player_sid
         sid_to_pid[player_sid] = pid
-
-    # Now enforce max players ONLY for truly new players
-    if len(players) >= MAX_PLAYERS and player_sid not in players:
-        emit('message', {'data': 'Game full.'}, room=player_sid)
-        return
 
     # Ensure this socket is in the players room (CRITICAL for reconnects)
     join_room(PLAYERS_ROOM, player_sid)
@@ -686,6 +784,7 @@ def handle_register_player(data):
         # Initialize player
         players[player_sid] = {
             'name': player_name,
+            'status_id': uuid4().hex,
             'connected': True,
             'round_score': 0,
             'gta_current_guess': None,
@@ -704,12 +803,17 @@ def handle_register_player(data):
         print(f"Player registered: {player_name} ({player_sid[:4]})")
         emit('message', {'data': f'Welcome {player_name}!'}, room=player_sid)
     else:
-        players[player_sid]['name'] = player_name
+        if game_state == 'waiting':
+            players[player_sid]['name'] = player_name
+        player_name = players[player_sid]['name']
         players[player_sid]['connected'] = True
         emit('message', {'data': f'Rejoined as {player_name}.'}, room=player_sid)
 
     emit_player_list_update()
     emit_game_state_update()
+
+    if migrated:
+        refresh_team_picker()
 
     # Better join mid-game handling: re-send the current prompt
     if game_state.endswith('_ongoing'):
@@ -759,16 +863,17 @@ def handle_start_overall_game_request():
     update_main_screen_html('#results-area', '_game_intro.html', intro_context)
     
     # --- Step 4: Tell the main screen to start its audio/visual sequence ---
-    socketio.emit('start_game_intro_sequence', {}, room=main_screen_sid)
+    begin_main_screen_sequence('start_game_intro_sequence')
     
     # The server now WAITS. It will not proceed until the main screen tells it the intro is finished.
     print("   Game intro screen displayed. Waiting for client to signal completion...")
 
 @socketio.on('game_intro_finished')
-def handle_game_intro_finished():
+def handle_game_intro_finished(data=None):
     """Called by the main screen when its intro audio sequence is done."""
     global game_state
-    if request.sid != main_screen_sid or game_state != "game_intro":
+    if game_state != "game_intro" or not consume_main_screen_sequence(
+            'start_game_intro_sequence', data):
         return
     
     print("--- Client signaled game intro finished. Starting first round. ---")
@@ -813,7 +918,7 @@ def start_next_game_round():
         update_main_screen_html('#results-area', '_how_to_play.html', explainer_data)
         
         # Tell the client to play the audio and start its sequence
-        socketio.emit('show_how_to_play', {'audio_file': explainer_data['audio_file']}, room=main_screen_sid)
+        begin_main_screen_sequence('show_how_to_play', {'audio_file': explainer_data['audio_file']})
         
         # The server now STOPS and waits for the client to signal it's done.
         return # End the function here for now.
@@ -844,9 +949,10 @@ def start_round_logic(round_type_key):
 
 # And we need the new listener for the handshake
 @socketio.on('how_to_play_finished')
-def handle_how_to_play_finished():
+def handle_how_to_play_finished(data=None):
     """Called by the main screen when the explainer audio is done."""
-    if request.sid != main_screen_sid or game_state != "round_intro":
+    if game_state != "round_intro" or not consume_main_screen_sequence(
+            'show_how_to_play', data):
         return
 
     print("--- Client signaled how-to-play finished. Starting round logic. ---")
@@ -855,16 +961,26 @@ def handle_how_to_play_finished():
 
 @socketio.on('request_reset_game')
 def handle_request_reset_game():
-    """Triggered by the 'Play Again' button. Resets the game to the lobby."""
-    global game_state
-    if request.sid != main_screen_sid:
+    """Return to the lobby, keeping connected players and releasing offline places."""
+    global game_state, current_game_round_num, selected_rounds_for_game
+    global main_screen_view, main_screen_sequence
+    if request.sid != main_screen_sid or game_state != 'overall_game_over':
         return
-        
-    print("--- Reset request received. Returning to waiting state. ---")
-    game_state = "waiting"
+    game_state = 'waiting'
+    current_game_round_num = 0
+    selected_rounds_for_game = []
+    main_screen_view = None
+    main_screen_sequence = None
+    for sid in list(players):
+        if not players[sid].get('connected', False):
+            remove_lobby_player(sid)
+        else:
+            overall_game_scores[sid] = 0
+    emit_player_list_update()
     emit_game_state_update()
-    # Tell the main screen it's ready for a new game, which should take it to the lobby.
     socketio.emit('ready_for_new_game', room=main_screen_sid)
+    socketio.emit('message', {'data': 'Waiting for the next game to start...'}, room=PLAYERS_ROOM)
+
 
 def end_overall_game():
     global game_state
@@ -887,7 +1003,7 @@ def end_overall_game():
     # NOW, tell the client to start the audio sequence.
     # A tiny delay ensures the HTML has time to render on the client.
     socketio.sleep(0.1) 
-    socketio.emit('start_game_over_sequence', {}, room=main_screen_sid)
+    begin_main_screen_sequence('start_game_over_sequence')
     
     print("Sent overall game over notices and sequence trigger.")
 
@@ -1125,7 +1241,7 @@ def next_guess_age_turn():
     game_state = "guess_age_ongoing"; gta_current_celebrity = gta_shuffled_celebrities_this_round[gta_current_celebrity_index]
     for sid in players: players[sid]['gta_current_guess'] = None
     print(f"\n-- GTA Turn {gta_current_celebrity_index + 1}/{gta_actual_turns_this_round} -- Celeb: {gta_current_celebrity['name']}")
-    context = {'turn': gta_current_celebrity_index + 1, 'total_turns': gta_actual_turns_this_round,'celebrity': gta_current_celebrity, 'players_status': [{'name': p['name']} for p in players.values()]}
+    context = {'turn': gta_current_celebrity_index + 1, 'total_turns': gta_actual_turns_this_round,'celebrity': gta_current_celebrity, 'players_status': player_statuses()}
     update_main_screen_html('#round-content-area', '_gta_turn_display.html', context); player_payload = { 'celebrity_name': gta_current_celebrity['name'] }; socketio.emit('gta_player_prompt', player_payload, room=PLAYERS_ROOM)
 @socketio.on('submit_gta_guess')
 def handle_submit_gta_guess(data):
@@ -1136,7 +1252,7 @@ def handle_submit_gta_guess(data):
             if players[player_sid].get('gta_current_guess') is None:
                 players[player_sid]['gta_current_guess'] = guess; player_name = players[player_sid]['name']; print(f"GTA Guess {guess} from {player_name}({player_sid[:4]})")
                 remaining = sum(1 for p in players.values() if p.get('gta_current_guess') is None); emit('gta_wait_for_guesses', {'waiting_on': remaining}, room=player_sid)
-                safe_name_id = player_name.replace('[^a-zA-Z0-9-_]', '_'); socketio.emit('player_submitted_update', {'name': player_name}, room=main_screen_sid)
+                emit_player_submitted(player_sid)
                 if check_all_guesses_received_gta(): print("All GTA guesses received."); socketio.sleep(0.5); process_guess_age_turn_results()
             else: emit('message', {'data': 'Already guessed.'}, room=player_sid)
         except Exception as e: emit('message', {'data': 'Invalid guess (0-120).'}, room=player_sid); print(f"Invalid GTA guess: {e}")
@@ -1248,7 +1364,7 @@ def next_guess_the_year_turn():
     game_state = "guess_the_year_ongoing"; gty_current_question = gty_shuffled_questions_this_round[gty_current_question_index]
     for sid in players: players[sid]['gty_current_guess'] = None
     print(f"\n-- GTY Turn {gty_current_question_index + 1}/{gty_actual_turns_this_round} -- Q: {gty_current_question['question']}"); print(f"   (Ans: {gty_current_question['year']})")
-    context = {'turn': gty_current_question_index + 1, 'total_turns': gty_actual_turns_this_round,'question_data': gty_current_question,'players_status': [{'name': p['name']} for p in players.values()]}
+    context = {'turn': gty_current_question_index + 1, 'total_turns': gty_actual_turns_this_round,'question_data': gty_current_question,'players_status': player_statuses()}
     update_main_screen_html('#round-content-area', '_gty_turn_display.html', context); player_payload = { 'question': gty_current_question['question'] }; socketio.emit('gty_player_prompt', player_payload, room=PLAYERS_ROOM)
 @socketio.on('submit_gty_guess')
 def handle_submit_gty_guess(data):
@@ -1259,7 +1375,7 @@ def handle_submit_gty_guess(data):
             if players[player_sid].get('gty_current_guess') is None:
                 players[player_sid]['gty_current_guess'] = guess; player_name = players[player_sid]['name']; print(f"GTY Guess {guess} from {player_name}({player_sid[:4]})")
                 remaining = sum(1 for p in players.values() if p.get('gty_current_guess') is None); emit('gty_wait_for_guesses', {'waiting_on': remaining}, room=player_sid)
-                safe_name_id = player_name.replace('[^a-zA-Z0-9-_]', '_'); socketio.emit('player_submitted_update', {'name': player_name}, room=main_screen_sid)
+                emit_player_submitted(player_sid)
                 if check_all_guesses_received_gty(): print("All GTY guesses received."); socketio.sleep(0.5); process_guess_the_year_turn_results()
             else: emit('message', {'data': 'Already guessed.'}, room=player_sid)
         except Exception as e: emit('message', {'data': 'Invalid year.'}, room=player_sid); print(f"Invalid GTY guess: {e}")
@@ -1425,7 +1541,7 @@ def next_who_didnt_do_it_turn():
         'question_text': wddi_current_question['question'],
         'image_url': wddi_current_question.get('image_url'), # Include image_url if present
         'shuffled_options': wddi_current_shuffled_options, # Send shuffled options
-        'players_status': [{'name': p['name']} for p in players.values()] # For showing who hasn't guessed
+        'players_status': player_statuses() # For showing who hasn't guessed
     }
     # Assuming you have/will create '_wddi_turn_display.html' in templates/
     update_main_screen_html('#round-content-area', '_wddi_turn_display.html', main_screen_context)
@@ -1468,7 +1584,7 @@ def handle_submit_wddi_guess(data):
 
         # Update main screen to show player has guessed (optional, good UI)
         safe_name_id = player_name.replace('[^a-zA-Z0-9-_]', '_') # Create a CSS-safe ID
-        socketio.emit('player_submitted_update', {'name': player_name}, room=main_screen_sid)
+        emit_player_submitted(player_sid)
 
         # Check if all players have now guessed
         if check_all_guesses_received_wddi():
@@ -1688,7 +1804,7 @@ def next_order_up_turn():
         'total_turns': ou_actual_turns_this_round,
         'question_text': ou_current_question_data['question'],
         'items_to_display': items_shuffled_for_players, # Main screen could show the shuffled items too, or just the question
-        'players_status': [{'name': p['name']} for p in players.values()]
+        'players_status': player_statuses()
     }
     # NOTE: You will need to create an '_ou_turn_display.html' template
     update_main_screen_html('#round-content-area', '_ou_turn_display.html', main_screen_context)
@@ -1733,8 +1849,7 @@ def handle_submit_ou_list(data):
         print(f"Order Up! Submission {submitted_list} received from {player_name}({player_sid[:4]})")
 
         # Update main screen to show player has submitted (optional)
-        safe_name_id = player_name.replace('[^a-zA-Z0-9-_]', '_')
-        socketio.emit('player_submitted_update', {'name': player_name}, room=main_screen_sid)
+        emit_player_submitted(player_sid)
 
         if check_all_submissions_received_ou():
             print("   All 'Order Up!' submissions received.")
@@ -1938,7 +2053,7 @@ def next_quick_pairs_turn():
         # Optionally send shuffled lists to main screen if you want audience to see them
         'list_a_items': list_a_items,
         'list_b_items': list_b_items,
-        'players_status': [{'name': p['name']} for p in players.values()]
+        'players_status': player_statuses()
     }
     # NOTE: You will need to create '_qp_turn_display.html'
     update_main_screen_html('#round-content-area', '_qp_turn_display.html', main_screen_context)
@@ -1979,8 +2094,7 @@ def handle_submit_qp_pairs(data):
         player_name = players[player_sid]['name']
         print(f"QP Submission from {player_name}({player_sid[:4]}): {submitted_pairs_list} in {time_taken_ms}ms")
 
-        safe_name_id = player_name.replace('[^a-zA-Z0-9-_]', '_')
-        socketio.emit('player_submitted_update', {'name': player_name}, room=main_screen_sid)
+        emit_player_submitted(player_sid)
 
         if check_all_submissions_received_qp():
             print("   All 'Quick Pairs' submissions received.")
@@ -2181,7 +2295,7 @@ def next_true_or_false_turn():
         'turn': tf_current_question_index + 1,
         'total_turns': tf_actual_turns_this_round,
         'statement': tf_current_question['statement'],
-        'players_status': [{'name': p['name']} for p in players.values()]
+        'players_status': player_statuses()
     }
     update_main_screen_html('#round-content-area', '_true_or_false_turn_display.html', main_screen_context)
 
@@ -2202,7 +2316,7 @@ def handle_submit_tf_guess(data):
         players[player_sid]['tf_current_guess'] = guess
         player_name = players[player_sid]['name']
         print(f"TF Guess '{guess}' received from {player_name}")
-        socketio.emit('player_submitted_update', {'name': player_name}, room=main_screen_sid)
+        emit_player_submitted(player_sid)
 
         if check_all_guesses_received_tf():
             print("   All TF guesses received.")
@@ -2333,7 +2447,7 @@ def next_tap_the_pic_turn():
         'total_turns': ttp_actual_turns_this_round,
         'question_text': ttp_current_question['question_text'],
         'image_url': ttp_current_question['image_url'],
-        'players_status': [{'name': p['name']} for p in players.values()]
+        'players_status': player_statuses()
     }
     update_main_screen_html('#round-content-area', '_tap_the_pic_turn_display.html', main_screen_context)
 
@@ -2358,7 +2472,7 @@ def handle_submit_ttp_guess(data):
         players[player_sid]['ttp_current_guess'] = guess
         player_name = players[player_sid]['name']
         print(f"TTP Guess '{guess}' received from {player_name}")
-        socketio.emit('player_submitted_update', {'name': player_name}, room=main_screen_sid)
+        emit_player_submitted(player_sid)
 
         if check_all_guesses_received_ttp():
             print("   All TTP guesses received.")
@@ -2498,7 +2612,7 @@ def next_the_top_three_turn():
         'total_turns': ttt_actual_turns_this_round,
         'question_text': ttt_current_question['question_text'],
         'options': options_for_display_and_play, # Use the single shuffled list
-        'players_status': [{'name': p['name']} for p in players.values()]
+        'players_status': player_statuses()
     }
     update_main_screen_html('#round-content-area', '_top_three_turn_display.html', main_screen_context)
 
@@ -2523,7 +2637,7 @@ def handle_submit_ttt_guess(data):
         players[player_sid]['ttt_current_submission'] = guess
         player_name = players[player_sid]['name']
         print(f"TTT Guess '{guess}' received from {player_name}")
-        socketio.emit('player_submitted_update', {'name': player_name}, room=main_screen_sid)
+        emit_player_submitted(player_sid)
 
         if check_all_submissions_received_ttt():
             print("   All TTT guesses received.")
@@ -2740,7 +2854,7 @@ def handle_submit_hol_guess(data):
                 'turn': hol_current_turn_index + 1, 'total_turns': hol_actual_turns_this_round,
                 'question_text': hol_current_question['question'], 'submitter_name': player_name,
                 'submitter_guess': hol_submitter_guess,
-                'players_status': [{'name': p['name']} for sid, p in players.items() if sid != hol_current_submitter_sid]
+                'players_status': player_statuses(exclude_sid=hol_current_submitter_sid)
             }
             update_main_screen_html('#round-content-area', '_hol_guesser_turn_display.html', main_screen_context)
 
@@ -2763,7 +2877,7 @@ def handle_submit_hol_guess(data):
             print(f"   H/L Guess '{guess}' from {player_name}")
             
             # Update main screen to show this player has guessed
-            socketio.emit('player_submitted_update', {'name': player_name}, room=main_screen_sid)
+            emit_player_submitted(player_sid)
             # Tell player to wait
             emit('hol_wait_prompt', {'wait_message': 'Guess locked in! Waiting for others...'}, room=player_sid)
 
@@ -3017,7 +3131,8 @@ def setup_averagers_assemble_round():
 def handle_submit_team_pick(data):
     """Handles a picker choosing their teammate."""
     picker_sid = request.sid
-    if aa_round_phase != 'selection' or picker_sid != aa_current_picker_sid:
+    if (game_state != 'averagers_assemble_ongoing'
+            or aa_round_phase != 'selection' or picker_sid != aa_current_picker_sid):
         return # Ignore if not in selection phase or not the current picker
 
     picked_sid = data.get('picked_sid')
@@ -3026,6 +3141,7 @@ def handle_submit_team_pick(data):
     # It simply checks if the picked SID is valid and currently in the unpicked list.
     if not picked_sid or picked_sid not in aa_unpicked_players:
         print(f"WARN: Invalid team pick '{picked_sid}' from {players[picker_sid]['name']}. Not in unpicked list.")
+        refresh_team_picker()
         return
 
     # Also, a player cannot pick themselves.
@@ -3070,7 +3186,7 @@ def next_turn_averagers_assemble():
     main_screen_context = {
         'turn': aa_current_turn_index + 1, 'total_turns': aa_actual_turns_this_round,
         'question_text': aa_current_question['question'],
-        'players_status': [{'name': p['name']} for p in players.values()]
+        'players_status': player_statuses()
     }
     update_main_screen_html('#round-content-area', '_aa_turn_display.html', main_screen_context)
     
@@ -3091,7 +3207,7 @@ def handle_submit_aa_guess(data):
             player_name = players[player_sid]['name']
             print(f"AA Guess {guess} from {player_name}")
             
-            socketio.emit('player_submitted_update', {'name': player_name}, room=main_screen_sid)
+            emit_player_submitted(player_sid)
             # You can emit a wait message back to the player here if you want
             
             if check_all_guesses_received_aa():
@@ -3123,10 +3239,11 @@ def process_results_aa():
                 total_guess += guess
                 num_guesses += 1
         
-        average = round(total_guess / num_guesses) if num_guesses > 0 else 0
-        diff = abs(correct_answer - average)
+        # Compare exact means; only the displayed number is rounded.
+        average = Fraction(total_guess, num_guesses) if num_guesses else Fraction(0)
+        diff = abs(Fraction(str(correct_answer)) - average)
         team_averages.append({
-            'name': team['name'], 'average': average, 'diff': diff,
+            'name': team['name'], 'average': float(average), 'diff': diff,
             'members': team['members'], 'member_guesses': member_guesses,
             'points_this_turn': 0, 'total_round_score': 0 # Add placeholders
         })
