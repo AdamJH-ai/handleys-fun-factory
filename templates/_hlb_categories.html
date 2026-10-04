@@ -1,0 +1,13 @@
+{% set heading = 'Choose your category' if d.can_pick and not is_main else d.picker ~ ' is choosing a category' %}
+{% if is_main %}<h3>{{ heading }}</h3>{% else %}<h4>{{ heading }}</h4>{% endif %}
+<p class="hlb-muted">One point per correct guess. A wrong answer ends your run for this category.</p>
+<div class="options-grid-2-col hlb-categories">
+  {% for category in d.categories %}
+    {% if d.can_pick and not is_main %}
+      <button type="button" data-hlb-action="category" data-category-id="{{ category.id }}" data-token="{{ d.token }}">{{ category.title }}</button>
+    {% else %}
+      <div class="hlb-category">{{ category.title }}</div>
+    {% endif %}
+  {% endfor %}
+</div>
+<p class="hlb-muted">{{ d.categories|length }} categories available · no time limit</p>

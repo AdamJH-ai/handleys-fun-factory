@@ -1,0 +1,23 @@
+<section id="hlb-screen" class="{{ 'hlb-main' if is_main else 'hlb-phone' }}" aria-label="Higher or Lower" data-phase="{{ d.phase }}">
+  <div class="hlb-wrap">
+    {% if is_main %}<h2>Higher or Lower</h2>{% else %}<h1>Higher or Lower</h1>{% endif %}
+    {% if d.phase == 'error' %}
+      <p>Category data needs attention: {{ d.error }}</p>
+    {% else %}
+      <p class="hlb-progress">Game {{ d.game }} of {{ d.games }}</p>
+      {% if d.phase == 'category' %}
+        {% include '_hlb_categories.html' %}
+      {% else %}
+        {% if is_main %}<h2>{{ d.category.title }}</h2>{% else %}<h4>{{ d.category.title }}</h4>{% endif %}
+        {% if d.category.dummy %}<div class="hlb-demo">DEMO DATA — fictional names and values</div>{% endif %}
+        {% if d.phase == 'instructions' %}
+          {% include '_hlb_instructions.html' %}
+        {% elif d.phase in ('scores', 'summary') %}
+          {% include '_hlb_scores.html' %}
+        {% else %}
+          {% include '_hlb_board.html' %}
+        {% endif %}
+      {% endif %}
+    {% endif %}
+  </div>
+</section>

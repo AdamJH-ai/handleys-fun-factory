@@ -1,6 +1,10 @@
 import os
 import json
 import random
+import math
+import uuid
+import sys
+from pathlib import Path
 from datetime import datetime
 from flask import Flask, render_template, request # Removed unused 'session' import
 from flask_socketio import SocketIO, emit, join_room, leave_room
@@ -14,20 +18,28 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'a_super_secret_key_chan
 socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
 
 # === GAME CONFIG ===
-GAME_ROUNDS_TOTAL = 10
-AVAILABLE_ROUND_TYPES = ['guess_the_age', 'guess_the_year', 'who_didnt_do_it', 'order_up', 'quick_pairs', 'true_or_false', 'tap_the_pic', 'the_top_three', 'higher_or_lower', 'averagers_assemble']
-#AVAILABLE_ROUND_TYPES = ['the_top_three']
+GAME_ROUNDS_TOTAL = 1
+#AVAILABLE_ROUND_TYPES = ['guess_the_age', 'guess_the_year', 'who_didnt_do_it', 'order_up', 'quick_pairs', 'true_or_false', 'tap_the_pic', 'the_top_three', 'higher_or_lower', 'averagers_assemble', 'higher_lower_board']
+AVAILABLE_ROUND_TYPES = ['higher_lower_board']
+# Dedicated test mode: HFF_TEST_HIGHER_LOWER=1 python app.py
+if os.environ.get('HFF_TEST_HIGHER_LOWER') == '1':
+    AVAILABLE_ROUND_TYPES = ['higher_lower_board']
+    GAME_ROUNDS_TOTAL = 1
 MAX_PLAYERS = 8
-gta_target_turns = 10
-gty_target_turns = 10
-wddi_target_turns = 10
-ou_target_turns = 10
-qp_target_turns = 10
-tf_target_turns = 10
-ttp_target_turns = 10
-ttt_target_turns = 10
-hol_target_turns = 10
-aa_target_turns = 10
+gta_target_turns = 1
+gty_target_turns = 1
+wddi_target_turns = 1
+ou_target_turns = 1
+qp_target_turns = 1
+tf_target_turns = 1
+ttp_target_turns = 1
+ttt_target_turns = 1
+hlb_target_turns = 5  # Category games per round; offered categories = this + 2
+HLB_ENTRIES_PER_GAME = 8
+HLB_CHOICE_REVEAL_SECONDS = 3
+HLB_ANSWER_REVEAL_SECONDS = 3
+hol_target_turns = 1
+aa_target_turns = 1
 QP_NUM_PAIRS_PER_QUESTION = 3
 
 # === ROUND DETAILS ===
@@ -40,6 +52,7 @@ ROUND_RULES = {
     'true_or_false': "Decide if the statement is true or false. You get one point for each correct answer.",
     'tap_the_pic': "A question and a numbered image will be shown. Choose the number that correctly answers the question!",
     'the_top_three': "A category and a list of options will appear. Select the three correct answers!",
+    'higher_lower_board': "Choose a category, then survive seven Higher or Lower guesses. One point per correct answer; everyone returns for the next category!",
     'higher_or_lower': "One player guesses a number. Everyone else guesses if the real answer is Higher or Lower!",
     'averagers_assemble': "Form teams and work together! The team whose average guess is closest to the answer wins the point.",
 }
@@ -52,6 +65,7 @@ ROUND_DISPLAY_NAMES = {
     'true_or_false': "True or False",
     'tap_the_pic': "Tap The Pic",
     'the_top_three': "The Top Three",
+    'higher_lower_board': "Higher or Lower: Categories",
     'higher_or_lower': "Higher or Lower",
     'averagers_assemble': "Averagers, Assemble!"
 }
@@ -516,6 +530,8 @@ def migrate_player_sid(old_sid, new_sid):
     for team in aa_teams:
         team['members'] = [new_sid if s == old_sid else s for s in team.get('members', [])]
 
+    hlb.migrate(old_sid, new_sid)
+
     # Ensure connected after a successful migrate
     if new_sid in players:
         players[new_sid]['connected'] = True
@@ -631,6 +647,8 @@ def handle_disconnect():
         leave_room(PLAYERS_ROOM, player_sid)
         emit_player_list_update()
         emit_game_state_update()
+        if hlb.live():
+            hlb.broadcast()
         # Check results conditions for GTA and GTY only
         if game_state == 'guess_age_ongoing' and check_all_guesses_received_gta(): process_guess_age_turn_results()
         elif game_state == 'guess_the_year_ongoing' and check_all_guesses_received_gty(): process_guess_the_year_turn_results()
@@ -652,6 +670,7 @@ def handle_register_main_screen():
     leave_room(PLAYERS_ROOM, player_sid); join_room(MAIN_ROOM, player_sid); main_screen_sid = player_sid
     print(f"Main Screen registered: {main_screen_sid}")
     emit_player_list_update(); emit_game_state_update()
+    hlb.send(player_sid)
 
 @socketio.on('register_player')
 def handle_register_player(data):
@@ -710,6 +729,10 @@ def handle_register_player(data):
 
     emit_player_list_update()
     emit_game_state_update()
+
+    if hlb.live():
+        hlb.broadcast()
+        return
 
     # Better join mid-game handling: re-send the current prompt
     if game_state.endswith('_ongoing'):
@@ -835,6 +858,7 @@ def start_round_logic(round_type_key):
     elif round_type_key == 'true_or_false': setup_true_or_false_round()
     elif round_type_key == 'tap_the_pic': setup_tap_the_pic_round()
     elif round_type_key == 'the_top_three': setup_the_top_three_round()
+    elif round_type_key == 'higher_lower_board': hlb.setup()
     elif round_type_key == 'higher_or_lower': setup_higher_or_lower_round()
     elif round_type_key == 'averagers_assemble': setup_averagers_assemble_round()
     else:
@@ -862,6 +886,8 @@ def handle_request_reset_game():
         
     print("--- Reset request received. Returning to waiting state. ---")
     game_state = "waiting"
+    hlb.token = None
+    socketio.emit("hlb_close")
     emit_game_state_update()
     # Tell the main screen it's ready for a new game, which should take it to the lobby.
     socketio.emit('ready_for_new_game', room=main_screen_sid)
@@ -1084,16 +1110,25 @@ def resend_current_prompt_to_player(player_sid):
 
         # Selection phase: IMPORTANT — align this payload with your index.html 'aa_pick_teammate_prompt' listener.
         if aa_round_phase == 'selection':
+            picker_name = players.get(aa_current_picker_sid, {}).get('name', 'a player')
+
             if player_sid == aa_current_picker_sid:
+                choosable_players = [
+                    {'sid': sid, 'name': players[sid]['name']}
+                    for sid in aa_unpicked_players
+                    if sid != aa_current_picker_sid and sid in players
+                ]
                 socketio.emit(
                     'aa_pick_teammate_prompt',
-                    {
-                        'choices': [{'sid': sid, 'name': players[sid]['name']} for sid in aa_unpicked_players if sid != aa_current_picker_sid]
-                    },
+                    {'players_to_choose_from': choosable_players},
                     room=player_sid
                 )
             else:
-                socketio.emit('aa_wait_prompt', {'wait_message': 'Waiting for team selection...'}, room=player_sid)
+                socketio.emit(
+                    'aa_wait_prompt',
+                    {'wait_message': f"Waiting for {picker_name} to pick a teammate..."},
+                    room=player_sid
+                )
             return
 
     # Fallback
@@ -3190,6 +3225,271 @@ def end_round_averagers_assemble():
     if game_state == "averagers_assemble_results":
         start_next_game_round()
 
+
+# === CATEGORY HIGHER OR LOWER (separate from the original target-guess round) ===
+
+KEY = 'higher_lower_board'
+STATE = KEY + '_ongoing'
+
+# Display durations only. Category selection and answers never time out.
+INSTRUCTIONS_SECONDS = 10
+CATEGORY_SCORES_SECONDS = 8
+ROUND_SUMMARY_SECONDS = 12
+
+
+def load_categories(path, entry_count):
+    data = json.loads(Path(path).read_text(encoding='utf-8'))
+    categories = data['categories']
+    ids = set()
+    for c in categories:
+        if not isinstance(c.get('id'), str) or c['id'] in ids:
+            raise ValueError('Category IDs must be unique strings.')
+        ids.add(c['id'])
+        if not all(isinstance(c.get(k), str) and c[k].strip() for k in ('title', 'instructions', 'unit')):
+            raise ValueError('Each category needs a title, instructions and unit.')
+        names, values = set(), set()
+        for e in c['entries']:
+            if not isinstance(e.get('name'), str) or not e['name'].strip() or e['name'] in names:
+                raise ValueError('Entry names must be non-empty and unique within each category.')
+            names.add(e['name'])
+            v = e.get('value')
+            if isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v):
+                raise ValueError('Entry values must be finite numbers.')
+            values.add(v)
+        if len(values) < entry_count:
+            raise ValueError(f"{c['title']} needs at least {entry_count} distinct values.")
+    return categories
+
+
+class HigherLowerBoard:
+    def __init__(self, host):
+        self.h = host
+        self.phase = 'idle'
+        self.token = None
+        self.order = []
+        self.available = []
+        self.sequence = []
+        self.active = set()
+        self.answers = {}
+        self.category_points = {}
+        self.awarded = {}
+        self.game = 0
+        self.position = 1
+        self.category = None
+
+    def live(self):
+        return self.h.game_state == STATE
+
+    def transition(self, phase):
+        self.phase = phase
+        self.token = uuid.uuid4().hex
+        self.broadcast()
+
+    def delay(self, seconds, callback):
+        token = self.token
+        def run():
+            self.h.socketio.sleep(seconds)
+            if self.live() and self.token == token:
+                # Automatic progression can render the next existing round template.
+                with self.h.app.app_context():
+                    callback()
+        self.h.socketio.start_background_task(run)
+
+    def setup(self):
+        self.h.game_state = STATE
+        self.games = self.h.hlb_target_turns
+        self.entries = self.h.HLB_ENTRIES_PER_GAME
+        try:
+            if isinstance(self.games, bool) or not isinstance(self.games, int) or self.games < 1:
+                raise ValueError('hlb_target_turns must be a positive integer.')
+            if not isinstance(self.entries, int) or self.entries < 2:
+                raise ValueError('HLB_ENTRIES_PER_GAME must be at least 2.')
+            bank = load_categories(Path(__file__).with_name('higher_lower_categories.json'), self.entries)
+            if len(bank) < self.games + 2:
+                raise ValueError(f'Need {self.games + 2} categories for {self.games} games; found {len(bank)}.')
+            if not self.h.players:
+                raise ValueError('At least one player is required.')
+        except (ValueError, KeyError, TypeError, OSError) as exc:
+            self.error = str(exc)
+            self.transition('error')
+            return
+        self.order = list(self.h.players)
+        random.shuffle(self.order)  # Randomise tied players, then stable score sort ONCE.
+        self.order.sort(key=lambda sid: self.h.overall_game_scores.get(sid, 0))
+        self.available = random.sample(bank, self.games + 2)
+        self.game = 0
+        self.category = None
+        self.sequence = []
+        self.awarded = {}
+        for sid in self.order:
+            self.h.players[sid]['round_score'] = 0
+        self.h.emit_game_state_update()
+        self.next_category()
+
+    @property
+    def picker(self):
+        return self.order[(self.game - 1) % len(self.order)] if self.order else None
+
+    def next_category(self):
+        self.game += 1
+        self.sequence = []
+        self.category = None
+        self.active = set(self.order)
+        self.answers = {}
+        self.category_points = dict.fromkeys(self.order, 0)
+        self.transition('category')
+
+    def valid(self, data, phase):
+        return self.live() and self.phase == phase and isinstance(data, dict) and data.get('token') == self.token
+
+    def choose(self, sid, data):
+        if not self.valid(data, 'category') or sid != self.picker:
+            return
+        category = next((c for c in self.available if c['id'] == data.get('category_id')), None)
+        if not category:
+            return
+        self.category = category
+        self.available.remove(category)
+        # Select one random entry per distinct value: no ties anywhere on the board.
+        grouped = {}
+        for entry in category['entries']:
+            grouped.setdefault(entry['value'], []).append(entry)
+        self.sequence = [random.choice(grouped[v]) for v in random.sample(list(grouped), self.entries)]
+        self.position = 1
+        self.transition('instructions')
+        self.delay(INSTRUCTIONS_SECONDS, self.begin)
+
+    def begin(self):
+        if self.live() and self.phase == 'instructions':
+            self.transition('guess')
+
+    def guess(self, sid, data):
+        if not self.valid(data, 'guess') or sid not in self.active or sid in self.answers:
+            return
+        if data.get('choice') not in ('higher', 'lower'):
+            return
+        self.answers[sid] = data['choice']
+        if self.active.issubset(self.answers):
+            self.transition('choices')
+            self.delay(self.h.HLB_CHOICE_REVEAL_SECONDS, self.reveal)
+        else:
+            self.broadcast()
+
+    def reveal(self):
+        if self.phase != 'choices':
+            return
+        self.correct = 'higher' if self.sequence[self.position]['value'] > self.sequence[self.position-1]['value'] else 'lower'
+        for sid in list(self.active):
+            if self.answers[sid] == self.correct:
+                self.category_points[sid] += 1
+                self.h.players[sid]['round_score'] += 1
+            else:
+                self.active.remove(sid)
+        self.transition('answer')
+        self.delay(self.h.HLB_ANSWER_REVEAL_SECONDS, self.advance)
+
+    def advance(self):
+        if not self.active or self.position == len(self.sequence) - 1:
+            self.transition('scores')
+            self.delay(CATEGORY_SCORES_SECONDS, self.continue_game)
+        else:
+            self.position += 1
+            self.answers = {}
+            self.transition('guess')
+
+    def continue_game(self):
+        if not self.live() or self.phase != 'scores':
+            return
+        if self.game < self.games:
+            self.next_category()
+        else:
+            ranked = sorted(self.order, key=lambda s: -self.h.players[s]['round_score'])
+            self.awarded = self.h.award_game_points(ranked)
+            self.transition('summary')
+            self.h.emit_game_state_update()
+            self.delay(ROUND_SUMMARY_SECONDS, self.finish)
+
+    def finish(self):
+        if not self.live() or self.phase != 'summary':
+            return
+        self.phase = 'done'
+        self.token = None
+        self.h.socketio.emit('hlb_close')
+        self.h.start_next_game_round()
+
+    def migrate(self, old, new):
+        self.order = [new if s == old else s for s in self.order]
+        if old in self.active:
+            self.active.remove(old)
+            self.active.add(new)
+        for mapping in (self.answers, self.category_points, self.awarded):
+            if old in mapping:
+                mapping[new] = mapping.pop(old)
+
+    def snapshot(self, sid=None):
+        if self.phase == 'error':
+            return {'phase': 'error', 'error': self.error}
+        reveal_choices = self.phase in ('choices', 'answer', 'scores', 'summary')
+        reveal_value = self.phase in ('answer', 'scores', 'summary')
+        board = []
+        # Instructions have no board; never send hidden names or values to clients.
+        if self.phase != 'instructions':
+            for i, e in enumerate(self.sequence):
+                row = {'index': i + 1, 'current': i == self.position}
+                if i <= self.position:
+                    row['name'] = e['name']
+                if i < self.position or (i == self.position and reveal_value):
+                    row['value'] = e['value']
+                board.append(row)
+        scores = []
+        for player in self.order:
+            p = self.h.players[player]
+            row = {'name': p['name'], 'category_points': self.category_points.get(player, 0),
+                   'total': p['round_score'], 'active': player in self.active,
+                   'connected': p.get('connected', True), 'answered': player in self.answers,
+                   'overall': self.h.overall_game_scores.get(player, 0), 'awarded': self.awarded.get(player, 0)}
+            if reveal_choices:
+                row['choice'] = self.answers.get(player)
+            scores.append(row)
+        if self.phase in ('scores', 'summary'):
+            scores.sort(key=lambda r: -r['total'])
+        return {'phase': self.phase, 'token': self.token, 'game': self.game, 'games': self.games,
+                'picker': self.h.players.get(self.picker, {}).get('name', ''),
+                'can_pick': sid == self.picker,
+                'eligible': sid in self.active, 'submitted': sid in self.answers,
+                'own_choice': self.answers.get(sid), 'board': board, 'scores': scores,
+                'categories': [{'id': c['id'], 'title': c['title']} for c in self.available] if self.phase == 'category' else [],
+                'category': {k: self.category.get(k) for k in ('title', 'instructions', 'unit', 'dummy')} if self.category else None,
+                'correct': getattr(self, 'correct', None) if reveal_value else None}
+
+    def send(self, sid):
+        if not self.live() or not sid:
+            return
+        state = self.snapshot(sid)
+        with self.h.app.app_context():
+            if sid == self.h.main_screen_sid:
+                self.h.socketio.emit('hlb_main_phase', {'phase': self.phase}, room=sid)
+                target = '#results-area' if self.phase in ('instructions', 'scores', 'summary') else '#round-content-area'
+                self.h.update_main_screen_html(target, '_hlb_screen.html', {'d': state, 'is_main': True})
+            else:
+                self.h.socketio.emit('hlb_player_prompt', {
+                    'html': self.h.render_template('_hlb_screen.html', d=state, is_main=False)
+                }, room=sid)
+
+    def broadcast(self):
+        self.send(self.h.main_screen_sid)
+        for sid in self.h.players:
+            self.send(sid)
+
+hlb = HigherLowerBoard(sys.modules[__name__])
+
+@socketio.on('hlb_choose')
+def handle_hlb_choose(data):
+    hlb.choose(request.sid, data)
+
+@socketio.on('hlb_guess')
+def handle_hlb_guess(data):
+    hlb.guess(request.sid, data)
 
 # === MAIN EXECUTION ===
 if __name__ == '__main__':

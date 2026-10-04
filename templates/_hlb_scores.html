@@ -1,0 +1,23 @@
+{% set heading = 'Round result' if d.phase == 'summary' else 'Category complete' %}
+{% if is_main %}<h3>{{ heading }}</h3>{% else %}<h4>{{ heading }}</h4>{% endif %}
+<ul class="round-results-list hlb-scores">
+  {% for player in d.scores %}
+    <li>
+      <span class="player-name">{{ player.name }}</span>
+      {% if d.phase == 'summary' %}
+        <span class="player-answer">Round total: {{ player.total }}</span>
+        <span class="player-points">+{{ player.awarded }} game points · Overall: {{ player.overall }}</span>
+      {% else %}
+        <span class="player-answer">This category: +{{ player.category_points }}</span>
+        <span class="player-points">Round total: {{ player.total }}</span>
+      {% endif %}
+    </li>
+  {% endfor %}
+</ul>
+<p class="hlb-muted">
+  {% if d.phase == 'summary' %}
+    Traditional Fun Factory points awarded — continuing shortly…
+  {% else %}
+    Scores after {{ d.game }} {{ 'category' if d.game == 1 else 'categories' }} — continuing shortly…
+  {% endif %}
+</p>

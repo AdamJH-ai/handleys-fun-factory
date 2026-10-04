@@ -1,0 +1,50 @@
+{% if is_main %}
+<div class="options-grid-2-col hlb-board">
+  {% for entry in d.board %}
+    <div class="hlb-tile{{ ' hlb-current' if entry.current else '' }}{{ ' hlb-hidden' if entry.name is not defined else '' }}">
+      <span class="hlb-number">{{ '%02d'|format(entry.index) }}</span>
+      <strong class="hlb-name">{{ entry.name|default('Yet to reveal') }}</strong>
+      <div class="hlb-value">{% if entry.value is defined %}{{ '{:,}'.format(entry.value) }} {{ d.category.unit }}{% else %}?{% endif %}</div>
+    </div>
+  {% endfor %}
+</div>
+{% endif %}
+<div class="hlb-status" aria-live="polite">
+  {% if d.phase == 'guess' %}
+    {% if is_main %}
+      <h3>Higher or Lower?</h3>
+      <p>Waiting for {% for player in d.scores if player.active and not player.answered %}{{ ', ' if not loop.first else '' }}{{ player.name }}{{ ' (reconnecting)' if not player.connected else '' }}{% endfor %} · no time limit</p>
+    {% elif not d.eligible %}
+      <h4>You’re out for this category</h4>
+      <p>Watch the board — you’ll be back for the next category.</p>
+    {% elif d.submitted %}
+      <h4>{{ 'Higher ↑' if d.own_choice == 'higher' else 'Lower ↓' }} locked in</h4>
+      <p>Waiting for the other players…</p>
+    {% else %}
+      {% for entry in d.board if entry.current %}
+        {% set previous = d.board[entry.index - 2] %}
+        <p>{{ entry.name }}: higher or lower than {{ previous.name }} ({{ '{:,}'.format(previous.value) }} {{ d.category.unit }})?</p>
+      {% endfor %}
+      <div class="hlb-actions">
+        <button type="button" data-hlb-action="guess" data-choice="higher" data-token="{{ d.token }}">↑ Higher</button>
+        <button type="button" data-hlb-action="guess" data-choice="lower" data-token="{{ d.token }}">↓ Lower</button>
+      </div>
+    {% endif %}
+  {% else %}
+    {% set heading = 'Answers locked — who’s right?' if d.phase == 'choices' else ('↑ Higher!' if d.correct == 'higher' else '↓ Lower!') %}
+    {% if is_main %}<h3>{{ heading }}</h3>{% else %}<h4>{{ heading }}</h4>{% endif %}
+  {% endif %}
+</div>
+<div class="player-status-list hlb-players">
+  {% for player in d.scores %}
+    <div class="hlb-player{{ ' hlb-out' if not player.active else '' }}">
+      {{ player.name }} ·
+      {% if player.choice|default(none) %}
+        {{ '↑ Higher' if player.choice == 'higher' else '↓ Lower' }}
+        {% if d.phase == 'answer' %}{{ ' · +1 ✓' if player.active else ' · Out ✕' }}{% endif %}
+      {% else %}
+        {{ ('Locked in' if player.answered else 'Thinking…') if player.active else 'Out' }}
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>
