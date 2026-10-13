@@ -433,7 +433,22 @@
             z-index: 100;
             border-radius: 5px;
         }
-    </style>
+
+#wwts-screen {max-width:1300px;margin:0 auto;color:var(--text-primary);text-align:center}
+#wwts-screen h2 {font-family:var(--font-display);color:var(--accent-gold);font-size:clamp(26px,3vw,48px);margin:10px 0}
+#wwts-screen h3 {font-size:clamp(23px,2.3vw,36px);margin:18px 0}
+#wwts-screen p {font-size:clamp(20px,1.8vw,28px);line-height:1.4;margin:14px 0}
+#wwts-screen .wwts-grid {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:24px 0}
+#wwts-screen .wwts-card {background:var(--bg-secondary);padding:20px 10px;border:3px solid transparent;border-radius:8px;overflow-wrap:anywhere;font-size:clamp(20px,1.8vw,28px)}
+#wwts-screen .wwts-marker {display:block;margin-top:12px;color:var(--text-secondary)}
+#wwts-screen .wwts-hit {border-color:var(--accent-gold)}
+#wwts-screen .wwts-table {width:100%;border-collapse:collapse;font-size:clamp(18px,1.7vw,27px);margin:16px auto}
+#wwts-screen .wwts-table th {color:var(--accent-gold)}
+#wwts-screen .wwts-table th,#wwts-screen .wwts-table td {padding:10px;border-bottom:1px solid var(--text-secondary);overflow-wrap:anywhere}
+#wwts-tap {width:100%;min-height:160px;font-size:1.7em;touch-action:manipulation;margin:24px 0}
+body.wwts-active #mute-button,body.wwts-active #status-message {display:none}
+
+</style>
 <style>
 /* Layout extensions only: colours, typography, option cards and score tiles
    inherit Handley's Fun Factory's existing theme and components. */
@@ -594,6 +609,139 @@ body.hlb-active #mute-button,body.hlb-active #status-message{display:none}
 
 
         // Category Higher or Lower uses the same server-rendered update_html flow.
+
+        // Five short clock samples; use the least delayed round trip.
+        const wwtsLocalNow = () => performance.timeOrigin + performance.now();
+        let wwtsOffset = 0;
+        async function wwtsSyncClock() {
+            let best = Infinity;
+            for (let i = 0; i < 5; i++) {
+                const before = wwtsLocalNow();
+                const reply = await new Promise((resolve, reject) => {
+                    socket.timeout(3000).emit('wwts_clock', (err, data) => err ? reject(err) : resolve(data));
+                });
+                const after = wwtsLocalNow();
+                if (after-before < best) {
+                    best = after-before;
+                    wwtsOffset = reply.now - (before+after)/2;
+                }
+            }
+        }
+
+        let wwtsContext = null, wwtsBuffer = null, wwtsUrl = null;
+        let wwtsSource = null, wwtsFrame = null, wwtsMediaToken = null, wwtsPreparing = null;
+        let wwtsPlaybackToken = null, wwtsPlaybackPhase = null;
+        // Reuse the existing game-start user gesture to unlock browser audio.
+        document.addEventListener('click', () => {
+            if (!wwtsContext) wwtsContext = new (window.AudioContext || window.webkitAudioContext)();
+            wwtsContext.resume().catch(() => {});
+        });
+        function wwtsStop() {
+            if (wwtsFrame) cancelAnimationFrame(wwtsFrame);
+            wwtsFrame = null;
+            if (wwtsSource) { try { wwtsSource.stop(); } catch (_) {} wwtsSource.disconnect(); }
+            wwtsSource = null;
+            wwtsPlaybackToken = null;
+        }
+        async function wwtsLoad(data) {
+            await wwtsSyncClock();
+            if (!wwtsContext) wwtsContext = new (window.AudioContext || window.webkitAudioContext)();
+            if (wwtsUrl !== data.url || !wwtsBuffer) {
+                const response = await fetch(data.url);
+                if (!response.ok) throw new Error('Audio file unavailable');
+                const decoded = await wwtsContext.decodeAudioData(await response.arrayBuffer());
+                wwtsBuffer = decoded;
+                wwtsUrl = data.url;
+            }
+            if (wwtsContext.state !== 'running') throw new Error('Audio permission required');
+        }
+        socket.on('wwts_media', async data => {
+            document.body.classList.add('wwts-active');
+            wwtsMediaToken = data.token;
+            if (!['starting', 'guess', 'replay'].includes(data.phase)) wwtsStop();
+            if (data.phase === 'prepare') {
+                if (wwtsPreparing === data.token) return;
+                wwtsPreparing = data.token;
+                try {
+                    await wwtsLoad(data);
+                    if (wwtsMediaToken === data.token) socket.emit('wwts_ready', {token:data.token});
+                } catch (error) {
+                    if (wwtsMediaToken === data.token) socket.emit('wwts_audio_error', {token:data.token});
+                } finally { if (wwtsPreparing === data.token) wwtsPreparing = null; }
+                return;
+            }
+            if (!['starting', 'replay'].includes(data.phase)) return;
+            if (wwtsPlaybackToken === data.token && wwtsPlaybackPhase === data.phase) return;
+            wwtsStop();
+            wwtsPlaybackToken = data.token;
+            wwtsPlaybackPhase = data.phase;
+            try {
+                if (data.phase === 'replay') await wwtsLoad(data);
+                if (wwtsMediaToken !== data.token) return;
+                if (!wwtsBuffer || wwtsContext.state !== 'running') throw new Error('Audio not ready');
+                // Stop any lingering round jingle before the question music starts.
+                document.querySelectorAll('audio').forEach(audio => audio.pause());
+                const source = wwtsContext.createBufferSource();
+                const gain = wwtsContext.createGain();
+                source.buffer = wwtsBuffer;
+                source.connect(gain); gain.connect(wwtsContext.destination);
+                wwtsSource = source;
+                const origin = wwtsContext.currentTime + 0.1;
+                const replay = data.phase === 'replay';
+                if (!replay) {
+                    gain.gain.setValueAtTime(1, origin + data.fade);
+                    gain.gain.linearRampToValueAtTime(0, origin + data.fade + data.fade_duration);
+                }
+                if (replay && wwtsBuffer.duration < data.word + data.tail) throw new Error('Clip too short for reveal');
+                if (replay) {
+                    gain.gain.setValueAtTime(1, origin + data.word + data.tail - 0.5);
+                    gain.gain.linearRampToValueAtTime(0, origin + data.word + data.tail);
+                }
+                source.start(origin);
+                // Web Audio's clock remains the reference after the music fades.
+                const tick = () => {
+                    if (wwtsMediaToken !== data.token || wwtsSource !== source) return;
+                    const elapsed = wwtsContext.currentTime - origin;
+                    if (!replay && elapsed >= 0 && wwtsPlaybackPhase === 'starting') {
+                        wwtsPlaybackPhase = 'guess';
+                        socket.emit('wwts_started', {token:data.token,
+                            start_ms:wwtsLocalNow() + wwtsOffset - elapsed*1000});
+                    }
+                    if (replay) {
+                        const timer = document.getElementById('wwts-clock');
+                        if (timer) timer.textContent = Math.max(0,elapsed).toFixed(1);
+                        document.querySelectorAll('#wwts-screen [data-guess]').forEach(card => {
+                            if (elapsed >= Number(card.dataset.guess)) {
+                                card.classList.add('wwts-hit');
+                                card.querySelector('.wwts-marker').textContent = Number(card.dataset.guess).toFixed(3) + 's';
+                            }
+                        });
+                        if (elapsed >= data.word) {
+                            const message = document.getElementById('wwts-reveal-message');
+                            if (message) message.textContent = 'First word! ' + data.word.toFixed(3) + 's';
+                        }
+                        if (elapsed >= data.word + data.tail) {
+                            wwtsStop();
+                            socket.emit('wwts_replay_done', {token:data.token});
+                            return;
+                        }
+                    }
+                    wwtsFrame = requestAnimationFrame(tick);
+                };
+                wwtsFrame = requestAnimationFrame(tick);
+            } catch (error) {
+                wwtsStop();
+                socket.emit('wwts_audio_error', {token:data.token});
+            }
+        });
+        socket.on('wwts_close', () => { wwtsMediaToken = null; wwtsStop(); document.body.classList.remove('wwts-active'); });
+        socket.on('disconnect', () => { wwtsMediaToken = null; wwtsStop(); });
+        socket.on('game_state_update', data => {
+            if (data.game_state !== 'win_when_singing_ongoing') {
+                wwtsMediaToken = null; wwtsStop(); document.body.classList.remove('wwts-active');
+            }
+        });
+
         socket.on('hlb_main_phase', () => document.body.classList.add('hlb-active'));
         socket.on('hlb_close', () => {
             document.body.classList.remove('hlb-active');

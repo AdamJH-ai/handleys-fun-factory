@@ -330,7 +330,22 @@
             background-color: var(--accent-blue);
         }
 
-    </style>
+
+#wwts-screen {max-width:1300px;margin:0 auto;color:var(--text-primary);text-align:center}
+#wwts-screen h2 {font-family:var(--font-display);color:var(--accent-gold);font-size:clamp(26px,3vw,48px);margin:10px 0}
+#wwts-screen h3 {font-size:clamp(23px,2.3vw,36px);margin:18px 0}
+#wwts-screen p {font-size:clamp(20px,1.8vw,28px);line-height:1.4;margin:14px 0}
+#wwts-screen .wwts-grid {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:24px 0}
+#wwts-screen .wwts-card {background:var(--bg-secondary);padding:20px 10px;border:3px solid transparent;border-radius:8px;overflow-wrap:anywhere;font-size:clamp(20px,1.8vw,28px)}
+#wwts-screen .wwts-marker {display:block;margin-top:12px;color:var(--text-secondary)}
+#wwts-screen .wwts-hit {border-color:var(--accent-gold)}
+#wwts-screen .wwts-table {width:100%;border-collapse:collapse;font-size:clamp(18px,1.7vw,27px);margin:16px auto}
+#wwts-screen .wwts-table th {color:var(--accent-gold)}
+#wwts-screen .wwts-table th,#wwts-screen .wwts-table td {padding:10px;border-bottom:1px solid var(--text-secondary);overflow-wrap:anywhere}
+#wwts-tap {width:100%;min-height:160px;font-size:1.7em;touch-action:manipulation;margin:24px 0}
+body.wwts-active #mute-button,body.wwts-active #status-message {display:none}
+
+</style>
 <style>
 /* Layout extensions only: colours, typography, option cards and score tiles
    inherit Handley's Fun Factory's existing theme and components. */
@@ -461,6 +476,7 @@ body.hlb-active #mute-button,body.hlb-active #status-message{display:none}
                 <button id="hol-lower-button" data-answer="Lower">LOWER</button>
             </div>
 
+            <div id="wwts-player-area" class="hidden"></div>
             <div id="hlb-player-area" class="hidden"></div>
 
             <!-- NEW: Area for Averagers, Assemble (Team Picking) -->
@@ -527,6 +543,8 @@ body.hlb-active #mute-button,body.hlb-active #status-message{display:none}
          }
 
         function configureInputArea(roundType, subType = null) {
+            document.getElementById('wwts-player-area')?.classList.add('hidden');
+            document.body.classList.remove('wwts-active');
             document.getElementById('hlb-player-area')?.classList.add('hidden');
             document.body.classList.remove('hlb-active');
             // Check if all essential elements exist
@@ -632,6 +650,66 @@ body.hlb-active #mute-button,body.hlb-active #status-message{display:none}
             }
         }
 
+
+
+        // Five short clock samples; use the least delayed round trip.
+        const wwtsLocalNow = () => performance.timeOrigin + performance.now();
+        let wwtsOffset = 0;
+        async function wwtsSyncClock() {
+            let best = Infinity;
+            for (let i = 0; i < 5; i++) {
+                const before = wwtsLocalNow();
+                const reply = await new Promise((resolve, reject) => {
+                    socket.timeout(3000).emit('wwts_clock', (err, data) => err ? reject(err) : resolve(data));
+                });
+                const after = wwtsLocalNow();
+                if (after-before < best) {
+                    best = after-before;
+                    wwtsOffset = reply.now - (before+after)/2;
+                }
+            }
+        }
+
+        let wwtsPhoneToken = null, wwtsPhonePreparing = null;
+        socket.on('wwts_prompt', async data => {
+            wwtsPhoneToken = data.token;
+            configureInputArea(null);
+            showArea('guessing-area');
+            document.body.classList.add('wwts-active');
+            if (guessLabel) guessLabel.textContent = '';
+            const area = document.getElementById('wwts-player-area');
+            area.innerHTML = data.html; area.classList.remove('hidden');
+            currentClientRoundType = 'win_when_singing';
+            if (data.phase === 'prepare' && wwtsPhonePreparing !== data.token) {
+                wwtsPhonePreparing = data.token;
+                try {
+                    await wwtsSyncClock();
+                    if (wwtsPhoneToken === data.token) socket.emit('wwts_ready', {token:data.token});
+                } catch (_) {
+                    if (wwtsPhoneToken === data.token) {
+                        area.textContent = 'Connection interrupted. Reconnecting…';
+                        socket.disconnect(); socket.connect();
+                    }
+                } finally { if (wwtsPhonePreparing === data.token) wwtsPhonePreparing = null; }
+            }
+        });
+        function wwtsSubmit(event) {
+            const button = event.target.closest('#wwts-tap');
+            if (!button || button.disabled) return;
+            const tap = wwtsLocalNow() + wwtsOffset;
+            event.preventDefault(); button.disabled = true;
+            socket.emit('wwts_tap', {token:button.dataset.token, tap_ms:tap});
+        }
+        document.addEventListener('pointerdown', wwtsSubmit);
+        document.addEventListener('keydown', event => {
+            if (event.key === ' ' || event.key === 'Enter') wwtsSubmit(event);
+        });
+        socket.on('wwts_close', () => { wwtsPhoneToken = null; configureInputArea(null); });
+        socket.on('disconnect', () => {
+            wwtsPhoneToken = null;
+            const button = document.getElementById('wwts-tap');
+            if (button) button.disabled = true;
+        });
 
         socket.on('hlb_player_prompt', data => {
             configureInputArea(null);
