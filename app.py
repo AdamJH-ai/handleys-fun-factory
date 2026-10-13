@@ -2,6 +2,8 @@ import os
 import json
 import random
 import math
+import time
+import re
 import uuid
 import sys
 from pathlib import Path
@@ -25,6 +27,16 @@ AVAILABLE_ROUND_TYPES = ['higher_lower_board']
 if os.environ.get('HFF_TEST_HIGHER_LOWER') == '1':
     AVAILABLE_ROUND_TYPES = ['higher_lower_board']
     GAME_ROUNDS_TOTAL = 1
+# First test: set False to return to the existing development round selection.
+WWTS_FIRST_TEST = True
+wwts_target_turns = 5
+WWTS_FADE_SECONDS = 0.5
+WWTS_REVEAL_TAIL_SECONDS = 5
+WWTS_SCORES_SECONDS = 8
+WWTS_SUMMARY_SECONDS = 12
+if WWTS_FIRST_TEST:
+    AVAILABLE_ROUND_TYPES = ['win_when_singing']
+    GAME_ROUNDS_TOTAL = 1
 MAX_PLAYERS = 8
 gta_target_turns = 1
 gty_target_turns = 1
@@ -44,6 +56,7 @@ QP_NUM_PAIRS_PER_QUESTION = 3
 
 # === ROUND DETAILS ===
 ROUND_RULES = {
+    'win_when_singing': "Keep the song going in your head. Tap when the first word begins! Closest: 3 points, second: 2, third: 1. Within half a second: +1 bonus.",
     'guess_the_age': "Guess the celebrity's current age! Score based on difference (lowest wins).",
     'guess_the_year': "Guess the year the event happened! Score based on difference (lowest wins).",
     'who_didnt_do_it': "Identify the option that doesn't fit the question! Score based on correct answers.",
@@ -57,6 +70,7 @@ ROUND_RULES = {
     'averagers_assemble': "Form teams and work together! The team whose average guess is closest to the answer wins the point.",
 }
 ROUND_DISPLAY_NAMES = {
+    'win_when_singing': "Win When They're Singing",
     'guess_the_age': "Guess The Age",
     'guess_the_year': "Guess The Year",
     'who_didnt_do_it': "Who Didn't Do It?",
@@ -531,6 +545,7 @@ def migrate_player_sid(old_sid, new_sid):
         team['members'] = [new_sid if s == old_sid else s for s in team.get('members', [])]
 
     hlb.migrate(old_sid, new_sid)
+    wwts.migrate(old_sid, new_sid)
 
     # Ensure connected after a successful migrate
     if new_sid in players:
@@ -661,6 +676,7 @@ def handle_disconnect():
         elif game_state == 'higher_or_lower_ongoing' and hol_current_turn_stage == 'AWAITING_GUESSES' and check_all_guesses_received_hol(): process_results_higher_or_lower()
         elif game_state == 'averagers_assemble_ongoing' and aa_round_phase == 'gameplay' and check_all_guesses_received_aa(): process_results_aa()
     else: print(f"Unregistered client disconnected: {player_sid}")
+    if wwts.live(): wwts.interrupted(player_sid)
 
 @socketio.on('register_main_screen')
 def handle_register_main_screen():
@@ -671,6 +687,7 @@ def handle_register_main_screen():
     print(f"Main Screen registered: {main_screen_sid}")
     emit_player_list_update(); emit_game_state_update()
     hlb.send(player_sid)
+    if wwts.live(): wwts.reconnected()
 
 @socketio.on('register_player')
 def handle_register_player(data):
@@ -729,6 +746,10 @@ def handle_register_player(data):
 
     emit_player_list_update()
     emit_game_state_update()
+
+    if wwts.live():
+        wwts.reconnected()
+        return
 
     if hlb.live():
         hlb.broadcast()
@@ -859,6 +880,7 @@ def start_round_logic(round_type_key):
     elif round_type_key == 'tap_the_pic': setup_tap_the_pic_round()
     elif round_type_key == 'the_top_three': setup_the_top_three_round()
     elif round_type_key == 'higher_lower_board': hlb.setup()
+    elif round_type_key == 'win_when_singing': wwts.setup()
     elif round_type_key == 'higher_or_lower': setup_higher_or_lower_round()
     elif round_type_key == 'averagers_assemble': setup_averagers_assemble_round()
     else:
@@ -886,6 +908,8 @@ def handle_request_reset_game():
         
     print("--- Reset request received. Returning to waiting state. ---")
     game_state = "waiting"
+    wwts.token = None
+    socketio.emit('wwts_close')
     hlb.token = None
     socketio.emit("hlb_close")
     emit_game_state_update()
@@ -3490,6 +3514,248 @@ def handle_hlb_choose(data):
 @socketio.on('hlb_guess')
 def handle_hlb_guess(data):
     hlb.guess(request.sid, data)
+
+
+# === WIN WHEN THEY'RE SINGING ===
+def wwts_timestamp(value):
+    if not isinstance(value, str) or not re.fullmatch(r"\d+:[0-5]\d:\d{3}", value):
+        raise ValueError('Use minutes:seconds:milliseconds, e.g. 0:18:210.')
+    minutes, seconds, milliseconds = map(int, value.split(':'))
+    return minutes * 60000 + seconds * 1000 + milliseconds
+
+
+def load_wwts_songs():
+    bank = json.loads(Path(__file__).with_name('win_when_singing.json').read_text(encoding='utf-8'))['songs']
+    seen = set()
+    for song in bank:
+        if not isinstance(song['id'], str) or not song['id'] or song['id'] in seen:
+            raise ValueError('Song IDs must be nonempty and unique.')
+        seen.add(song['id'])
+        for key in ('title', 'artist', 'audio_file'):
+            if not isinstance(song[key], str) or not song[key].strip():
+                raise ValueError('Each song needs title, artist and audio_file.')
+        root = Path(app.static_folder).resolve()
+        path = (root / song['audio_file']).resolve()
+        if not path.is_relative_to(root) or not path.is_file():
+            raise ValueError('Missing audio file: ' + song['audio_file'])
+        song['fade_ms'] = wwts_timestamp(song['question_fade_start'])
+        song['word_ms'] = wwts_timestamp(song['first_word_time'])
+        if song['fade_ms'] + WWTS_FADE_SECONDS * 1000 >= song['word_ms']:
+            raise ValueError('The question fade must finish before the first word.')
+    return bank
+
+
+class SingingRound:
+    def __init__(self):
+        self.phase = 'idle'
+        self.token = None
+        self.order = []
+        self.answers = {}
+        self.ready = set()
+        self.awarded = {}
+        self.rows = []
+        self.index = -1
+        self.songs = []
+        self.error = ''
+        self.start_ms = None
+
+    def live(self):
+        return game_state == 'win_when_singing_ongoing' and self.token is not None
+
+    def connected(self):
+        return bool(main_screen_sid) and all(players[s].get('connected', False) for s in self.order)
+
+    def transition(self, phase):
+        self.phase = phase
+        self.token = uuid.uuid4().hex
+        self.broadcast()
+
+    def delay(self, seconds, callback):
+        token = self.token
+        def run():
+            socketio.sleep(seconds)
+            if self.live() and self.token == token:
+                with app.app_context(): callback()
+        socketio.start_background_task(run)
+
+    def setup(self):
+        global game_state
+        game_state = 'win_when_singing_ongoing'
+        self.__init__()
+        self.order = list(players)
+        count = 1 if WWTS_FIRST_TEST else wwts_target_turns
+        try:
+            bank = load_wwts_songs()
+            if type(count) is not int or count < 1 or len(bank) < count:
+                raise ValueError(f'Need {count} songs; found {len(bank)}.')
+            if not self.order: raise ValueError('At least one player is required.')
+            self.songs = random.sample(bank, count)
+        except (KeyError, ValueError, TypeError, OSError) as exc:
+            self.error = str(exc)
+            self.transition('error')
+            return
+        for sid in self.order: players[sid]['round_score'] = 0
+        emit_game_state_update()
+        self.next_song()
+
+    @property
+    def song(self):
+        return self.songs[self.index]
+
+    def next_song(self):
+        self.index += 1
+        self.rows = []
+        self.answers = {}
+        self.prepare()
+
+    def prepare(self):
+        # Keep already submitted guesses when an interrupted song restarts.
+        self.ready = set()
+        self.start_ms = None
+        self.transition('prepare' if self.connected() else 'paused')
+
+    def valid(self, data, phase):
+        return self.live() and self.phase == phase and isinstance(data, dict) and data.get('token') == self.token
+
+    def mark_ready(self, sid, data):
+        if not self.valid(data, 'prepare') or sid not in self.order + [main_screen_sid]: return
+        self.ready.add(sid)
+        if self.connected() and set(self.order + [main_screen_sid]).issubset(self.ready):
+            self.transition('countdown')
+            self.delay(3, lambda: self.transition('starting'))
+
+    def started(self, sid, data):
+        if sid != main_screen_sid or not self.valid(data, 'starting'): return
+        stamp = data.get('start_ms')
+        now = time.monotonic() * 1000
+        if isinstance(stamp, bool) or not isinstance(stamp, (int, float)) or not math.isfinite(stamp) or abs(now-stamp) > 2000:
+            self.fail('Audio timing could not synchronise. Reset the game and try again.')
+            return
+        self.start_ms = stamp
+        # Keep this token: it identifies the same attempt on every device.
+        self.phase = 'guess'
+        self.broadcast()
+
+    def guess(self, sid, data):
+        if not self.valid(data, 'guess') or sid not in self.order or sid in self.answers: return
+        stamp = data.get('tap_ms')
+        if isinstance(stamp, bool) or not isinstance(stamp, (int, float)) or not math.isfinite(stamp): return
+        elapsed = stamp - self.start_ms
+        if elapsed < 0 or stamp > time.monotonic()*1000 + 250: return
+        self.answers[sid] = round(elapsed)
+        self.send(sid)
+        if set(self.order).issubset(self.answers):
+            errors = {s: abs(self.answers[s] - self.song['word_ms']) for s in self.order}
+            self.rows = []
+            for s in sorted(self.order, key=lambda x: errors[x]):
+                rank = 1 + sum(e < errors[s] for e in errors.values())
+                placing = max(0, 4-rank)
+                bonus = int(errors[s] <= 500)
+                points = placing + bonus
+                players[s]['round_score'] += points
+                self.rows.append({'sid': s, 'name': players[s]['name'], 'guess': self.answers[s]/1000,
+                                  'delta': (self.answers[s]-self.song['word_ms'])/1000,
+                                  'rank': rank, 'placing': placing, 'bonus': bonus, 'points': points,
+                                  'total': players[s]['round_score']})
+            self.transition('replay')
+
+    def replay_done(self, sid, data):
+        if sid != main_screen_sid or not self.valid(data, 'replay'): return
+        self.transition('scores')
+        self.delay(WWTS_SCORES_SECONDS, self.advance)
+
+    def advance(self):
+        if self.index + 1 < len(self.songs): self.next_song()
+        else:
+            ranked = sorted(self.order, key=lambda s: -players[s]['round_score'])
+            self.awarded = award_game_points(ranked)
+            self.transition('summary')
+            emit_game_state_update()
+            self.delay(WWTS_SUMMARY_SECONDS, self.finish)
+
+    def finish(self):
+        self.token = None
+        socketio.emit('wwts_close')
+        start_next_game_round()
+
+    def fail(self, message):
+        self.error = message
+        self.transition('error')
+
+    def interrupted(self, sid):
+        if sid not in self.order and main_screen_sid is not None: return
+        if self.phase in ('prepare', 'countdown', 'starting', 'guess', 'paused'):
+            # No points have been awarded. Keep locked guesses; replay for those still deciding.
+            self.ready = set()
+            self.transition('paused')
+        # Replay/results preserve the scored answers; the main screen restores them.
+
+    def reconnected(self):
+        if self.phase == 'paused' and self.connected(): self.prepare()
+        else: self.broadcast()
+
+    def migrate(self, old, new):
+        self.order = [new if s == old else s for s in self.order]
+        for mapping in (self.answers, self.awarded):
+            if old in mapping: mapping[new] = mapping.pop(old)
+        self.ready.discard(old)
+        for row in self.rows:
+            if row['sid'] == old: row['sid'] = new
+
+    def send(self, sid):
+        if not self.live() or not sid: return
+        is_main = sid == main_screen_sid
+        d = {'phase': self.phase, 'token': self.token, 'number': self.index+1,
+             'count': len(self.songs), 'error': self.error, 'eligible': sid in self.order,
+             'submitted': sid in self.answers, 'rows': [], 'summary': []}
+        if self.phase in ('replay', 'scores', 'summary'):
+            d.update(title=self.song['title'], artist=self.song['artist'], word=self.song['word_ms']/1000)
+            if is_main: d['rows'] = self.rows
+        if self.phase == 'summary':
+            d['summary'] = [{'name': players[s]['name'], 'total': players[s]['round_score'],
+                             'awarded': self.awarded.get(s, 0), 'overall': overall_game_scores.get(s, 0)}
+                            for s in sorted(self.order, key=lambda s: -players[s]['round_score'])]
+        with app.app_context():
+            if is_main:
+                update_main_screen_html('#round-content-area', '_wwts_screen.html', {'d': d, 'is_main': True})
+                media = {'phase': self.phase, 'token': self.token}
+                if self.phase in ('prepare', 'countdown', 'starting', 'guess', 'replay'):
+                    media.update(url='/static/' + self.song['audio_file'], fade=self.song['fade_ms']/1000,
+                                 fade_duration=WWTS_FADE_SECONDS)
+                if self.phase == 'replay':
+                    media.update(word=self.song['word_ms']/1000, tail=WWTS_REVEAL_TAIL_SECONDS)
+                socketio.emit('wwts_media', media, room=sid)
+            else:
+                socketio.emit('wwts_prompt', {'phase': self.phase, 'token': self.token,
+                    'html': render_template('_wwts_screen.html', d=d, is_main=False)}, room=sid)
+
+    def broadcast(self):
+        self.send(main_screen_sid)
+        for sid in players: self.send(sid)
+
+
+wwts = SingingRound()
+
+@socketio.on('wwts_clock')
+def wwts_clock():
+    return {'now': time.monotonic()*1000}
+
+@socketio.on('wwts_ready')
+def wwts_ready(data): wwts.mark_ready(request.sid, data)
+
+@socketio.on('wwts_started')
+def wwts_started(data): wwts.started(request.sid, data)
+
+@socketio.on('wwts_tap')
+def wwts_tap(data): wwts.guess(request.sid, data)
+
+@socketio.on('wwts_replay_done')
+def wwts_replay_done(data): wwts.replay_done(request.sid, data)
+
+@socketio.on('wwts_audio_error')
+def wwts_audio_error(data):
+    if request.sid == main_screen_sid and wwts.live() and isinstance(data, dict) and data.get('token') == wwts.token:
+        wwts.fail('Audio could not play. Check the MP3 and browser sound permission, then reset the game.')
 
 # === MAIN EXECUTION ===
 if __name__ == '__main__':

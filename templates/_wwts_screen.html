@@ -1,0 +1,36 @@
+<section id="wwts-screen" data-phase="{{ d.phase }}">
+  <h2>Win When They're Singing</h2>
+  {% if d.phase == 'error' %}<p>{{ d.error }}</p>
+  {% else %}
+  <p>Song {{ d.number }} of {{ d.count }}</p>
+  {% if d.phase == 'prepare' %}
+    <h3>Get ready…</h3><p>Listen, keep the song going in your head, then tap when the first word begins.</p>
+    <p>Closest: 3 · Second: 2 · Third: 1<br>Within half a second: +1 bonus</p>
+  {% elif d.phase == 'paused' %}
+    <h3>Waiting for everyone to reconnect</h3><p>This song will restart for everyone. Locked guesses and round scores are safe.</p>
+  {% elif d.phase == 'countdown' %}<h3>Here we go…</h3><p>The song starts in a moment.</p>
+  {% elif d.phase in ('starting', 'guess') %}
+    {% if is_main %}<h3>Listen… then keep it going!</h3><p>Tap your phone when the first word should begin.</p>
+    {% elif not d.eligible %}<p>Watch this round on the main screen.</p>
+    {% elif d.submitted %}<h3>Guess locked in</h3><p>Keep quiet while everyone else decides!</p>
+    {% else %}<button id="wwts-tap" data-token="{{ d.token }}" {% if d.phase != 'guess' %}disabled{% endif %}>They're singing!</button>{% endif %}
+  {% elif d.phase == 'replay' %}
+    {% if is_main %}
+      <h3>{{ d.title }} · {{ d.artist }}</h3>
+      <p id="wwts-reveal-message">Watch when everyone tapped… <span id="wwts-clock">0.0</span>s</p>
+      <div class="wwts-grid">
+      {% for row in d.rows %}<div class="wwts-card" data-guess="{{ row.guess }}"><strong>{{ row.name }}</strong><span class="wwts-marker">Waiting…</span></div>{% endfor %}
+      </div>
+    {% else %}<p>Watch the replay on the main screen!</p>{% endif %}
+  {% elif d.phase == 'scores' %}
+    {% if is_main %}<h3>{{ d.title }} — first word at {{ '%.3f'|format(d.word) }}s</h3>
+    <table class="wwts-table"><thead><tr><th>Player</th><th>Timing</th><th>Place + bonus</th><th>Song</th><th>Round</th></tr></thead><tbody>
+    {% for row in d.rows %}<tr><td>{{ row.name }}</td><td>{{ '%.3f'|format(row.delta|abs) }}s {{ 'early' if row.delta < 0 else ('late' if row.delta > 0 else 'exact') }}</td><td>{{ row.placing }} + {{ row.bonus }}</td><td>+{{ row.points }}</td><td>{{ row.total }}</td></tr>{% endfor %}
+    </tbody></table>{% else %}<p>Song results are on the main screen.</p>{% endif %}
+  {% elif d.phase == 'summary' %}
+    {% if is_main %}<h3>Round results</h3><table class="wwts-table"><thead><tr><th>Player</th><th>Round score</th><th>Game points earned</th><th>Overall total</th></tr></thead><tbody>
+    {% for row in d.summary %}<tr><td>{{ row.name }}</td><td>{{ row.total }}</td><td>+{{ row.awarded }}</td><td>{{ row.overall }}</td></tr>{% endfor %}
+    </tbody></table>{% else %}<p>Round results are on the main screen.</p>{% endif %}
+  {% endif %}
+  {% endif %}
+</section>
