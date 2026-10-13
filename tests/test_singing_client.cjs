@@ -3,10 +3,10 @@ const fs = require('fs'), vm = require('vm'), assert = require('node:assert/stri
 function harness(file, end) {
  const html=fs.readFileSync(file,'utf8');
  const code=html.slice(html.indexOf('        // Five short clock samples;'),html.indexOf(end));
- const handlers={}, emitted=[], events={}, ramps=[], frames=[];
+ const handlers={}, emitted=[], events={}, ramps=[], frames=[], fetched=[], sources=[];
  const context={currentTime:0,state:'running',destination:{},resume:async()=>{},
-  decodeAudioData:async()=>({duration:240}),
-  createBufferSource:()=>({connect(){},disconnect(){},stop(){},start(at){this.at=at;},buffer:null}),
+  decodeAudioData:async bytes=>({duration:300, file:bytes}),
+  createBufferSource:()=>{const source={connect(){},disconnect(){},stop(){},start(at){this.at=at;},buffer:null};sources.push(source);return source;},
   createGain:()=>({connect(){},gain:{setValueAtTime:(...v)=>ramps.push(['set',...v]),linearRampToValueAtTime:(...v)=>ramps.push(['ramp',...v])}})};
  const cls={add(){},remove(){}};
  const area={classList:cls,innerHTML:''};
@@ -15,11 +15,11 @@ function harness(file, end) {
  const socket={on:(e,f)=>handlers[e]=f,emit:(e,d)=>emitted.push([e,d]),
   timeout:()=>({emit:(e,cb)=>cb(null,{now:5000})})};
  const sandbox={document,socket,performance:{timeOrigin:0,now:()=>5000},window:{AudioContext:function(){return context}},
-  fetch:async()=>({ok:true,arrayBuffer:async()=>new ArrayBuffer(0)}),
+  fetch:async url=>{fetched.push(url);return {ok:true,arrayBuffer:async()=>url};},
   requestAnimationFrame:f=>{frames.push(f);return frames.length},cancelAnimationFrame:()=>{},
   configureInputArea:()=>{},showArea:()=>{},guessLabel:{},currentClientRoundType:null,console};
  vm.createContext(sandbox);vm.runInContext(code,sandbox);
- return {handlers,emitted,events,ramps,frames,context};
+ return {handlers,emitted,events,ramps,frames,context,fetched,sources};
 }
 (async()=>{
  const main=harness('templates/main_screen.html',"        socket.on('hlb_main_phase'");
@@ -34,6 +34,28 @@ function harness(file, end) {
  await main.handlers.wwts_media({phase:'replay',token:'c',url:'/static/audio/test.mp3',word:18.21,tail:5});
  main.context.currentTime=24;main.frames.pop()();
  assert.equal(main.emitted.at(-1)[0],'wwts_replay_done');
+ for (const order of [['track001','track002'],['track002','track001']]) {
+  const client=harness('templates/main_screen.html',"        socket.on('hlb_main_phase'");
+  client.events.click();
+  for (const [i,file] of order.entries()) {
+   const word=file==='track001'?18.210:30.126;
+   const url='/static/audio/wwts/'+file+'.mp3';
+   const base=i*100;
+   client.context.currentTime=base;
+   await client.handlers.wwts_media({phase:'prepare',token:'prepare'+i,url});
+   await client.handlers.wwts_media({phase:'countdown',token:'countdown'+i,url});
+   await client.handlers.wwts_media({phase:'starting',token:'play'+i,url,fade:10,fade_duration:.5});
+   client.context.currentTime=base+.2;client.frames.pop()();
+   assert.equal(client.sources.at(-1).buffer.file,url);
+   await client.handlers.wwts_media({phase:'guess',token:'play'+i,url});
+   await client.handlers.wwts_media({phase:'replay',token:'replay'+i,url,word,tail:5});
+   assert.equal(client.sources.at(-1).buffer.file,url);
+   client.context.currentTime=base+word+6;client.frames.pop()();
+   assert.equal(client.emitted.at(-1)[0],'wwts_replay_done');
+   await client.handlers.wwts_media({phase:'scores',token:'score'+i});
+  }
+  assert.equal(client.fetched.length,2);
+ }
  const phone=harness('templates/index.html',"        socket.on('hlb_player_prompt'");
  await phone.handlers.wwts_prompt({phase:'prepare',token:'a',html:''});
  const button={disabled:false,dataset:{token:'attempt'}};
@@ -41,5 +63,5 @@ function harness(file, end) {
  phone.events.pointerdown(event);phone.events.pointerdown(event);
  assert.equal(phone.emitted.filter(([e])=>e==='wwts_tap').length,1);
  assert.equal(phone.emitted.at(-1)[1].tap_ms,5000);
- console.log('PASS: audio clock anchor, fade schedule, replay completion, timestamp at tap and double-tap lock');
+ console.log('PASS: audio clock anchor, fade schedule, replay completion, timestamp at tap, double-tap lock and two distinct audio buffers in both orders');
 })().catch(e=>{console.error(e);process.exit(1)});
