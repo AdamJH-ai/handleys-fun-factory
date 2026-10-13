@@ -22,14 +22,14 @@ socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
 # === GAME CONFIG ===
 GAME_ROUNDS_TOTAL = 1
 #AVAILABLE_ROUND_TYPES = ['guess_the_age', 'guess_the_year', 'who_didnt_do_it', 'order_up', 'quick_pairs', 'true_or_false', 'tap_the_pic', 'the_top_three', 'higher_or_lower', 'averagers_assemble', 'higher_lower_board']
-AVAILABLE_ROUND_TYPES = ['higher_lower_board']
+AVAILABLE_ROUND_TYPES = ['win_when_singing']
 # Dedicated test mode: HFF_TEST_HIGHER_LOWER=1 python app.py
 if os.environ.get('HFF_TEST_HIGHER_LOWER') == '1':
     AVAILABLE_ROUND_TYPES = ['higher_lower_board']
     GAME_ROUNDS_TOTAL = 1
 # First test: set False to return to the existing development round selection.
-WWTS_FIRST_TEST = True
-wwts_target_turns = 5
+WWTS_FIRST_TEST = False
+wwts_target_turns = 2
 WWTS_FADE_SECONDS = 0.5
 WWTS_REVEAL_TAIL_SECONDS = 5
 WWTS_SCORES_SECONDS = 8
