@@ -834,6 +834,135 @@
           "value": 82
         }
       ]
+    },
+    {
+      "id": "uk-number-one-weeks",
+      "title": "Most Weeks at UK Number 1 (Pre-2010)",
+      "dummy": false,
+      "unit": "weeks",
+      "instructions": "Has the next song spent more or fewer total weeks at number 1 on the Official UK Singles Chart than the previous song? Eligible songs first reached UK number 1 by 31 December 2009. Count all weeks at number 1 across all chart runs, including non-consecutive weeks and returns after 2009. Songs tied on weeks may appear in the same game, but not consecutively.",
+      "entries": [
+        {
+          "name": "I Believe — Frankie Laine",
+          "value": 18
+        },
+        {
+          "name": "(Everything I Do) I Do It for You — Bryan Adams",
+          "value": 16
+        },
+        {
+          "name": "Love Is All Around — Wet Wet Wet",
+          "value": 15
+        },
+        {
+          "name": "Bohemian Rhapsody — Queen",
+          "value": 14
+        },
+        {
+          "name": "Rose Marie — Slim Whitman",
+          "value": 11
+        },
+        {
+          "name": "Cara Mia — David Whitfield",
+          "value": 10
+        },
+        {
+          "name": "I Will Always Love You — Whitney Houston",
+          "value": 10
+        },
+        {
+          "name": "Umbrella — Rihanna ft. Jay-Z",
+          "value": 10
+        },
+        {
+          "name": "Here in My Heart — Al Martino",
+          "value": 9
+        },
+        {
+          "name": "Oh Mein Papa — Eddie Calvert",
+          "value": 9
+        },
+        {
+          "name": "Secret Love — Doris Day",
+          "value": 9
+        },
+        {
+          "name": "Diana — Paul Anka",
+          "value": 9
+        },
+        {
+          "name": "It's Now or Never — Elvis Presley",
+          "value": 9
+        },
+        {
+          "name": "Mull of Kintyre — Wings",
+          "value": 9
+        },
+        {
+          "name": "You're the One That I Want — John Travolta & Olivia Newton-John",
+          "value": 9
+        },
+        {
+          "name": "Two Tribes — Frankie Goes to Hollywood",
+          "value": 9
+        },
+        {
+          "name": "Crazy — Gnarls Barkley",
+          "value": 9
+        },
+        {
+          "name": "Answer Me — Frankie Laine",
+          "value": 8
+        },
+        {
+          "name": "Magic Moments — Perry Como",
+          "value": 8
+        },
+        {
+          "name": "Wonderful Land — The Shadows",
+          "value": 8
+        },
+        {
+          "name": "Sugar, Sugar — The Archies",
+          "value": 8
+        },
+        {
+          "name": "Stay — Shakespears Sister",
+          "value": 8
+        },
+        {
+          "name": "From Me to You — The Beatles",
+          "value": 7
+        },
+        {
+          "name": "Summer Nights — John Travolta & Olivia Newton-John",
+          "value": 7
+        },
+        {
+          "name": "I'd Do Anything for Love (But I Won't Do That) — Meat Loaf",
+          "value": 7
+        },
+        {
+          "name": "Think Twice — Céline Dion",
+          "value": 7
+        },
+        {
+          "name": "Wannabe — Spice Girls",
+          "value": 7
+        },
+        {
+          "name": "Believe — Cher",
+          "value": 7
+        },
+        {
+          "name": "(Is This the Way to) Amarillo — Tony Christie ft. Peter Kay",
+          "value": 7
+        },
+        {
+          "name": "Bleeding Love — Leona Lewis",
+          "value": 7
+        }
+      ]
     }
   ]
 }
