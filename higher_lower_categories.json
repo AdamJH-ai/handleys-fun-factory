@@ -705,6 +705,135 @@
           "value": 24
         }
       ]
+    },
+    {
+      "id": "uk-snack-calories",
+      "title": "Calories in UK Snacks",
+      "dummy": false,
+      "unit": "kcal",
+      "instructions": "Does the next snack contain more or fewer calories than the previous snack? Compare the calories in the entire named UK bar, packet, or individual item at the stated pack size, not calories per 100g. Values are the declared product-label kcal figures for the specified UK pack versions; packaging and recipes may change.",
+      "entries": [
+        {
+          "name": "Bounty Milk Chocolate (57g, both pieces)",
+          "value": 278
+        },
+        {
+          "name": "Cadbury Starbar (49g)",
+          "value": 249
+        },
+        {
+          "name": "Cadbury Double Decker (54.5g, single bar)",
+          "value": 247
+        },
+        {
+          "name": "Kinder Bueno (43g, both fingers)",
+          "value": 244
+        },
+        {
+          "name": "Cadbury Dairy Milk (45g)",
+          "value": 240
+        },
+        {
+          "name": "Snickers (48g)",
+          "value": 238
+        },
+        {
+          "name": "Mars Bar (51g)",
+          "value": 228
+        },
+        {
+          "name": "Cadbury Twirl (43g, both fingers)",
+          "value": 228
+        },
+        {
+          "name": "Cadbury Wispa (39g)",
+          "value": 215
+        },
+        {
+          "name": "Nestlé Lion Peanut (41g)",
+          "value": 209
+        },
+        {
+          "name": "KitKat 4 Finger (41.5g)",
+          "value": 209
+        },
+        {
+          "name": "KitKat Chunky Milk (40g)",
+          "value": 203
+        },
+        {
+          "name": "Cadbury Wispa Gold (38.3g, multipack bar)",
+          "value": 192
+        },
+        {
+          "name": "Cadbury Boost (37g, multipack bar)",
+          "value": 190
+        },
+        {
+          "name": "Maltesers (37g bag)",
+          "value": 186
+        },
+        {
+          "name": "Cadbury Crunchie (40g)",
+          "value": 186
+        },
+        {
+          "name": "Cadbury Creme Egg (40g)",
+          "value": 177
+        },
+        {
+          "name": "Tunnock's Dark Chocolate Caramel Wafer (30g)",
+          "value": 137
+        },
+        {
+          "name": "Cadbury Fudge (22g)",
+          "value": 98
+        },
+        {
+          "name": "McVitie's Jaffa Cake (1 current-size cake)",
+          "value": 41
+        },
+        {
+          "name": "McCoy's Flame Grilled Steak (45g)",
+          "value": 236
+        },
+        {
+          "name": "Monster Munch Flamin' Hot (40g)",
+          "value": 197
+        },
+        {
+          "name": "Quavers Cheese (34g grab bag)",
+          "value": 161
+        },
+        {
+          "name": "Walkers Ready Salted (25g)",
+          "value": 130
+        },
+        {
+          "name": "Walkers Cheese & Onion (25g)",
+          "value": 128
+        },
+        {
+          "name": "Walkers Squares Ready Salted (22g)",
+          "value": 99
+        },
+        {
+          "name": "Monster Munch Pickled Onion (20g)",
+          "value": 98
+        },
+        {
+          "name": "Walkers Squares Salt & Vinegar (22g)",
+          "value": 97
+        },
+        {
+          "name": "Skips Prawn Cocktail (17g)",
+          "value": 92
+        },
+        {
+          "name": "Wotsits Really Cheesy (16.5g)",
+          "value": 82
+        }
+      ]
     }
   ]
 }
