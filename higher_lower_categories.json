@@ -592,6 +592,119 @@
           "value": 1078751311
         }
       ]
+    },
+    {
+      "id": "tv-episode-counts",
+      "title": "TV Show Episode Counts",
+      "dummy": false,
+      "unit": "episodes",
+      "instructions": "Has the next television show had more or fewer episodes than the previous show? Count all regular story episodes, including full-length Christmas specials, narrative specials and finales. Exclude documentaries, cast reunions, charity sketches and spin-offs. Counts use the agreed completed-series episode totals.",
+      "entries": [
+        {
+          "name": "Only Fools and Horses",
+          "value": 64
+        },
+        {
+          "name": "Fawlty Towers",
+          "value": 12
+        },
+        {
+          "name": "Blackadder",
+          "value": 26
+        },
+        {
+          "name": "The Young Ones",
+          "value": 12
+        },
+        {
+          "name": "Bottom",
+          "value": 18
+        },
+        {
+          "name": "Mr. Bean (live-action)",
+          "value": 14
+        },
+        {
+          "name": "One Foot in the Grave",
+          "value": 42
+        },
+        {
+          "name": "Keeping Up Appearances",
+          "value": 44
+        },
+        {
+          "name": "Absolutely Fabulous",
+          "value": 39
+        },
+        {
+          "name": "Father Ted",
+          "value": 25
+        },
+        {
+          "name": "The Royle Family",
+          "value": 25
+        },
+        {
+          "name": "dinnerladies",
+          "value": 16
+        },
+        {
+          "name": "Red Dwarf",
+          "value": 74
+        },
+        {
+          "name": "The Office (UK)",
+          "value": 14
+        },
+        {
+          "name": "Phoenix Nights",
+          "value": 12
+        },
+        {
+          "name": "Peep Show",
+          "value": 54
+        },
+        {
+          "name": "The Thick of It",
+          "value": 23
+        },
+        {
+          "name": "The IT Crowd",
+          "value": 25
+        },
+        {
+          "name": "Gavin & Stacey",
+          "value": 22
+        },
+        {
+          "name": "The Inbetweeners",
+          "value": 18
+        },
+        {
+          "name": "Miranda",
+          "value": 20
+        },
+        {
+          "name": "Friday Night Dinner",
+          "value": 37
+        },
+        {
+          "name": "Detectorists",
+          "value": 20
+        },
+        {
+          "name": "Derry Girls",
+          "value": 19
+        },
+        {
+          "name": "Sherlock (BBC)",
+          "value": 13
+        },
+        {
+          "name": "Broadchurch",
+          "value": 24
+        }
+      ]
     }
   ]
 }
