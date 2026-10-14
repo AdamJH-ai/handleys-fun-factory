@@ -463,6 +463,135 @@
           "value": 412800000
         }
       ]
+    },
+    {
+      "id": "movies-2000-2019",
+      "title": "Highest-Grossing Movies (2000–2019)",
+      "dummy": false,
+      "unit": "USD",
+      "instructions": "Did the next film gross more or less worldwide at the box office than the previous film? Compare cumulative worldwide theatrical box-office totals in US dollars, including documented re-releases, without inflation adjustment. Film release years are 2000–2019; values are reported dollar amounts from The Numbers.",
+      "entries": [
+        {
+          "name": "Avengers: Endgame",
+          "value": 2937964753
+        },
+        {
+          "name": "Avatar",
+          "value": 2923706026
+        },
+        {
+          "name": "Star Wars: The Force Awakens",
+          "value": 2056046835
+        },
+        {
+          "name": "Avengers: Infinity War",
+          "value": 2048158241
+        },
+        {
+          "name": "Jurassic World",
+          "value": 1671063641
+        },
+        {
+          "name": "The Lion King (2019)",
+          "value": 1661454403
+        },
+        {
+          "name": "The Avengers (2012)",
+          "value": 1515100211
+        },
+        {
+          "name": "Furious 7",
+          "value": 1510065395
+        },
+        {
+          "name": "Frozen II",
+          "value": 1451653316
+        },
+        {
+          "name": "Avengers: Age of Ultron",
+          "value": 1395316979
+        },
+        {
+          "name": "Black Panther",
+          "value": 1334157082
+        },
+        {
+          "name": "Star Wars: The Last Jedi",
+          "value": 1322581071
+        },
+        {
+          "name": "Harry Potter and the Deathly Hallows – Part 2",
+          "value": 1312071376
+        },
+        {
+          "name": "Jurassic World: Fallen Kingdom",
+          "value": 1308323302
+        },
+        {
+          "name": "Frozen",
+          "value": 1269253418
+        },
+        {
+          "name": "Beauty and the Beast (2017)",
+          "value": 1259761686
+        },
+        {
+          "name": "Incredibles 2",
+          "value": 1242805359
+        },
+        {
+          "name": "Iron Man 3",
+          "value": 1214630956
+        },
+        {
+          "name": "The Fate of the Furious",
+          "value": 1189009332
+        },
+        {
+          "name": "Minions",
+          "value": 1157271759
+        },
+        {
+          "name": "Captain America: Civil War",
+          "value": 1151899586
+        },
+        {
+          "name": "Aquaman",
+          "value": 1148861807
+        },
+        {
+          "name": "Spider-Man: Far From Home",
+          "value": 1137144726
+        },
+        {
+          "name": "Captain Marvel",
+          "value": 1129576094
+        },
+        {
+          "name": "The Lord of the Rings: The Return of the King",
+          "value": 1126146639
+        },
+        {
+          "name": "Transformers: Dark of the Moon",
+          "value": 1123794079
+        },
+        {
+          "name": "Skyfall",
+          "value": 1110526981
+        },
+        {
+          "name": "Transformers: Age of Extinction",
+          "value": 1104054072
+        },
+        {
+          "name": "The Dark Knight Rises",
+          "value": 1082228107
+        },
+        {
+          "name": "Joker",
+          "value": 1078751311
+        }
+      ]
     }
   ]
 }
