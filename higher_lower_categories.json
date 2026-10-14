@@ -205,6 +205,135 @@
           "value": 3
         }
       ]
+    },
+    {
+      "id": "animal-weights",
+      "title": "Animal Weights",
+      "dummy": false,
+      "unit": "kg",
+      "instructions": "Is the next animal heavier or lighter than the previous animal? Compare approximate representative adult weights in kilograms. These are rounded quiz comparison values, not exact weights; animals with similar weights can share a value.",
+      "entries": [
+        {
+          "name": "Blue whale",
+          "value": 110000
+        },
+        {
+          "name": "Fin whale",
+          "value": 60000
+        },
+        {
+          "name": "Sperm whale (male)",
+          "value": 40000
+        },
+        {
+          "name": "Grey whale",
+          "value": 40000
+        },
+        {
+          "name": "Humpback whale",
+          "value": 30000
+        },
+        {
+          "name": "Orca (male)",
+          "value": 7000
+        },
+        {
+          "name": "African bush elephant (male)",
+          "value": 5500
+        },
+        {
+          "name": "Asian elephant (male)",
+          "value": 4500
+        },
+        {
+          "name": "White rhinoceros",
+          "value": 2300
+        },
+        {
+          "name": "Northern elephant seal (male)",
+          "value": 2000
+        },
+        {
+          "name": "Hippopotamus (male)",
+          "value": 1800
+        },
+        {
+          "name": "Giraffe (male)",
+          "value": 1200
+        },
+        {
+          "name": "Walrus (male)",
+          "value": 1200
+        },
+        {
+          "name": "Black rhinoceros",
+          "value": 1200
+        },
+        {
+          "name": "American bison (male)",
+          "value": 900
+        },
+        {
+          "name": "Gaur",
+          "value": 900
+        },
+        {
+          "name": "Dromedary camel",
+          "value": 500
+        },
+        {
+          "name": "Polar bear (male)",
+          "value": 500
+        },
+        {
+          "name": "Moose",
+          "value": 500
+        },
+        {
+          "name": "West Indian manatee",
+          "value": 500
+        },
+        {
+          "name": "Grevy's zebra",
+          "value": 400
+        },
+        {
+          "name": "Bengal tiger (male)",
+          "value": 200
+        },
+        {
+          "name": "African lion (male)",
+          "value": 200
+        },
+        {
+          "name": "Gorilla (male)",
+          "value": 160
+        },
+        {
+          "name": "Giant panda (male)",
+          "value": 110
+        },
+        {
+          "name": "Brown bear (male)",
+          "value": 400
+        },
+        {
+          "name": "Saltwater crocodile (male)",
+          "value": 500
+        },
+        {
+          "name": "Jaguar (male)",
+          "value": 110
+        },
+        {
+          "name": "Leopard (male)",
+          "value": 60
+        },
+        {
+          "name": "Giant anteater",
+          "value": 60
+        }
+      ]
     }
   ]
 }
