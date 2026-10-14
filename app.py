@@ -3527,6 +3527,7 @@ def wwts_timestamp(value):
 def load_wwts_songs():
     bank = json.loads(Path(__file__).with_name('win_when_singing.json').read_text(encoding='utf-8'))['songs']
     seen = set()
+    audio_paths = {}
     for song in bank:
         if not isinstance(song['id'], str) or not song['id'] or song['id'] in seen:
             raise ValueError('Song IDs must be nonempty and unique.')
@@ -3538,6 +3539,9 @@ def load_wwts_songs():
         path = (root / song['audio_file']).resolve()
         if not path.is_relative_to(root) or not path.is_file():
             raise ValueError('Missing audio file: ' + song['audio_file'])
+        if path in audio_paths:
+            raise ValueError(f"{song['title']} and {audio_paths[path]} reference the same audio file: {song['audio_file']}. Give each song its own file.")
+        audio_paths[path] = song['title']
         song['fade_ms'] = wwts_timestamp(song['question_fade_start'])
         song['word_ms'] = wwts_timestamp(song['first_word_time'])
         if song['fade_ms'] + WWTS_FADE_SECONDS * 1000 >= song['word_ms']:

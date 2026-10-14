@@ -12,6 +12,9 @@ def game(monkeypatch):
     g.players.clear(); g.overall_game_scores.clear(); g.pid_to_sid.clear(); g.sid_to_pid.clear()
     g.game_state = 'waiting'; g.main_screen_sid = None
     g.wwts = g.SingingRound()
+    monkeypatch.setattr(g, 'WWTS_FIRST_TEST', True)
+    monkeypatch.setattr(g, 'wwts_target_turns', 5)
+    monkeypatch.setattr(g.random, 'sample', lambda bank, count: bank[:count])
     scheduled = []
     monkeypatch.setattr(g.wwts, 'delay', lambda seconds, fn: scheduled.append(fn))
     return scheduled
@@ -156,3 +159,57 @@ def test_main_disconnect_during_guess(game):
     assert g.wwts.phase == 'paused'
     newmain=g.socketio.test_client(g.app); newmain.emit('register_main_screen')
     assert g.wwts.phase == 'prepare'
+
+
+@pytest.mark.parametrize('reverse', [False, True])
+@pytest.mark.parametrize('n', [2, 8])
+def test_real_song_bank_two_orders(game, monkeypatch, reverse, n):
+    monkeypatch.setattr(g, 'WWTS_FIRST_TEST', False)
+    monkeypatch.setattr(g, 'wwts_target_turns', 2)
+    monkeypatch.setattr(g.random, 'sample', lambda bank, count: list(reversed(bank))[:count] if reverse else bank[:count])
+    monkeypatch.setattr(g.socketio, 'sleep', lambda _: None)
+    main, phones = enter(n)
+    played=[]
+    for number in range(2):
+        song = g.wwts.song
+        played.append(song['audio_file'])
+        prepare = [e['args'][0] for e in main.get_received() if e['name']=='wwts_media'][-1]
+        assert prepare['url'] == '/static/'+song['audio_file']
+        assert 'word' not in prepare
+        start(main,phones,game)
+        old_token = g.wwts.token
+        for i,p in enumerate(phones):
+            p.emit('wwts_tap', {'token':old_token,'tap_ms':g.wwts.start_ms+song['word_ms']+i*100})
+        assert g.wwts.phase=='replay'
+        assert g.wwts.rows[0]['delta']==0 and g.wwts.rows[0]['points']==4
+        media=[e['args'][0] for e in main.get_received() if e['name']=='wwts_media'][-1]
+        assert media['url']=='/static/'+song['audio_file']
+        assert media['word']==song['word_ms']/1000
+        main.emit('wwts_replay_done',{'token':g.wwts.token})
+        game.pop(0)()
+        if number == 0:
+            assert g.wwts.phase=='prepare'
+            phones[0].emit('wwts_tap', {'token':old_token,'tap_ms':g.time.monotonic()*1000})
+            assert not g.wwts.answers
+    assert len(set(played))==2
+    assert g.wwts.phase=='summary'
+    assert max(p['round_score'] for p in g.players.values())==8
+    game.pop(0)()
+    assert g.game_state=='overall_game_over'
+
+
+def test_duplicate_audio_reports_both_songs(game, monkeypatch):
+    original=g.Path.read_text
+    def duplicate(path,*args,**kwargs):
+        text=original(path,*args,**kwargs)
+        if path.name=='win_when_singing.json':
+            bank=g.json.loads(text)
+            bank['songs'][1]['audio_file']=bank['songs'][0]['audio_file']
+            return g.json.dumps(bank)
+        return text
+    monkeypatch.setattr(g.Path,'read_text',duplicate)
+    with pytest.raises(ValueError,match='I Gotta Feeling and Seven Nation Army reference the same audio file'):
+        g.load_wwts_songs()
+    enter(2)
+    assert g.wwts.phase=='error'
+    assert 'track001.mp3' in g.wwts.error

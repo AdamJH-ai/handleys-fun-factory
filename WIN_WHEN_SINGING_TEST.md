@@ -41,3 +41,9 @@ Malformed data or an audio failure produces an explanatory message rather than g
 - Chromium launch was blocked by this execution environment. TV/phone visual layout, audible playback and physical-device timing are **not browser-verified** and need this first home test.
 
 Developer checks (test dependencies only): `python -m pytest -q tests/test_singing.py` and `node tests/test_singing_client.cjs`.
+
+## Two-song correction
+
+The I Gotta Feeling entry now references `audio/wwts/track002.mp3`. It previously referenced Seven Nation Army's `track001.mp3`, pairing that audio with I Gotta Feeling's timestamps. The loader now rejects duplicate audio paths and names both affected songs, catching this copy/paste error before playback.
+
+Thirteen server tests pass, including both real song orders with two and eight players through song two and overall scoring. Non-visual browser-handler tests confirm that each song and its replay use the corresponding decoded audio buffer in either order. The second MP3 decodes successfully. These checks did not reproduce a separate second-song crash; they do not replace an audible/visual home test. The first-word timestamps remain the user-supplied values.
