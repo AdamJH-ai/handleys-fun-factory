@@ -3271,7 +3271,7 @@ def load_categories(path, entry_count):
         ids.add(c['id'])
         if not all(isinstance(c.get(k), str) and c[k].strip() for k in ('title', 'instructions', 'unit')):
             raise ValueError('Each category needs a title, instructions and unit.')
-        names, values = set(), set()
+        names, counts = set(), {}
         for e in c['entries']:
             if not isinstance(e.get('name'), str) or not e['name'].strip() or e['name'] in names:
                 raise ValueError('Entry names must be non-empty and unique within each category.')
@@ -3279,10 +3279,48 @@ def load_categories(path, entry_count):
             v = e.get('value')
             if isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v):
                 raise ValueError('Entry values must be finite numbers.')
-            values.add(v)
-        if len(values) < entry_count:
-            raise ValueError(f"{c['title']} needs at least {entry_count} distinct values.")
+            counts[v] = counts.get(v, 0) + 1
+        # Equal values may recur, just not next to one another.
+        # With M entries at the most frequent value and O others, the longest
+        # possible non-adjacent-tie sequence is min(M + O, 2 * O + 1).
+        total = len(c['entries'])
+        most_common = max(counts.values(), default=0)
+        max_sequence = min(total, 2 * (total - most_common) + 1)
+        if max_sequence < entry_count:
+            raise ValueError(
+                f"{c['title']} cannot make {entry_count} entries without consecutive ties."
+            )
     return categories
+
+
+def build_hlb_sequence(entries, entry_count):
+    """Select distinct entries, allowing repeated values only when non-adjacent."""
+    grouped = {}
+    for entry in entries:
+        grouped.setdefault(entry['value'], []).append(entry)
+    counts = {value: len(group) for value, group in grouped.items()}
+    values = list(grouped)
+
+    def select_values(previous, remaining):
+        if remaining == 0:
+            return []
+        choices = [v for v in values if v != previous and counts[v]]
+        random.shuffle(choices)
+        for value in choices:
+            counts[value] -= 1
+            suffix = select_values(value, remaining - 1)
+            if suffix is not None:
+                return [value] + suffix
+            counts[value] += 1
+        return None
+
+    sequence_values = select_values(None, entry_count)
+    if sequence_values is None:
+        raise ValueError('Cannot build a Higher or Lower sequence without adjacent ties.')
+    # Each picked entry is unique, even when a value appears multiple times.
+    for group in grouped.values():
+        random.shuffle(group)
+    return [grouped[value].pop() for value in sequence_values]
 
 
 class HigherLowerBoard:
@@ -3374,11 +3412,8 @@ class HigherLowerBoard:
             return
         self.category = category
         self.available.remove(category)
-        # Select one random entry per distinct value: no ties anywhere on the board.
-        grouped = {}
-        for entry in category['entries']:
-            grouped.setdefault(entry['value'], []).append(entry)
-        self.sequence = [random.choice(grouped[v]) for v in random.sample(list(grouped), self.entries)]
+        # Repeated values may occur in the game, but never consecutively.
+        self.sequence = build_hlb_sequence(category['entries'], self.entries)
         self.position = 1
         self.transition('instructions')
         self.delay(INSTRUCTIONS_SECONDS, self.begin)
