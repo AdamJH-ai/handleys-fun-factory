@@ -29,7 +29,7 @@ if os.environ.get('HFF_TEST_HIGHER_LOWER') == '1':
     GAME_ROUNDS_TOTAL = 1
 # First test: set False to return to the existing development round selection.
 WWTS_FIRST_TEST = False
-wwts_target_turns = 2
+wwts_target_turns = 5
 WWTS_FADE_SECONDS = 0.5
 WWTS_REVEAL_TAIL_SECONDS = 5
 WWTS_SCORES_SECONDS = 8

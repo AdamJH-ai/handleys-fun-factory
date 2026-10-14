@@ -15,6 +15,30 @@
       "audio_file": "audio/wwts/track002.mp3",
       "question_fade_start": "0:10:000",
       "first_word_time": "0:30:126"
+    },
+    {
+      "id": "track_003",
+      "title": "Wonderwall",
+      "artist": "Oasis",
+      "audio_file": "audio/wwts/track003.mp3",
+      "question_fade_start": "0:08:000",
+      "first_word_time": "0:22:921"
+    },
+    {
+      "id": "track_004",
+      "title": "Take On Me",
+      "artist": "A-Ha",
+      "audio_file": "audio/wwts/track004.mp3",
+      "question_fade_start": "0:18:000",
+      "first_word_time": "0:34:218"
+    },
+    {
+      "id": "track_005",
+      "title": "Smooth Criminal",
+      "artist": "Michael Jackson",
+      "audio_file": "audio/wwts/track005.mp3",
+      "question_fade_start": "0:15:000",
+      "first_word_time": "0:31:227"
     }
   ]
 }
