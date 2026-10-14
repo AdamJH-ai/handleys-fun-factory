@@ -5,127 +5,99 @@
       "title": "England Caps",
       "dummy": true,
       "unit": "caps",
-      "instructions": "Is each footballer higher or lower in england caps than the previous entry? All values are between 50 and 125 caps. These are fictional demo entries, not real facts.",
+      "instructions": "Is each footballer higher or lower in england caps than the previous entry? All values are between 80 and 125 caps. These are fictional demo entries, not real facts.",
       "entries": [
         {
-          "name": "Demo footballer 01",
-          "value": 50
+          "name": "Harry Kane",
+          "value": 125
         },
         {
-          "name": "Demo footballer 02",
-          "value": 53
+          "name": "Peter Shilton",
+          "value": 125
         },
         {
-          "name": "Demo footballer 03",
-          "value": 55
-        },
-        {
-          "name": "Demo footballer 04",
-          "value": 58
-        },
-        {
-          "name": "Demo footballer 05",
-          "value": 60
-        },
-        {
-          "name": "Demo footballer 06",
-          "value": 63
-        },
-        {
-          "name": "Demo footballer 07",
-          "value": 66
-        },
-        {
-          "name": "Demo footballer 08",
-          "value": 68
-        },
-        {
-          "name": "Demo footballer 09",
-          "value": 71
-        },
-        {
-          "name": "Demo footballer 10",
-          "value": 73
-        },
-        {
-          "name": "Demo footballer 11",
-          "value": 76
-        },
-        {
-          "name": "Demo footballer 12",
-          "value": 78
-        },
-        {
-          "name": "Demo footballer 13",
-          "value": 81
-        },
-        {
-          "name": "Demo footballer 14",
-          "value": 84
-        },
-        {
-          "name": "Demo footballer 15",
-          "value": 86
-        },
-        {
-          "name": "Demo footballer 16",
-          "value": 89
-        },
-        {
-          "name": "Demo footballer 17",
-          "value": 91
-        },
-        {
-          "name": "Demo footballer 18",
-          "value": 94
-        },
-        {
-          "name": "Demo footballer 19",
-          "value": 97
-        },
-        {
-          "name": "Demo footballer 20",
-          "value": 99
-        },
-        {
-          "name": "Demo footballer 21",
-          "value": 102
-        },
-        {
-          "name": "Demo footballer 22",
-          "value": 104
-        },
-        {
-          "name": "Demo footballer 23",
-          "value": 107
-        },
-        {
-          "name": "Demo footballer 24",
-          "value": 109
-        },
-        {
-          "name": "Demo footballer 25",
-          "value": 112
-        },
-        {
-          "name": "Demo footballer 26",
-          "value": 115
-        },
-        {
-          "name": "Demo footballer 27",
-          "value": 117
-        },
-        {
-          "name": "Demo footballer 28",
+          "name": "Wayne Rooney",
           "value": 120
         },
         {
-          "name": "Demo footballer 29",
-          "value": 122
+          "name": "David Beckham",
+          "value": 115
         },
         {
-          "name": "Demo footballer 30",
-          "value": 125
+          "name": "Steven Gerrard",
+          "value": 114
+        },
+        {
+          "name": "Bobby Moore",
+          "value": 108
+        },
+        {
+          "name": "Ashley Cole",
+          "value": 107
+        },
+        {
+          "name": "Bobby Charlton",
+          "value": 106
+        },
+        {
+          "name": "Frank Lampard",
+          "value": 106
+        },
+        {
+          "name": "Billy Wright",
+          "value": 105
+        },
+        {
+          "name": "Kyle Walker",
+          "value": 96
+        },
+        {
+          "name": "John Stones",
+          "value": 94
+        },
+        {
+          "name": "Jordan Pickford",
+          "value": 93
+        },
+        {
+          "name": "Jordan Henderson",
+          "value": 91
+        },
+        {
+          "name": "Bryan Robson",
+          "value": 90
+        },
+        {
+          "name": "Michael Owen",
+          "value": 89
+        },
+        {
+          "name": "Kenny Sansom",
+          "value": 86
+        },
+        {
+          "name": "Gary Neville",
+          "value": 85
+        },
+        {
+          "name": "Ray Wilkins",
+          "value": 84
+        },
+        {
+          "name": "Raheem Sterling",
+          "value": 82
+        },
+        {
+          "name": "Rio Ferdinand",
+          "value": 81
+        },
+        {
+          "name": "Gary Lineker",
+          "value": 80
+        },
+        {
+          "name": "Declan Rice",
+          "value": 80
         }
       ]
     },
