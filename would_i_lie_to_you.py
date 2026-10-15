@@ -185,7 +185,10 @@ class WouldILikeToYou:
         def task():
             self.h.socketio.sleep(max(0, seconds))
             if self.run_id == run_id and self.phase == phase and self.token == token:
-                callback()
+                # Background timers have no Flask application context. The callback
+                # may render the next question, summary, or overall game-over screen.
+                with self.h.app.app_context():
+                    callback()
 
         self.h.socketio.start_background_task(task)
 
