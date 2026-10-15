@@ -13,7 +13,7 @@ from pathlib import Path
 
 def normalise(value):
     value = unicodedata.normalize("NFKC", str(value)).casefold().strip()
-    value = re.sub(r"[^\\w\\s]", " ", value)
+    value = re.sub(r"[^\w\s]", " ", value)
     return " ".join(value.split())
 
 
