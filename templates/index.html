@@ -345,7 +345,32 @@
 #wwts-tap {width:100%;min-height:160px;font-size:1.7em;touch-action:manipulation;margin:24px 0}
 body.wwts-active #mute-button,body.wwts-active #status-message {display:none}
 
-</style>
+
+        /* Would I Like to You — scoped responsive round presentation */
+        #wilty-screen{width:100%;max-width:1250px;margin:0 auto;color:var(--text-primary);text-align:center}
+        #wilty-screen h2{font-family:var(--font-display);color:var(--accent-gold);font-size:clamp(26px,3.2vw,54px);margin:10px auto}
+        #wilty-screen .wilty-question{font-size:clamp(22px,2.5vw,42px);line-height:1.25;margin:18px auto;max-width:1150px}
+        #wilty-screen .wilty-note,#wilty-screen .wilty-progress{color:var(--text-secondary);font-size:clamp(17px,1.6vw,24px);margin:12px auto}
+        #wilty-screen .wilty-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px auto;max-width:1100px}
+        #wilty-screen .wilty-option{padding:15px;border-radius:9px;background:var(--bg-secondary);border:2px solid var(--accent-blue);color:var(--text-primary);font:inherit;font-size:clamp(18px,1.75vw,27px);overflow-wrap:anywhere;text-align:left}
+        #wilty-screen button.wilty-option:disabled{opacity:.55}
+        #wilty-screen .wilty-players{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:18px auto}
+        #wilty-screen .wilty-player{background:var(--bg-secondary);border-radius:8px;padding:12px 18px;font-size:clamp(17px,1.5vw,24px)}
+        #wilty-screen .wilty-done{border:2px solid var(--color-success)}
+        #wilty-screen .wilty-reveal{margin:16px auto;padding:22px;background:var(--bg-secondary);border-radius:16px;max-width:1050px;font-size:clamp(20px,2vw,34px)}
+        #wilty-screen .wilty-reveal p{margin:12px auto}
+        #wilty-screen .wilty-reveal h2{font-size:clamp(28px,3.7vw,60px)}
+        #wilty-screen .wilty-truth{color:var(--color-success);font-weight:bold;font-size:clamp(27px,3vw,50px)}
+        #wilty-screen .wilty-fact{font-size:clamp(17px,1.6vw,25px);line-height:1.4}
+        #wilty-screen.wilty-phone .wilty-options{grid-template-columns:1fr}
+        #wilty-screen.wilty-phone .wilty-option{width:100%;font-size:1.1em;padding:14px}
+        #wilty-screen.wilty-phone .wilty-question{font-size:1.3em}
+        #wilty-screen.wilty-phone #wilty-bluff-form input{width:100%;padding:14px;font-size:1.1em}
+        #wilty-screen.wilty-phone #wilty-bluff-form button{width:100%;margin-top:12px;padding:15px}
+        #wilty-screen .wilty-error{color:var(--color-danger);margin-top:12px}
+        body.wilty-active #mute-button,body.wilty-active #status-message{display:none}
+
+    </style>
 <style>
 /* Layout extensions only: colours, typography, option cards and score tiles
    inherit Handley's Fun Factory's existing theme and components. */
@@ -478,6 +503,7 @@ body.hlb-active #mute-button,body.hlb-active #status-message{display:none}
 
             <div id="wwts-player-area" class="hidden"></div>
             <div id="hlb-player-area" class="hidden"></div>
+            <div id="wilty-player-area" class="hidden"></div>
 
             <!-- NEW: Area for Averagers, Assemble (Team Picking) -->
             <div id="aa-picking-area" class="hidden">
@@ -547,6 +573,8 @@ body.hlb-active #mute-button,body.hlb-active #status-message{display:none}
             document.body.classList.remove('wwts-active');
             document.getElementById('hlb-player-area')?.classList.add('hidden');
             document.body.classList.remove('hlb-active');
+            document.getElementById('wilty-player-area')?.classList.add('hidden');
+            document.body.classList.remove('wilty-active');
             // Check if all essential elements exist
             if (!guessInput || !submitGuessButton || !wddiOptionsArea || !ouItemsListContainer || 
                 !submitOrderButton || !ouItemsList || !qpPairingArea || !submitPairsButton || 
@@ -743,6 +771,45 @@ body.hlb-active #mute-button,body.hlb-active #status-message{display:none}
         socket.on('disconnect', () => {
             document.body.classList.remove('hlb-active');
             document.getElementById('hlb-player-area').classList.add('hidden');
+        });
+
+
+        // Would I Like to You — server-rendered phone prompts.
+        socket.on('wilty_player_prompt', data => {
+            configureInputArea(null);
+            showArea('guessing-area');
+            document.body.classList.add('wilty-active');
+            if (guessLabel) guessLabel.textContent = '';
+            const area = document.getElementById('wilty-player-area');
+            area.innerHTML = data.html;
+            area.classList.remove('hidden');
+            currentClientRoundType = 'would_i_like_to_you';
+        });
+        document.addEventListener('submit', event => {
+            if (!event.target.matches('#wilty-bluff-form')) return;
+            event.preventDefault();
+            const form = event.target;
+            const input = form.querySelector('#wilty-bluff-text');
+            const text = input.value.trim();
+            if (!text) return;
+            form.querySelector('button').disabled = true;
+            socket.emit('wilty_submit_bluff', {token:form.querySelector('button').dataset.token, text});
+        });
+        document.addEventListener('click', event => {
+            const button = event.target.closest('#wilty-player-area button[data-wilty-vote]');
+            if (!button || button.disabled) return;
+            document.querySelectorAll('#wilty-player-area button[data-wilty-vote]').forEach(el => el.disabled = true);
+            socket.emit('wilty_submit_vote', {token:button.dataset.token, option_id:button.dataset.wiltyVote});
+        });
+        socket.on('wilty_error', data => {
+            const error = document.querySelector('#wilty-player-area #wilty-error');
+            if (error) error.textContent = data.message;
+            const button = document.querySelector('#wilty-player-area #wilty-bluff-form button');
+            if (button) button.disabled = false;
+        });
+        socket.on('wilty_close', () => {
+            configureInputArea(null);
+            if (statusMessage) statusMessage.textContent = 'Check main screen!';
         });
 
         // --- Socket Event Listeners ---
