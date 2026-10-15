@@ -1,0 +1,76 @@
+{# Shared TV/phone screen; all text escaped by Jinja. #}
+<section id="wilty-screen" class="{{ 'wilty-tv' if is_main else 'wilty-phone' }}" aria-label="Would I Like to You?">
+  <h2>Would I Like to You?</h2>
+  {% if d.phase == 'error' %}
+    <p class="wilty-note">Question bank error: {{ d.error }}</p>
+  {% else %}
+    <p class="wilty-progress">Question {{ d.number }} of {{ d.total }}</p>
+    <h3 class="wilty-question">{{ d.question }}</h3>
+    {% if d.phase == 'bluff' %}
+      {% if is_main %}
+        <p class="wilty-note">Make up a convincing lie!</p>
+        <div class="wilty-players">
+        {% for p in d.players %}<span class="wilty-player {{ 'wilty-done' if p.answered }}">{{ p.name }} {{ '✓' if p.answered else '…' }}</span>{% endfor %}
+        </div>
+      {% elif d.submitted %}
+        <p class="wilty-note">Lie locked in. Waiting for everyone else…</p>
+      {% else %}
+        <p class="wilty-note">Write an answer that sounds true, but isn't!</p>
+        <form id="wilty-bluff-form">
+          <input id="wilty-bluff-text" type="text" maxlength="80" autocomplete="off" required placeholder="Your convincing lie…" aria-label="Your bluff">
+          <button type="submit" data-token="{{ d.token }}">Submit lie</button>
+        </form>
+        <p id="wilty-error" role="alert" class="wilty-error"></p>
+      {% endif %}
+    {% elif d.phase == 'vote' %}
+      {% if is_main %}
+        <p class="wilty-note">Which answer is the truth? Vote on your phone.</p>
+      {% elif d.submitted %}
+        <p class="wilty-note">Vote locked in. Waiting for everyone else…</p>
+      {% else %}
+        <p class="wilty-note">Pick the REAL answer. You can't pick your own bluff.</p>
+      {% endif %}
+      <div class="wilty-options">
+      {% for o in d.options %}
+        {% if is_main %}
+          <div class="wilty-option">{{ loop.index }}. {{ o.text }}</div>
+        {% else %}
+          <button type="button" class="wilty-option" data-wilty-vote="{{ o.id }}" data-token="{{ d.token }}" {{ 'disabled' if o.own or d.submitted }}>
+            {{ loop.index }}. {{ o.text }}{% if o.own %} (your bluff){% endif %}
+          </button>
+        {% endif %}
+      {% endfor %}
+      </div>
+      {% if is_main %}
+        <div class="wilty-players">
+        {% for p in d.players %}<span class="wilty-player {{ 'wilty-done' if p.answered }}">{{ p.name }} {{ '✓' if p.answered else '…' }}</span>{% endfor %}
+        </div>
+      {% endif %}
+    {% elif d.phase == 'reveal' %}
+      {% if d.reveal.truth %}
+        <p class="wilty-truth">THE TRUTH!</p>
+      {% else %}
+        <p class="wilty-note">Who fell for this lie?</p>
+      {% endif %}
+      <div class="wilty-reveal">
+        <h2>{{ d.reveal.text }}</h2>
+        {% if d.reveal.truth %}
+          <p>Correct voters: {{ d.reveal.voters | join(', ') if d.reveal.voters else 'Nobody!' }}</p>
+          {% if d.explanation %}<p class="wilty-fact">{{ d.explanation }}</p>{% endif %}
+        {% else %}
+          <p>Fooled: {{ d.reveal.voters | join(', ') if d.reveal.voters else 'Nobody' }}</p>
+          <p>{% if d.reveal.house %}House bluff{% else %}Bluff by {{ d.reveal.authors | join(' & ') }}{% endif %}</p>
+          {% if not d.reveal.house %}<strong>+{{ d.reveal.points }} point{{ '' if d.reveal.points == 1 else 's' }} to each author</strong>{% endif %}
+        {% endif %}
+      </div>
+    {% elif d.phase == 'scores' %}
+      <h3>Question complete!</h3>
+      <p class="wilty-note">Scores so far this round</p>
+      <div class="wilty-players">
+      {% for p in d.players | sort(attribute='score', reverse=True) %}
+        <span class="wilty-player">{{ p.name }}: {{ p.score }}</span>
+      {% endfor %}
+      </div>
+    {% endif %}
+  {% endif %}
+</section>
