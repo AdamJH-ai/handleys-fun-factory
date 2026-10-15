@@ -1,11 +1,11 @@
-"""Small server-state regression checks for Would I Like to You.
+"""Small server-state regression checks for Would I Lie to You.
 
 Run from repo root: python -m unittest discover -s tests -p 'test_wilty.py'
 """
 import unittest
 from contextlib import nullcontext
 from types import SimpleNamespace
-from would_i_like_to_you import WouldILikeToYou, normalise
+from would_i_lie_to_you import WouldILikeToYou, normalise
 
 
 class FakeSocket:
@@ -27,7 +27,7 @@ class BluffRoundTests(unittest.TestCase):
     def setUp(self):
         self.socket = FakeSocket()
         self.host = SimpleNamespace(
-            game_state='would_i_like_to_you_ongoing',
+            game_state='would_i_lie_to_you_ongoing',
             players={s: {'name': s.upper(), 'round_score': 0} for s in ('a', 'b', 'c')},
             main_screen_sid=None,
             socketio=self.socket,
