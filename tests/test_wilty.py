@@ -3,7 +3,7 @@
 Run from repo root: python -m unittest discover -s tests -p 'test_wilty.py'
 """
 import unittest
-from contextlib import nullcontext
+from contextlib import contextmanager, nullcontext
 from types import SimpleNamespace
 from would_i_lie_to_you import WouldILikeToYou, normalise
 
@@ -74,6 +74,33 @@ class BluffRoundTests(unittest.TestCase):
         self.assertEqual(self.host.players['b']['round_score'], 3)
         self.assertEqual(self.host.players['c']['round_score'], 0)
         self.assertTrue(self.round.revealed[-1]['truth'])
+
+    def test_background_transition_has_flask_app_context(self):
+        """Regression: timed end-of-game rendering needs Flask context."""
+        active_context = {'yes': False}
+
+        @contextmanager
+        def app_context():
+            active_context['yes'] = True
+            try:
+                yield
+            finally:
+                active_context['yes'] = False
+
+        self.host.app.app_context = app_context
+        calls = []
+        def render_final_screen():
+            self.assertTrue(active_context['yes'])
+            calls.append('rendered')
+
+        self.round.phase = 'summary'
+        self.round.delay('round_summary', render_final_screen)
+        self.assertEqual(len(self.socket.tasks), 1)
+        self.assertFalse(active_context['yes'])
+        self.socket.tasks.pop()()
+        self.assertEqual(calls, ['rendered'])
+        self.assertFalse(active_context['yes'])
+
 
 
 if __name__ == '__main__':
