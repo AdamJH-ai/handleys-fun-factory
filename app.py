@@ -25,7 +25,7 @@ GAME_ROUNDS_TOTAL = 1
 AVAILABLE_ROUND_TYPES = ['win_when_singing']
 # Test the new round with: HFF_TEST_WILTY=1 python app.py
 if os.environ.get('HFF_TEST_WILTY') == '1':
-    AVAILABLE_ROUND_TYPES = ['would_i_like_to_you']
+    AVAILABLE_ROUND_TYPES = ['would_i_lie_to_you']
     GAME_ROUNDS_TOTAL = 1
 # Dedicated test mode: HFF_TEST_HIGHER_LOWER=1 python app.py
 if os.environ.get('HFF_TEST_HIGHER_LOWER') == '1':
@@ -61,7 +61,7 @@ QP_NUM_PAIRS_PER_QUESTION = 3
 
 # === ROUND DETAILS ===
 ROUND_RULES = {
-    'would_i_like_to_you': 'Invent believable lies, then find the truth! +2 for a correct vote; +1 every time someone falls for your bluff. Five questions.',
+    'would_i_lie_to_you': 'Invent believable lies, then find the truth! +2 for a correct vote; +1 every time someone falls for your bluff. Five questions.',
     'win_when_singing': "Keep the song going in your head. Tap when the first word begins! Closest: 3 points, second: 2, third: 1. Within half a second: +1 bonus.",
     'guess_the_age': "Guess the celebrity's current age! Score based on difference (lowest wins).",
     'guess_the_year': "Guess the year the event happened! Score based on difference (lowest wins).",
@@ -76,7 +76,7 @@ ROUND_RULES = {
     'averagers_assemble': "Form teams and work together! The team whose average guess is closest to the answer wins the point.",
 }
 ROUND_DISPLAY_NAMES = {
-    'would_i_like_to_you': 'Would I Like to You?',
+    'would_i_lie_to_you': 'Would I Lie to You?',
     'win_when_singing': "Win When They're Singing",
     'guess_the_age': "Guess The Age",
     'guess_the_year': "Guess The Year",
@@ -161,7 +161,7 @@ ROUND_INTRO_DELAY = 8 # Seconds
 # === TIMING CONFIG (in seconds) ===
 GAME_INTRO_DURATION = 12 # Duration of the new overall game intro screen
 ROUND_TIMINGS = {
-    'would_i_like_to_you': {'intro_card': 8},
+    'would_i_lie_to_you': {'intro_card': 8},
     'default': {
         'intro_card': 8,
         'turn_results': 7,
@@ -895,7 +895,7 @@ def start_round_logic(round_type_key):
     elif round_type_key == 'the_top_three': setup_the_top_three_round()
     elif round_type_key == 'higher_lower_board': hlb.setup()
     elif round_type_key == 'win_when_singing': wwts.setup()
-    elif round_type_key == 'would_i_like_to_you': wilty.setup()
+    elif round_type_key == 'would_i_lie_to_you': wilty.setup()
     elif round_type_key == 'higher_or_lower': setup_higher_or_lower_round()
     elif round_type_key == 'averagers_assemble': setup_averagers_assemble_round()
     else:
@@ -3816,8 +3816,8 @@ def wwts_audio_error(data):
     if request.sid == main_screen_sid and wwts.live() and isinstance(data, dict) and data.get('token') == wwts.token:
         wwts.fail('Audio could not play. Check the MP3 and browser sound permission, then reset the game.')
 
-# === WOULD I LIKE TO YOU? ===
-from would_i_like_to_you import WouldILikeToYou
+# === WOULD I LIE TO YOU? ===
+from would_i_lie_to_you import WouldILikeToYou
 wilty = WouldILikeToYou(sys.modules[__name__])
 
 @socketio.on('wilty_submit_bluff')
