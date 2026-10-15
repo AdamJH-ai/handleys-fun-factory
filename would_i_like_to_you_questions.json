@@ -1,0 +1,70 @@
+{
+  "round": "would_i_like_to_you",
+  "title": "Would I Like to You?",
+  "questions_per_round": 5,
+  "questions": [
+    {
+      "id": "wilty_001",
+      "question": "In 1957, Bubble Wrap was originally invented to be used as ______.",
+      "answer": "Wallpaper",
+      "accepted_answers": ["wall paper", "textured wallpaper", "plastic wallpaper", "3d wallpaper", "three dimensional wallpaper", "decorative wallpaper", "wall covering", "wall coverings"],
+      "house_bluffs": ["Swimming-pool lining", "Refrigerator insulation", "A non-slip shower mat", "Greenhouse flooring"],
+      "explanation": "Alfred Fielding and Marc Chavannes originally tried to create textured wallpaper by sealing together plastic shower curtains. Bubble Wrap later found success as protective packaging.",
+      "source_url": "https://www.smithsonianmag.com/innovation/accidental-invention-bubble-wrap-180971325/"
+    },
+    {
+      "id": "wilty_002",
+      "question": "A Roman curse tablet found in Gloucestershire asks the god Mercury to punish someone who stole the writer's ______.",
+      "answer": "Gloves",
+      "accepted_answers": ["glove", "a glove", "a pair of gloves", "pair of gloves", "leather gloves", "hand gloves"],
+      "house_bluffs": ["Sandals", "Cooking pot", "False teeth", "Pet chicken"],
+      "explanation": "The tablet discovered at Uley appeals to Mercury for vengeance over stolen gloves. It survives in the British Museum's collection.",
+      "source_url": "https://www.britishmuseum.org/collection/object/H_1978-0102-156"
+    },
+    {
+      "id": "wilty_003",
+      "question": "In 1919, Boston suffered a deadly flood when a huge storage tank burst, releasing millions of gallons of ______.",
+      "answer": "Molasses",
+      "accepted_answers": ["molasses syrup", "blackstrap molasses", "black treacle", "treacle", "sugar cane molasses", "sugarcane molasses", "cane molasses"],
+      "house_bluffs": ["Beer", "Milk", "Cooking oil", "Tomato sauce"],
+      "explanation": "The Great Molasses Flood of 15 January 1919 killed 21 people and injured about 150. A large storage tank ruptured, sending molasses through Boston's North End.",
+      "source_url": "https://www.smithsonianmag.com/history/without-warning-molasses-january-surged-over-boston-180971251/"
+    },
+    {
+      "id": "wilty_004",
+      "question": "In 2011, Charlotte Lee held a Guinness World Record for collecting more than 5,600 different ______.",
+      "answer": "Rubber ducks",
+      "accepted_answers": ["rubber duck", "rubber duckies", "rubber ducky", "rubber ducklings", "toy rubber ducks", "bath ducks", "rubber bath ducks", "bath time ducks"],
+      "house_bluffs": ["Snow globes", "Fridge magnets", "Bottle openers", "Novelty spoons"],
+      "explanation": "Charlotte Lee held the record with 5,631 different rubber ducks on 10 April 2011, displayed in a dedicated room.",
+      "source_url": "https://www.guinnessworldrecords.com/world-records/largest-collection-of-rubber-ducks"
+    },
+    {
+      "id": "wilty_005",
+      "question": "The name Frisbee came from a company that originally sold ______.",
+      "answer": "Pies",
+      "accepted_answers": ["pie", "baked pies", "bakery pies", "fruit pies", "pie tins", "pie tin", "pies in tins", "baked goods", "pastry pies"],
+      "house_bluffs": ["Bicycle wheels", "Vinyl records", "Car hubcaps", "Dinner plates"],
+      "explanation": "Students tossed empty tins from the Frisbie Pie Company. The flying-disc maker Wham-O later adopted the similar-sounding name Frisbee.",
+      "source_url": "https://www.history.com/this-day-in-history/January-23/toy-company-wham-o-produces-first-frisbees"
+    },
+    {
+      "id": "wilty_006",
+      "question": "In Strasbourg in 1518, dozens of people were caught up in a mysterious epidemic that made them ______.",
+      "answer": "Dance uncontrollably",
+      "accepted_answers": ["dance", "dancing", "dance nonstop", "dance non stop", "dance without stopping", "dance compulsively", "keep dancing", "dance for days", "dance involuntarily", "dancing uncontrollably", "dance until they collapsed"],
+      "house_bluffs": ["Laugh uncontrollably", "Speak in rhymes", "Walk backwards", "Fall asleep standing up"],
+      "explanation": "The dancing plague of 1518 saw people in Strasbourg dance apparently involuntarily for prolonged periods. Historians still debate its cause.",
+      "source_url": "https://www.britannica.com/event/dancing-plague-of-1518"
+    },
+    {
+      "id": "wilty_007",
+      "question": "A message in a bottle found on an Australian beach in 2018 was originally thrown into the sea in 1886 to help scientists study ______.",
+      "answer": "Ocean currents",
+      "accepted_answers": ["ocean current", "sea currents", "sea current", "water currents", "marine currents", "ocean circulation", "ocean drift", "sea drift", "ocean currents and shipping routes", "shipping routes", "sea routes", "ocean movement"],
+      "house_bluffs": ["Whale migration", "Pirate activity", "Water pollution", "The Earth's magnetic field"],
+      "explanation": "The bottle came from the German barque Paula and formed part of a long-running experiment to understand ocean currents and find more efficient shipping routes.",
+      "source_url": "https://visit.museum.wa.gov.au/learn/news-stories/132-year-old-message-bottle-found-on-wa-beach"
+    }
+  ]
+}
