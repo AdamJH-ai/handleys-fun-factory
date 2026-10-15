@@ -102,7 +102,9 @@ class WouldILikeToYou:
         if set(self.h.players).issubset(self.bluffs):
             self.start_voting()
         else:
-            self.broadcast()
+            # Don't wipe other players' half-written bluff inputs on every submission.
+            self.send(self.h.main_screen_sid)
+            self.send(sid)
 
     def start_voting(self):
         if self.phase != "bluff":
