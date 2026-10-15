@@ -1,6 +1,6 @@
 {# Shared TV/phone screen; all text escaped by Jinja. #}
-<section id="wilty-screen" class="{{ 'wilty-tv' if is_main else 'wilty-phone' }}" aria-label="Would I Like to You?">
-  <h2>Would I Like to You?</h2>
+<section id="wilty-screen" class="{{ 'wilty-tv' if is_main else 'wilty-phone' }}" aria-label="Would I Lie to You?">
+  <h2>Would I Lie to You?</h2>
   {% if d.phase == 'error' %}
     <p class="wilty-note">Question bank error: {{ d.error }}</p>
   {% else %}
