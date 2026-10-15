@@ -3816,6 +3816,18 @@ def wwts_audio_error(data):
     if request.sid == main_screen_sid and wwts.live() and isinstance(data, dict) and data.get('token') == wwts.token:
         wwts.fail('Audio could not play. Check the MP3 and browser sound permission, then reset the game.')
 
+# === WOULD I LIKE TO YOU? ===
+from would_i_like_to_you import WouldILikeToYou
+wilty = WouldILikeToYou(sys.modules[__name__])
+
+@socketio.on('wilty_submit_bluff')
+def handle_wilty_submit_bluff(data):
+    wilty.submit_bluff(request.sid, data)
+
+@socketio.on('wilty_submit_vote')
+def handle_wilty_submit_vote(data):
+    wilty.submit_vote(request.sid, data)
+
 # === MAIN EXECUTION ===
 if __name__ == '__main__':
     print("Loading round data...");
@@ -3854,14 +3866,3 @@ if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000, debug=use_debug)
     print("Server stopped.")
 
-# === WOULD I LIKE TO YOU? ===
-from would_i_like_to_you import WouldILikeToYou
-wilty = WouldILikeToYou(sys.modules[__name__])
-
-@socketio.on('wilty_submit_bluff')
-def handle_wilty_submit_bluff(data):
-    wilty.submit_bluff(request.sid, data)
-
-@socketio.on('wilty_submit_vote')
-def handle_wilty_submit_vote(data):
-    wilty.submit_vote(request.sid, data)
