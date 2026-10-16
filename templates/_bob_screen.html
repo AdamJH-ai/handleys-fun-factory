@@ -1,0 +1,90 @@
+{# Shared Bank or Bust interface. The server never sends choices before decisions close. #}
+<section id="bob-screen" class="{{ 'bob-tv' if is_main else 'bob-phone' }}" aria-label="Bank or Bust">
+  <h2>BANK OR BUST</h2>
+  {% if d.phase == 'error' %}
+    <h3 class="bob-danger">Unable to start round</h3><p>{{ d.error }}</p>
+  {% else %}
+    <p class="bob-progress">Question {{ d.number if d.phase in ('question','reveal') else d.number + 1 }} of {{ d.total }}</p>
+    {% if is_main %}
+      <div class="bob-scoreboard">
+        {% for p in d.players %}
+          <div class="bob-player">
+            <strong>{{ p.name }}</strong>
+            <div class="bob-money"><span>BANKED</span><b>{{ p.bank }}</b></div>
+            <div class="bob-money bob-pot"><span>AT RISK</span><b>{{ p.pot }}</b></div>
+            {% if d.phase == 'decision' %}
+              <small>{{ 'LOCKED IN' if p.submitted else 'DECIDING…' }}</small>
+            {% elif d.phase == 'decision_reveal' %}
+              <div class="bob-decision {{ 'bob-danger' if p.decision == 'risk' else 'bob-safe' }}">
+                {{ p.decision|upper }}
+              </div>
+            {% elif d.phase == 'question' %}
+              <small>{{ 'ANSWERED ✓' if p.submitted else 'WAITING…' }}</small>
+            {% elif d.phase == 'reveal' and p.result %}
+              <div class="{{ 'bob-safe' if p.result.correct else 'bob-danger' }}">
+                {{ 'CORRECT' if p.result.correct else 'BUST!' }}
+                {% if p.result.automatic_bank %} · AUTO BANK{% endif %}
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="bob-my-pot">Banked: <strong>{{ d.own_bank }}</strong> · At risk: <strong>{{ d.own_pot }}</strong></p>
+    {% endif %}
+
+    {% if d.phase == 'decision' %}
+      <h3 class="bob-prompt">Bank your pot or risk it on the next mystery question?</h3>
+      {% if is_main %}
+        <p class="bob-instruction">Players are deciding privately. Their choices will appear together.</p>
+      {% elif d.submitted %}
+        <p class="bob-instruction">Decision locked in. Other players are still choosing.</p>
+      {% elif d.own_pot == 0 %}
+        <p class="bob-instruction">No points at risk — continuing automatically.</p>
+      {% else %}
+        <div class="bob-actions">
+          <button type="button" data-bob-bank="bank" data-bob-token="{{ d.token }}" class="bob-safe">BANK {{ d.own_pot }}</button>
+          <button type="button" data-bob-bank="risk" data-bob-token="{{ d.token }}" class="bob-danger">RISK {{ d.own_pot }}</button>
+        </div>
+      {% endif %}
+    {% elif d.phase == 'decision_reveal' %}
+      <h3 class="bob-prompt">The decisions are in!</h3>
+      <p class="bob-instruction">The next question is still a mystery…</p>
+      {% if not is_main %}
+        <p class="bob-instruction">Watch the players' decisions on the television.</p>
+      {% endif %}
+    {% elif d.phase == 'question' %}
+      <h3 class="bob-question">{{ d.question }}</h3>
+      {% if not is_main and d.submitted %}
+        <p class="bob-instruction">Answer locked in. Waiting for everyone else.</p>
+      {% else %}
+        <p class="bob-instruction">{{ 'Select an answer on your phone' if is_main else 'Choose your answer' }}</p>
+        <div class="bob-options">
+          {% for o in d.options %}
+            {% if is_main %}
+              <div class="bob-option">{{ 'ABCDEF'[o.index] }}. {{ o.text }}</div>
+            {% else %}
+              <button type="button" class="bob-option" data-bob-answer="{{ o.index }}" data-bob-token="{{ d.token }}">
+                {{ 'ABCDEF'[o.index] }}. {{ o.text }}
+              </button>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% elif d.phase == 'reveal' %}
+      <h3 class="bob-question">{{ d.question }}</h3>
+      <p class="bob-correct-label">CORRECT ANSWER</p>
+      <h3 class="bob-correct">{{ d.answer }}</h3>
+      {% if d.explanation %}<p class="bob-explanation">{{ d.explanation }}</p>{% endif %}
+      {% if not is_main and d.own_result %}
+        <p class="bob-instruction {{ 'bob-safe' if d.own_result.correct else 'bob-danger' }}">
+          {% if d.own_result.correct %}
+            Correct! {{ 'Your pot was automatically banked.' if d.own_result.automatic_bank else 'Your pot has grown.' }}
+          {% else %}
+            BUST! Your unbanked pot has been lost.
+          {% endif %}
+        </p>
+      {% endif %}
+    {% endif %}
+  {% endif %}
+</section>
