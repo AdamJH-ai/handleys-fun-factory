@@ -1,0 +1,517 @@
+{
+  "round": "bank_or_bust",
+  "title": "Bank or Bust",
+  "version": 1,
+  "questions": [
+    {
+      "id": "bob_001",
+      "category": "Sport",
+      "question": "Which country won the UEFA European Championship in 1992?",
+      "options": [
+        "Italy",
+        "Sweden",
+        "Germany",
+        "Denmark",
+        "France",
+        "Netherlands"
+      ],
+      "correct_option": 3,
+      "correct_answer": "Denmark",
+      "explanation": "Denmark entered the finals as late replacements and defeated Germany 2–0.",
+      "source_url": "https://www.uefa.com/uefaeuro/history/news/025a-0eb91faf9bf0-942d69c5a0a8-1000--uefaeuro1992-all-you-need-to-know/"
+    },
+    {
+      "id": "bob_002",
+      "category": "Sport",
+      "question": "Which country hosted UEFA Euro 1992?",
+      "options": [
+        "Belgium",
+        "Sweden",
+        "Netherlands",
+        "Denmark",
+        "England",
+        "Germany"
+      ],
+      "correct_option": 1,
+      "correct_answer": "Sweden",
+      "explanation": "The finals took place in Sweden, including the final in Gothenburg.",
+      "source_url": "https://www.uefa.com/uefaeuro/history/news/025a-0eb91faf9bf0-942d69c5a0a8-1000--uefaeuro1992-all-you-need-to-know/"
+    },
+    {
+      "id": "bob_003",
+      "category": "Sport",
+      "question": "Which club did Liverpool defeat in the 2005 Champions League final?",
+      "options": [
+        "Real Madrid",
+        "Inter Milan",
+        "AC Milan",
+        "Barcelona",
+        "Bayern Munich",
+        "Juventus"
+      ],
+      "correct_option": 2,
+      "correct_answer": "AC Milan",
+      "explanation": "Liverpool came back from 3–0 down to beat AC Milan on penalties.",
+      "source_url": "https://www.uefa.com/uefachampionsleague/news/0250-0c50f2820ac1-0d73022c807f-1000--liverpool-triumph-in-turkey/"
+    },
+    {
+      "id": "bob_004",
+      "category": "Sport",
+      "question": "Who was Liverpool's goalkeeper in the 2005 Champions League final?",
+      "options": [
+        "Jerzy Dudek",
+        "Scott Carson",
+        "Pepe Reina",
+        "Chris Kirkland",
+        "Brad Friedel",
+        "David James"
+      ],
+      "correct_option": 0,
+      "correct_answer": "Jerzy Dudek",
+      "explanation": "Dudek made decisive saves in the penalty shoot-out.",
+      "source_url": "https://www.uefa.com/uefachampionsleague/news/0250-0c50f2820ac1-0d73022c807f-1000--liverpool-triumph-in-turkey/"
+    },
+    {
+      "id": "bob_005",
+      "category": "Sport",
+      "question": "Who scored Liverpool's equalising goal to make it 3–3 in the 2005 Champions League final?",
+      "options": [
+        "Milan Baroš",
+        "Luis García",
+        "Steven Gerrard",
+        "Vladimír Šmicer",
+        "Xabi Alonso",
+        "Djibril Cissé"
+      ],
+      "correct_option": 4,
+      "correct_answer": "Xabi Alonso",
+      "explanation": "Alonso scored Liverpool's third goal after his penalty was initially saved.",
+      "source_url": "https://www.uefa.com/uefachampionsleague/news/0253-0d7b89fe7b7f-c91716d11bdf-1000--2004-05-liverpool-belief-defies-milan/"
+    },
+    {
+      "id": "bob_006",
+      "category": "Sport",
+      "question": "Who won the Formula One drivers' world championship in 2009?",
+      "options": [
+        "Kimi Räikkönen",
+        "Jenson Button",
+        "Rubens Barrichello",
+        "Lewis Hamilton",
+        "Fernando Alonso",
+        "Sebastian Vettel"
+      ],
+      "correct_option": 1,
+      "correct_answer": "Jenson Button",
+      "explanation": "Button won the drivers' championship for Brawn GP.",
+      "source_url": "https://www.formula1.com/en/results/2009/drivers"
+    },
+    {
+      "id": "bob_007",
+      "category": "Sport",
+      "question": "Who finished second in the 2009 Formula One drivers' championship?",
+      "options": [
+        "Sebastian Vettel",
+        "Rubens Barrichello",
+        "Mark Webber",
+        "Lewis Hamilton",
+        "Nico Rosberg",
+        "Fernando Alonso"
+      ],
+      "correct_option": 0,
+      "correct_answer": "Sebastian Vettel",
+      "explanation": "Vettel was runner-up to Jenson Button.",
+      "source_url": "https://www.formula1.com/en/results/2009/drivers"
+    },
+    {
+      "id": "bob_008",
+      "category": "Film",
+      "question": "Which film won Best Picture at the 2001 Academy Awards?",
+      "options": [
+        "Gladiator",
+        "Crouching Tiger, Hidden Dragon",
+        "Erin Brockovich",
+        "Chocolat",
+        "Traffic",
+        "Cast Away"
+      ],
+      "correct_option": 0,
+      "correct_answer": "Gladiator",
+      "explanation": "Gladiator won Best Picture, and Russell Crowe won Best Actor.",
+      "source_url": "https://www.oscars.org/oscars/ceremonies/embed/2001"
+    },
+    {
+      "id": "bob_009",
+      "category": "Film",
+      "question": "Which film won all 11 Academy Awards for which it was nominated at the 2004 ceremony?",
+      "options": [
+        "Titanic",
+        "Master and Commander: The Far Side of the World",
+        "Chicago",
+        "The Last Samurai",
+        "The Lord of the Rings: The Return of the King",
+        "The Aviator"
+      ],
+      "correct_option": 4,
+      "correct_answer": "The Lord of the Rings: The Return of the King",
+      "explanation": "The Return of the King achieved an 11-for-11 clean sweep.",
+      "source_url": "https://www.oscars.org/oscars/ceremonies/2004/memorable-moments"
+    },
+    {
+      "id": "bob_010",
+      "category": "Film",
+      "question": "For which film did Charlize Theron win Best Actress at the 2004 Academy Awards?",
+      "options": [
+        "Sweet November",
+        "The Italian Job",
+        "North Country",
+        "Monster",
+        "The Cider House Rules",
+        "Young Adult"
+      ],
+      "correct_option": 3,
+      "correct_answer": "Monster",
+      "explanation": "Theron won Best Actress for her role in Monster.",
+      "source_url": "https://www.oscars.org/oscars/ceremonies/2004/D"
+    },
+    {
+      "id": "bob_011",
+      "category": "Film",
+      "question": "Which film won the Animated Feature Oscar at the 2004 Academy Awards?",
+      "options": [
+        "Brother Bear",
+        "Ice Age",
+        "Spirited Away",
+        "Shrek",
+        "The Triplets of Belleville",
+        "Finding Nemo"
+      ],
+      "correct_option": 5,
+      "correct_answer": "Finding Nemo",
+      "explanation": "Finding Nemo won the Animated Feature Film category.",
+      "source_url": "https://www.oscars.org/oscars/ceremonies/2004/D"
+    },
+    {
+      "id": "bob_012",
+      "category": "Music",
+      "question": "Which album won Album of the Year at the 1978 Grammy Awards?",
+      "options": [
+        "Aja — Steely Dan",
+        "Hotel California — Eagles",
+        "Out of the Blue — Electric Light Orchestra",
+        "JT — James Taylor",
+        "Star Wars — John Williams",
+        "Rumours — Fleetwood Mac"
+      ],
+      "correct_option": 5,
+      "correct_answer": "Rumours — Fleetwood Mac",
+      "explanation": "Fleetwood Mac won for Rumours, ahead of several celebrated albums.",
+      "source_url": "https://www.grammy.com/awards/categories/album-of-the-year/1978/"
+    },
+    {
+      "id": "bob_013",
+      "category": "Music",
+      "question": "Which song won Record of the Year at the 1978 Grammy Awards?",
+      "options": [
+        "You Light Up My Life — Debby Boone",
+        "Go Your Own Way — Fleetwood Mac",
+        "Don't Stop — Fleetwood Mac",
+        "Dreams — Fleetwood Mac",
+        "Hotel California — Eagles",
+        "Handy Man — James Taylor"
+      ],
+      "correct_option": 4,
+      "correct_answer": "Hotel California — Eagles",
+      "explanation": "The Eagles' Hotel California was named Record of the Year.",
+      "source_url": "https://www.grammy.com/news/grammy-rewind-20th-annual-grammy-awards/"
+    },
+    {
+      "id": "bob_014",
+      "category": "Music",
+      "question": "Which album won Album of the Year at the 2012 Grammy Awards?",
+      "options": [
+        "21 — Adele",
+        "Mylo Xyloto — Coldplay",
+        "Loud — Rihanna",
+        "Born This Way — Lady Gaga",
+        "Doo-Wops & Hooligans — Bruno Mars",
+        "Wasting Light — Foo Fighters"
+      ],
+      "correct_option": 0,
+      "correct_answer": "21 — Adele",
+      "explanation": "Adele's second studio album, 21, took the award.",
+      "source_url": "https://www.grammy.com/awards/categories/album-of-the-year/2012/"
+    },
+    {
+      "id": "bob_015",
+      "category": "Music",
+      "question": "Which act won Best New Artist at the 2012 Grammy Awards?",
+      "options": [
+        "J. Cole",
+        "Foster the People",
+        "The Band Perry",
+        "Skrillex",
+        "Nicki Minaj",
+        "Bon Iver"
+      ],
+      "correct_option": 5,
+      "correct_answer": "Bon Iver",
+      "explanation": "Indie folk act Bon Iver won the Best New Artist award.",
+      "source_url": "https://www.grammy.com/awards/54th-annual-grammy-awards/"
+    },
+    {
+      "id": "bob_016",
+      "category": "Music",
+      "question": "Which album won Album of the Year at the 2014 Grammy Awards?",
+      "options": [
+        "The Blessed Unrest — Sara Bareilles",
+        "The Heist — Macklemore & Ryan Lewis",
+        "Random Access Memories — Daft Punk",
+        "Good Kid, M.A.A.D City — Kendrick Lamar",
+        "Beyoncé — Beyoncé",
+        "Red — Taylor Swift"
+      ],
+      "correct_option": 2,
+      "correct_answer": "Random Access Memories — Daft Punk",
+      "explanation": "Daft Punk won the award with Random Access Memories.",
+      "source_url": "https://www.grammy.com/awards/categories/album-of-the-year/2014/"
+    },
+    {
+      "id": "bob_017",
+      "category": "Music",
+      "question": "Which song won Song of the Year at the 2014 Grammy Awards?",
+      "options": [
+        "Roar — Katy Perry",
+        "Just Give Me a Reason — P!nk",
+        "Royals — Lorde",
+        "Same Love — Macklemore & Ryan Lewis",
+        "Get Lucky — Daft Punk",
+        "Locked Out of Heaven — Bruno Mars"
+      ],
+      "correct_option": 2,
+      "correct_answer": "Royals — Lorde",
+      "explanation": "Lorde and Joel Little received Song of the Year for Royals.",
+      "source_url": "https://www.grammy.com/awards/56th-annual-grammy-awards/"
+    },
+    {
+      "id": "bob_018",
+      "category": "History",
+      "question": "In which year did Queen Victoria become monarch of the United Kingdom?",
+      "options": [
+        "1851",
+        "1837",
+        "1820",
+        "1830",
+        "1840",
+        "1861"
+      ],
+      "correct_option": 1,
+      "correct_answer": "1837",
+      "explanation": "Victoria became queen after the death of William IV in 1837.",
+      "source_url": "https://www.royal.uk/encyclopedia/victoria-r-1837-1901"
+    },
+    {
+      "id": "bob_019",
+      "category": "History",
+      "question": "What was the name of Queen Victoria's husband?",
+      "options": [
+        "Prince Albert",
+        "Prince Frederick",
+        "Prince Ernest",
+        "Prince Edward",
+        "Prince George",
+        "Prince Leopold"
+      ],
+      "correct_option": 0,
+      "correct_answer": "Prince Albert",
+      "explanation": "Victoria married Prince Albert in 1840.",
+      "source_url": "https://www.royal.uk/encyclopedia/victoria-r-1837-1901"
+    },
+    {
+      "id": "bob_020",
+      "category": "History",
+      "question": "In which year was the Rosetta Stone discovered by French soldiers in Egypt?",
+      "options": [
+        "1776",
+        "1755",
+        "1824",
+        "1805",
+        "1815",
+        "1799"
+      ],
+      "correct_option": 5,
+      "correct_answer": "1799",
+      "explanation": "The stone was discovered in 1799 and helped scholars decipher hieroglyphs.",
+      "source_url": "https://www.britishmuseum.org/sites/default/files/2023-11/Room-4-Touch-Tour-Guide.pdf"
+    },
+    {
+      "id": "bob_021",
+      "category": "History",
+      "question": "Which language appears alongside hieroglyphic and Demotic scripts on the Rosetta Stone?",
+      "options": [
+        "Aramaic",
+        "Ancient Greek",
+        "Coptic",
+        "Sumerian",
+        "Hebrew",
+        "Latin"
+      ],
+      "correct_option": 1,
+      "correct_answer": "Ancient Greek",
+      "explanation": "The decree is preserved in three scripts, including Greek.",
+      "source_url": "https://www.britishmuseum.org/sites/default/files/2023-11/Room-4-Touch-Tour-Guide.pdf"
+    },
+    {
+      "id": "bob_022",
+      "category": "Geography",
+      "question": "In which modern country is the ancient site of Machu Picchu?",
+      "options": [
+        "Mexico",
+        "Colombia",
+        "Ecuador",
+        "Chile",
+        "Bolivia",
+        "Peru"
+      ],
+      "correct_option": 5,
+      "correct_answer": "Peru",
+      "explanation": "Machu Picchu is an Inca site in Peru.",
+      "source_url": "https://whc.unesco.org/en/list/274"
+    },
+    {
+      "id": "bob_023",
+      "category": "History",
+      "question": "Which civilisation built Machu Picchu in the fifteenth century?",
+      "options": [
+        "Maya",
+        "Aztec",
+        "Inca",
+        "Toltec",
+        "Moche",
+        "Olmec"
+      ],
+      "correct_option": 2,
+      "correct_answer": "Inca",
+      "explanation": "The Inca constructed Machu Picchu in the 15th century.",
+      "source_url": "https://whc.unesco.org/en/list/274"
+    },
+    {
+      "id": "bob_024",
+      "category": "History",
+      "question": "Which Mughal emperor commissioned the Taj Mahal?",
+      "options": [
+        "Aurangzeb",
+        "Shah Jahan",
+        "Babur",
+        "Jahangir",
+        "Akbar",
+        "Humayun"
+      ],
+      "correct_option": 1,
+      "correct_answer": "Shah Jahan",
+      "explanation": "Shah Jahan commissioned the mausoleum in memory of Mumtaz Mahal.",
+      "source_url": "https://whc.unesco.org/en/list/252/"
+    },
+    {
+      "id": "bob_025",
+      "category": "Geography",
+      "question": "The Taj Mahal stands beside which river?",
+      "options": [
+        "Yamuna",
+        "Brahmaputra",
+        "Narmada",
+        "Ganges",
+        "Godavari",
+        "Indus"
+      ],
+      "correct_option": 0,
+      "correct_answer": "Yamuna",
+      "explanation": "The Taj Mahal stands on the right bank of the Yamuna River in Agra.",
+      "source_url": "https://whc.unesco.org/en/list/252/"
+    },
+    {
+      "id": "bob_026",
+      "category": "Nature",
+      "question": "Which is the largest living species of lizard?",
+      "options": [
+        "Green iguana",
+        "Nile monitor",
+        "Marine iguana",
+        "Perentie",
+        "Argentine black and white tegu",
+        "Komodo dragon"
+      ],
+      "correct_option": 5,
+      "correct_answer": "Komodo dragon",
+      "explanation": "Komodo dragons can reach around three metres in length.",
+      "source_url": "https://www.nhm.ac.uk/visit/big-things-in-the-museum.html"
+    },
+    {
+      "id": "bob_027",
+      "category": "Nature",
+      "question": "Which metal has been found concentrated along the cutting edges of Komodo dragon teeth?",
+      "options": [
+        "Titanium",
+        "Copper",
+        "Silver",
+        "Zinc",
+        "Nickel",
+        "Iron"
+      ],
+      "correct_option": 5,
+      "correct_answer": "Iron",
+      "explanation": "Researchers found iron-rich enamel along the teeth's serrated edges.",
+      "source_url": "https://www.nhm.ac.uk/discover/news/2024/july/komodo-dragons-bite-prey-with-iron-tipped-teeth.html"
+    },
+    {
+      "id": "bob_028",
+      "category": "Gaming",
+      "question": "In which arcade game did Mario first appear, under the name Jumpman?",
+      "options": [
+        "Donkey Kong",
+        "Frogger",
+        "Pac-Man",
+        "Space Invaders",
+        "Popeye",
+        "Mario Bros."
+      ],
+      "correct_option": 0,
+      "correct_answer": "Donkey Kong",
+      "explanation": "Mario debuted as Jumpman in the 1981 Donkey Kong game.",
+      "source_url": "https://www.guinnessworldrecords.com/world-records/first-true-platform-game"
+    },
+    {
+      "id": "bob_029",
+      "category": "Gaming",
+      "question": "Which Nintendo designer created the original 1981 Donkey Kong arcade game?",
+      "options": [
+        "Satoru Iwata",
+        "Gunpei Yokoi",
+        "Hiroshi Yamauchi",
+        "Masayuki Uemura",
+        "Shigeru Miyamoto",
+        "Takashi Tezuka"
+      ],
+      "correct_option": 4,
+      "correct_answer": "Shigeru Miyamoto",
+      "explanation": "Shigeru Miyamoto designed Donkey Kong for Nintendo.",
+      "source_url": "https://www.guinnessworldrecords.com/world-records/first-use-of-cutscenes-to-tell-a-story-in-a-video-game"
+    },
+    {
+      "id": "bob_030",
+      "category": "Science",
+      "question": "For which effect was Einstein specifically recognised by the 1921 Nobel Prize in Physics?",
+      "options": [
+        "The Doppler effect",
+        "Special relativity",
+        "The photoelectric effect",
+        "Brownian motion",
+        "Nuclear fission",
+        "General relativity"
+      ],
+      "correct_option": 2,
+      "correct_answer": "The photoelectric effect",
+      "explanation": "Einstein's Nobel citation particularly recognised his explanation of the photoelectric effect.",
+      "source_url": "https://www.nobelprize.org/prizes/physics/1921/summary/"
+    }
+  ]
+}
