@@ -85,6 +85,7 @@ class LastOneStanding:
         for p in self.h.players.values():
             p["round_score"] = 0
         self.h.game_state = self.key + "_ongoing"
+        self.h.emit_game_state_update()
         if self.phase == "error":
             self.broadcast()
         elif len(self.active()) <= 1:
