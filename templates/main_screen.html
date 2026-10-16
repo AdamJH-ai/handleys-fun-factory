@@ -473,6 +473,37 @@ body.wwts-active #mute-button,body.wwts-active #status-message {display:none}
         #wilty-screen .wilty-error{color:var(--color-danger);margin-top:12px}
         body.wilty-active #mute-button,body.wilty-active #status-message{display:none}
 
+    
+        /* Last One Standing — scoped TV and phone visuals. */
+        #los-screen{max-width:1350px;margin:0 auto;text-align:center;color:var(--text-primary)}
+        #los-screen h2{font-family:var(--font-display);font-size:clamp(27px,3.5vw,52px);color:var(--accent-gold);margin:5px auto 12px}
+        #los-screen .los-topline{display:flex;justify-content:center;align-items:center;gap:18px;font-size:clamp(18px,1.7vw,27px);margin:6px auto}
+        #los-screen .los-difficulty{font-weight:bold;border-radius:8px;padding:5px 14px;background:var(--bg-secondary)}
+        #los-screen .los-level-1{color:#53d8a0}#los-screen .los-level-2{color:#a8d65e}#los-screen .los-level-3{color:#efc751}#los-screen .los-level-4{color:#ff9c60}#los-screen .los-level-5{color:#ff6f71}
+        #los-screen .los-players{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:15px auto}
+        #los-screen .los-player{display:flex;flex-direction:column;gap:4px;background:var(--bg-secondary);border:2px solid var(--accent-blue);border-radius:12px;padding:9px 5px;min-width:0;overflow-wrap:anywhere}
+        #los-screen .los-player strong{font-size:clamp(17px,1.6vw,25px)}
+        #los-screen .los-player small{font-size:clamp(12px,1.1vw,17px)}
+        #los-screen .los-hearts{font-size:clamp(24px,2.4vw,37px);letter-spacing:2px;color:#ff515e}
+        #los-screen .los-empty{color:#74767d;opacity:.65}
+        #los-screen .los-out{opacity:.48;border-color:#74767d}
+        #los-screen .los-newly-out{opacity:1;border-color:#ff515e;box-shadow:0 0 14px #ff515e}
+        #los-screen .los-eliminated,#los-screen .los-wrong{color:#ff777c}
+        #los-screen .los-right{color:var(--color-success)}
+        #los-screen .los-question{font-size:clamp(25px,2.65vw,43px);line-height:1.25;max-width:1150px;margin:18px auto}
+        #los-screen .los-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;max-width:1200px;margin:16px auto}
+        #los-screen .los-choice{border:2px solid var(--accent-blue);border-radius:10px;background:var(--bg-secondary);color:var(--text-primary);font:inherit;font-size:clamp(19px,1.8vw,29px);text-align:left;overflow-wrap:anywhere;padding:16px}
+        #los-screen .los-instruction{font-size:clamp(17px,1.6vw,24px);color:var(--text-secondary);margin:14px auto}
+        #los-screen .los-correct-label{font-size:clamp(21px,2vw,33px);color:var(--color-success);font-weight:bold}
+        #los-screen .los-correct-answer{font-size:clamp(30px,3.5vw,56px);color:var(--accent-gold);margin:14px auto}
+        #los-screen .los-explanation{font-size:clamp(19px,1.7vw,26px);max-width:1000px;margin:12px auto;line-height:1.4}
+        #los-screen .los-error{color:#ff777c}
+        #los-screen.los-phone .los-options{grid-template-columns:1fr}
+        #los-screen.los-phone .los-choice{width:100%;font-size:1.1em;padding:16px}
+        #los-screen.los-phone .los-question{font-size:1.35em}
+        #los-screen.los-phone .los-personal-lives{font-size:1.3em;color:#ff515e}
+        body.los-active #mute-button,body.los-active #status-message{display:none}
+
     </style>
 <style>
 /* Layout extensions only: colours, typography, option cards and score tiles
