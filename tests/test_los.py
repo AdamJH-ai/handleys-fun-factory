@@ -42,6 +42,7 @@ class SurvivalTests(unittest.TestCase):
             emit_game_state_update=lambda: None,
             update_main_screen_html=lambda *args: None,
             start_next_game_round=lambda: None,
+            award_game_points=lambda ranked: {sid: len(ranked)-i for i, sid in enumerate(ranked)},
         )
         self.round = LastOneStanding(self.host)
         self.round.run_id = 'running'
@@ -69,11 +70,11 @@ class SurvivalTests(unittest.TestCase):
         return self.round.difficulty()
 
     def test_player_answer_is_mapped_through_shuffled_options(self):
+        self.assertFalse(any('correct' in o for o in self.round.snapshot()['options']))
         self.respond({'a': 2, 'b': 1, 'c': 2})
         self.assertEqual(self.round.phase, 'reveal')
         self.assertEqual(self.round.lives, {'a': 3, 'b': 2, 'c': 3})
         self.assertEqual(self.round.outcomes, {'a': True, 'b': False, 'c': True})
-        self.assertFalse(any('correct' in o for o in self.round.snapshot()['options']))
 
     def test_no_advance_until_all_survivors_answer(self):
         self.round.lives['c'] = 0
