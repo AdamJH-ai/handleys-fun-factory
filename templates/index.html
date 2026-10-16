@@ -401,6 +401,37 @@ body.wwts-active #mute-button,body.wwts-active #status-message {display:none}
         #los-screen.los-phone .los-personal-lives{font-size:1.3em;color:#ff515e}
         body.los-active #mute-button,body.los-active #status-message{display:none}
 
+    
+        /* Bank or Bust: shared TV and phone layouts. */
+        #bob-screen{max-width:1350px;margin:0 auto;text-align:center;color:var(--text-primary)}
+        #bob-screen h2{font-family:var(--font-display);font-size:clamp(30px,3.6vw,54px);color:var(--accent-gold);margin:5px auto}
+        #bob-screen .bob-progress{font-size:clamp(17px,1.5vw,23px);color:var(--text-secondary);margin:8px auto}
+        #bob-screen .bob-scoreboard{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:15px auto}
+        #bob-screen .bob-player{background:var(--bg-secondary);border:2px solid var(--accent-blue);border-radius:12px;padding:10px 8px;display:flex;flex-direction:column;gap:5px;overflow-wrap:anywhere}
+        #bob-screen .bob-player strong{font-size:clamp(18px,1.8vw,27px)}
+        #bob-screen .bob-player small{font-size:clamp(14px,1.1vw,19px)}
+        #bob-screen .bob-money{display:flex;justify-content:space-between;align-items:center;font-size:clamp(16px,1.5vw,23px)}
+        #bob-screen .bob-money span{font-size:.7em;color:var(--text-secondary)}
+        #bob-screen .bob-money b{font-size:1.5em}
+        #bob-screen .bob-pot b{color:#ff9b54}
+        #bob-screen .bob-decision{font-size:clamp(21px,2.2vw,31px);font-weight:bold}
+        #bob-screen .bob-safe{color:#61e5a5}
+        #bob-screen .bob-danger{color:#ff777c}
+        #bob-screen .bob-prompt,#bob-screen .bob-question{font-size:clamp(26px,2.8vw,44px);line-height:1.3;max-width:1200px;margin:17px auto}
+        #bob-screen .bob-instruction{font-size:clamp(17px,1.65vw,25px);color:var(--text-secondary);margin:12px auto}
+        #bob-screen .bob-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:1200px;margin:15px auto}
+        #bob-screen .bob-option{border:2px solid var(--accent-blue);border-radius:10px;background:var(--bg-secondary);color:var(--text-primary);font:inherit;font-size:clamp(17px,1.8vw,27px);padding:13px;text-align:left;overflow-wrap:anywhere}
+        #bob-screen .bob-correct-label{color:#61e5a5;font-size:clamp(19px,1.8vw,27px);font-weight:bold}
+        #bob-screen .bob-correct{font-size:clamp(29px,3.1vw,46px);color:var(--accent-gold);margin:10px}
+        #bob-screen .bob-explanation{font-size:clamp(18px,1.7vw,25px);line-height:1.35;max-width:1000px;margin:10px auto}
+        #bob-screen .bob-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        #bob-screen .bob-actions button{background:var(--bg-secondary);border:2px solid currentColor;border-radius:12px;padding:17px;font-weight:bold;font-size:1.15em}
+        #bob-screen .bob-my-pot{font-size:1.13em}
+        #bob-screen.bob-phone .bob-options{grid-template-columns:1fr}
+        #bob-screen.bob-phone .bob-option{width:100%;font-size:1.08em;padding:14px}
+        #bob-screen.bob-phone .bob-question{font-size:1.3em}
+        body.bob-active #status-message{display:none}
+
     </style>
 <style>
 /* Layout extensions only: colours, typography, option cards and score tiles
@@ -536,6 +567,7 @@ body.hlb-active #mute-button,body.hlb-active #status-message{display:none}
             <div id="hlb-player-area" class="hidden"></div>
             <div id="wilty-player-area" class="hidden"></div>
             <div id="los-player-area" class="hidden"></div>
+            <div id="bob-player-area" class="hidden"></div>
 
             <!-- NEW: Area for Averagers, Assemble (Team Picking) -->
             <div id="aa-picking-area" class="hidden">
@@ -609,6 +641,8 @@ body.hlb-active #mute-button,body.hlb-active #status-message{display:none}
             document.body.classList.remove('wilty-active');
             document.getElementById('los-player-area')?.classList.add('hidden');
             document.body.classList.remove('los-active');
+            document.getElementById('bob-player-area')?.classList.add('hidden');
+            document.body.classList.remove('bob-active');
             // Check if all essential elements exist
             if (!guessInput || !submitGuessButton || !wddiOptionsArea || !ouItemsListContainer || 
                 !submitOrderButton || !ouItemsList || !qpPairingArea || !submitPairsButton || 
@@ -868,6 +902,36 @@ body.hlb-active #mute-button,body.hlb-active #status-message{display:none}
             });
         });
         socket.on('los_close', () => {
+            configureInputArea(null);
+            if (statusMessage) statusMessage.textContent = 'Check main screen!';
+        });
+
+
+        // Bank or Bust: decisions are held server-side until all players commit.
+        socket.on('bob_player_prompt', data => {
+            configureInputArea(null);
+            showArea('guessing-area');
+            document.body.classList.add('bob-active');
+            if (guessLabel) guessLabel.textContent = '';
+            const area = document.getElementById('bob-player-area');
+            area.innerHTML = data.html;
+            area.classList.remove('hidden');
+            currentClientRoundType = 'bank_or_bust';
+        });
+        document.addEventListener('click', event => {
+            const bankButton = event.target.closest('#bob-player-area button[data-bob-bank]');
+            if (bankButton && !bankButton.disabled) {
+                document.querySelectorAll('#bob-player-area button[data-bob-bank]').forEach(el => el.disabled = true);
+                socket.emit('bob_decide', {token: bankButton.dataset.bobToken, choice: bankButton.dataset.bobBank});
+                return;
+            }
+            const answerButton = event.target.closest('#bob-player-area button[data-bob-answer]');
+            if (answerButton && !answerButton.disabled) {
+                document.querySelectorAll('#bob-player-area button[data-bob-answer]').forEach(el => el.disabled = true);
+                socket.emit('bob_answer', {token: answerButton.dataset.bobToken, choice: Number(answerButton.dataset.bobAnswer)});
+            }
+        });
+        socket.on('bob_close', () => {
             configureInputArea(null);
             if (statusMessage) statusMessage.textContent = 'Check main screen!';
         });
