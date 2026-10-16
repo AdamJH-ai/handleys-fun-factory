@@ -21,7 +21,7 @@ socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
 
 # === GAME CONFIG ===
 GAME_ROUNDS_TOTAL = 1
-#AVAILABLE_ROUND_TYPES = ['guess_the_age', 'guess_the_year', 'who_didnt_do_it', 'order_up', 'quick_pairs', 'true_or_false', 'tap_the_pic', 'the_top_three', 'higher_or_lower', 'averagers_assemble', 'higher_lower_board']
+#AVAILABLE_ROUND_TYPES = ['guess_the_age', 'guess_the_year', 'who_didnt_do_it', 'order_up', 'quick_pairs', 'true_or_false', 'tap_the_pic', 'the_top_three', 'higher_or_lower', 'averagers_assemble', 'higher_lower_board', 'win_when_singing', 'would_i_lie_to_you', 'last_one_standing']
 AVAILABLE_ROUND_TYPES = ['win_when_singing']
 # Test Last One Standing only with: HFF_TEST_LOS=1 python app.py
 if os.environ.get('HFF_TEST_LOS') == '1':
