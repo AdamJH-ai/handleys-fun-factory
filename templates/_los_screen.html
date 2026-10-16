@@ -1,0 +1,66 @@
+{# Shared TV and phone display for Last One Standing. #}
+<section id="los-screen" class="{{ 'los-tv' if is_main else 'los-phone' }}" aria-label="Last One Standing">
+  <h2>Last One Standing</h2>
+  {% if d.phase == 'error' %}
+    <h3 class="los-error">Question bank needs attention</h3>
+    <p>{{ d.error }}</p>
+  {% else %}
+    <div class="los-topline">
+      <span>Question {{ d.number }}</span>
+      <span class="los-difficulty los-level-{{ d.difficulty }}">{{ d.difficulty_name|upper }} · LEVEL {{ d.difficulty }}/5</span>
+    </div>
+    {% if is_main %}
+      <div class="los-players">
+        {% for p in d.players %}
+          <div class="los-player {{ 'los-out' if p.out }} {{ 'los-newly-out' if p.just_out }}">
+            <strong>{{ p.name }}</strong>
+            <span class="los-hearts" aria-label="{{ p.lives }} lives">
+              {% for heart in range(3) %}<span class="{{ 'los-empty' if heart >= p.lives }}">♥</span>{% endfor %}
+            </span>
+            {% if p.just_out %}<b class="los-eliminated">ELIMINATED!</b>
+            {% elif p.out %}<small>OUT</small>
+            {% elif d.phase == 'question' %}<small>{{ 'ANSWERED ✓' if p.answered else 'WAITING…' }}</small>
+            {% elif d.phase == 'reveal' %}<small class="{{ 'los-right' if p.result else 'los-wrong' }}">{{ 'CORRECT' if p.result else 'LOSE A LIFE' }}</small>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      {% if d.own_lives > 0 %}
+        <p class="los-personal-lives">Your lives:
+          {% for heart in range(3) %}<span class="{{ 'los-empty' if heart >= d.own_lives }}">♥</span>{% endfor %}
+        </p>
+      {% endif %}
+    {% endif %}
+    <h3 class="los-question">{{ d.question }}</h3>
+    {% if d.phase == 'question' %}
+      {% if is_main %}
+        <p class="los-instruction">Choose your answer on your phone</p>
+      {% elif d.own_lives <= 0 %}
+        <p class="los-instruction">You're out! Watch the remaining players on the TV.</p>
+      {% elif d.submitted %}
+        <p class="los-instruction">Answer locked in. Waiting for the other survivors…</p>
+      {% else %}
+        <p class="los-instruction">Choose one answer</p>
+      {% endif %}
+      {% if is_main or (d.own_lives > 0 and not d.submitted) %}
+        <div class="los-options">
+          {% for o in d.options %}
+            {% if is_main %}
+              <div class="los-choice">{{ 'ABCD'[o.index] }}. {{ o.text }}</div>
+            {% else %}
+              <button type="button" class="los-choice" data-los-choice="{{ o.index }}" data-los-token="{{ d.token }}">{{ 'ABCD'[o.index] }}. {{ o.text }}</button>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% elif d.phase == 'reveal' %}
+      <p class="los-correct-label">CORRECT ANSWER</p>
+      <h3 class="los-correct-answer">{{ d.answer }}</h3>
+      {% if d.explanation %}<p class="los-explanation">{{ d.explanation }}</p>{% endif %}
+      {% if not is_main %}
+        <p class="los-instruction">Watch the results on the television!</p>
+      {% endif %}
+    {% endif %}
+  {% endif %}
+</section>
