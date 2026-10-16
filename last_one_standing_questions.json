@@ -1,0 +1,1303 @@
+{
+  "round": "last_one_standing",
+  "title": "Last One Standing",
+  "version": 1,
+  "starting_lives": 3,
+  "questions_per_difficulty_step": 2,
+  "difficulty_names": {
+    "1": "Easy",
+    "2": "Normal",
+    "3": "Tricky",
+    "4": "Hard",
+    "5": "Brutal"
+  },
+  "difficulty_staircase": {
+    "1": [
+      1,
+      2
+    ],
+    "2": [
+      3,
+      4
+    ],
+    "3": [
+      5,
+      6
+    ],
+    "4": [
+      7,
+      8
+    ],
+    "5": "9 onward; no forced question limit"
+  },
+  "stop_when_remaining_players_at_most": 1,
+  "stop_when_everyone_eliminated": true,
+  "answer_choices": 4,
+  "correct_answer_effect": "keep current lives",
+  "incorrect_answer_effect": "lose one life",
+  "question_selection": "Random unused question from matching difficulty; at difficulty 5 continue using unused Brutal questions until a stop condition",
+  "tie_handling": "Players eliminated on the same question tie; existing game points allocator averages points for occupied ranks",
+  "notes": "Difficulty ratings are editorial estimates pending playtesting. No countdown for player submissions. Sources are included for editorial checking; refer to source_url before publishing.",
+  "questions": [
+    {
+      "difficulty": 1,
+      "category": "Science",
+      "question": "Which planet is known as the Red Planet?",
+      "options": [
+        "Venus",
+        "Neptune",
+        "Jupiter",
+        "Mars"
+      ],
+      "correct_answer": "Mars",
+      "explanation": "Mars looks reddish because of iron oxide in its surface dust.",
+      "source_url": "https://science.nasa.gov/mars/",
+      "set": "original",
+      "id": "los_001",
+      "correct_option": 3,
+      "correct_option_label": "D"
+    },
+    {
+      "difficulty": 1,
+      "category": "Science",
+      "question": "Which is the largest planet in our Solar System?",
+      "options": [
+        "Neptune",
+        "Earth",
+        "Saturn",
+        "Jupiter"
+      ],
+      "correct_answer": "Jupiter",
+      "explanation": "Jupiter is the largest planet in the Solar System.",
+      "source_url": "https://science.nasa.gov/jupiter/",
+      "set": "original",
+      "id": "los_002",
+      "correct_option": 3,
+      "correct_option_label": "D"
+    },
+    {
+      "difficulty": 1,
+      "category": "History",
+      "question": "Which country gave the Statue of Liberty to the United States?",
+      "options": [
+        "Germany",
+        "Spain",
+        "France",
+        "Italy"
+      ],
+      "correct_answer": "France",
+      "explanation": "The statue was a gift from the people of France.",
+      "source_url": "https://www.nps.gov/stli/learn/historyculture/index.htm",
+      "set": "original",
+      "id": "los_003",
+      "correct_option": 2,
+      "correct_option_label": "C"
+    },
+    {
+      "difficulty": 1,
+      "category": "Nature",
+      "question": "Which animal is the largest known to have ever lived?",
+      "options": [
+        "Blue whale",
+        "Tyrannosaurus rex",
+        "African elephant",
+        "Whale shark"
+      ],
+      "correct_answer": "Blue whale",
+      "explanation": "The blue whale is the largest known animal by mass.",
+      "source_url": "https://www.britannica.com/animal/blue-whale",
+      "set": "original",
+      "id": "los_004",
+      "correct_option": 0,
+      "correct_option_label": "A"
+    },
+    {
+      "difficulty": 1,
+      "category": "Sport",
+      "question": "Which city hosted the first modern Olympic Games in 1896?",
+      "options": [
+        "London",
+        "Athens",
+        "Rome",
+        "Paris"
+      ],
+      "correct_answer": "Athens",
+      "explanation": "The first modern Olympic Games took place in Athens in 1896.",
+      "source_url": "https://www.olympics.com/en/olympic-games/athens-1896",
+      "set": "original",
+      "id": "los_005",
+      "correct_option": 1,
+      "correct_option_label": "B"
+    },
+    {
+      "difficulty": 1,
+      "category": "Film",
+      "question": "Which film won Best Picture at the 1998 Academy Awards?",
+      "options": [
+        "Titanic",
+        "Good Will Hunting",
+        "The Full Monty",
+        "L.A. Confidential"
+      ],
+      "correct_answer": "Titanic",
+      "explanation": "Titanic won Best Picture at the ceremony held in 1998.",
+      "source_url": "https://www.oscars.org/oscars/ceremonies/1998",
+      "set": "original",
+      "id": "los_006",
+      "correct_option": 0,
+      "correct_option_label": "A"
+    },
+    {
+      "difficulty": 2,
+      "category": "Science",
+      "question": "Which planet is the hottest in our Solar System?",
+      "options": [
+        "Mercury",
+        "Venus",
+        "Jupiter",
+        "Mars"
+      ],
+      "correct_answer": "Venus",
+      "explanation": "Venus has an extreme greenhouse effect and is hotter on average than Mercury.",
+      "source_url": "https://science.nasa.gov/venus/",
+      "set": "original",
+      "id": "los_007",
+      "correct_option": 1,
+      "correct_option_label": "B"
+    },
+    {
+      "difficulty": 2,
+      "category": "History",
+      "question": "Who was the first woman to win a Nobel Prize?",
+      "options": [
+        "Marie Curie",
+        "Rosalind Franklin",
+        "Ada Lovelace",
+        "Florence Nightingale"
+      ],
+      "correct_answer": "Marie Curie",
+      "explanation": "Marie Curie shared the 1903 Nobel Prize in Physics.",
+      "source_url": "https://www.nobelprize.org/womenwhochangedscience/stories/marie-curie",
+      "set": "original",
+      "id": "los_008",
+      "correct_option": 0,
+      "correct_option_label": "A"
+    },
+    {
+      "difficulty": 2,
+      "category": "Sport",
+      "question": "Which country unexpectedly won UEFA Euro 2004?",
+      "options": [
+        "Czech Republic",
+        "Portugal",
+        "Greece",
+        "Netherlands"
+      ],
+      "correct_answer": "Greece",
+      "explanation": "Greece defeated host Portugal 1–0 in the final.",
+      "source_url": "https://www.uefa.com/uefaeuro/history/seasons/2004/",
+      "set": "original",
+      "id": "los_009",
+      "correct_option": 2,
+      "correct_option_label": "C"
+    },
+    {
+      "difficulty": 2,
+      "category": "Art",
+      "question": "Who painted Girl with a Pearl Earring?",
+      "options": [
+        "Claude Monet",
+        "Rembrandt",
+        "Johannes Vermeer",
+        "Vincent van Gogh"
+      ],
+      "correct_answer": "Johannes Vermeer",
+      "explanation": "Girl with a Pearl Earring is a work by Dutch artist Johannes Vermeer.",
+      "source_url": "https://www.mauritshuis.nl/en/our-collection/artworks/670-girl-with-a-pearl-earring/",
+      "set": "original",
+      "id": "los_010",
+      "correct_option": 2,
+      "correct_option_label": "C"
+    },
+    {
+      "difficulty": 2,
+      "category": "Science",
+      "question": "Which scientist discovered penicillin in 1928?",
+      "options": [
+        "Joseph Lister",
+        "Alexander Fleming",
+        "Louis Pasteur",
+        "Robert Koch"
+      ],
+      "correct_answer": "Alexander Fleming",
+      "explanation": "Fleming noticed the antibacterial effects of mould in 1928.",
+      "source_url": "https://www.nobelprize.org/prizes/medicine/1945/fleming/facts/",
+      "set": "original",
+      "id": "los_011",
+      "correct_option": 1,
+      "correct_option_label": "B"
+    },
+    {
+      "difficulty": 2,
+      "category": "Nature",
+      "question": "What is the world’s largest living species of shark?",
+      "options": [
+        "Greenland shark",
+        "Whale shark",
+        "Great white shark",
+        "Basking shark"
+      ],
+      "correct_answer": "Whale shark",
+      "explanation": "Whale sharks are the biggest living fish.",
+      "source_url": "https://www.britannica.com/animal/whale-shark",
+      "set": "original",
+      "id": "los_012",
+      "correct_option": 1,
+      "correct_option_label": "B"
+    },
+    {
+      "difficulty": 3,
+      "category": "Astronomy",
+      "question": "Which planet was first discovered through mathematical predictions rather than an ordinary sky survey?",
+      "options": [
+        "Saturn",
+        "Pluto",
+        "Uranus",
+        "Neptune"
+      ],
+      "correct_answer": "Neptune",
+      "explanation": "Neptune was identified in 1846 near a position predicted by mathematics.",
+      "source_url": "https://science.nasa.gov/neptune/",
+      "set": "original",
+      "id": "los_013",
+      "correct_option": 3,
+      "correct_option_label": "D"
+    },
+    {
+      "difficulty": 3,
+      "category": "Astronomy",
+      "question": "Titan, the moon with lakes and seas of liquid hydrocarbons, orbits which planet?",
+      "options": [
+        "Neptune",
+        "Jupiter",
+        "Uranus",
+        "Saturn"
+      ],
+      "correct_answer": "Saturn",
+      "explanation": "Titan is Saturn’s largest moon and has lakes of methane and ethane.",
+      "source_url": "https://science.nasa.gov/saturn/moons/titan/",
+      "set": "original",
+      "id": "los_014",
+      "correct_option": 3,
+      "correct_option_label": "D"
+    },
+    {
+      "difficulty": 3,
+      "category": "Chemistry",
+      "question": "The chemical symbol W represents which element?",
+      "options": [
+        "Tin",
+        "Tantalum",
+        "Tungsten",
+        "Titanium"
+      ],
+      "correct_answer": "Tungsten",
+      "explanation": "The symbol W comes from the alternative name wolfram.",
+      "source_url": "https://www.rsc.org/periodic-table/element/74/tungsten",
+      "set": "original",
+      "id": "los_015",
+      "correct_option": 2,
+      "correct_option_label": "C"
+    },
+    {
+      "difficulty": 3,
+      "category": "Inventions",
+      "question": "The ballpoint pen commonly called a Biro is named after an inventor originally from which country?",
+      "options": [
+        "Austria",
+        "Germany",
+        "Poland",
+        "Hungary"
+      ],
+      "correct_answer": "Hungary",
+      "explanation": "László Bíró was born in Budapest.",
+      "source_url": "https://www.britannica.com/biography/Laszlo-Biro",
+      "set": "original",
+      "id": "los_016",
+      "correct_option": 3,
+      "correct_option_label": "D"
+    },
+    {
+      "difficulty": 3,
+      "category": "History",
+      "question": "In which year was the Statue of Liberty officially dedicated in New York?",
+      "options": [
+        "1901",
+        "1886",
+        "1848",
+        "1776"
+      ],
+      "correct_answer": "1886",
+      "explanation": "The dedication took place on 28 October 1886.",
+      "source_url": "https://www.nps.gov/stli/learn/historyculture/index.htm",
+      "set": "original",
+      "id": "los_017",
+      "correct_option": 1,
+      "correct_option_label": "B"
+    },
+    {
+      "difficulty": 3,
+      "category": "Science",
+      "question": "Which astronomer is associated with the three laws of planetary motion?",
+      "options": [
+        "Johannes Kepler",
+        "Isaac Newton",
+        "Edwin Hubble",
+        "Galileo Galilei"
+      ],
+      "correct_answer": "Johannes Kepler",
+      "explanation": "Kepler described the elliptical motions and periods of planets.",
+      "source_url": "https://science.nasa.gov/solar-system/keplers-laws/",
+      "set": "original",
+      "id": "los_018",
+      "correct_option": 0,
+      "correct_option_label": "A"
+    },
+    {
+      "difficulty": 4,
+      "category": "Chemistry",
+      "question": "Which chemical element has atomic number 74?",
+      "options": [
+        "Rhenium",
+        "Hafnium",
+        "Tungsten",
+        "Osmium"
+      ],
+      "correct_answer": "Tungsten",
+      "explanation": "Tungsten is element 74 on the periodic table.",
+      "source_url": "https://www.rsc.org/periodic-table/element/74/tungsten",
+      "set": "original",
+      "id": "los_019",
+      "correct_option": 2,
+      "correct_option_label": "C"
+    },
+    {
+      "difficulty": 4,
+      "category": "Geography",
+      "question": "The Strait of Hormuz connects the Persian Gulf with which body of water?",
+      "options": [
+        "Gulf of Oman",
+        "Gulf of Aden",
+        "Arabian Sea",
+        "Red Sea"
+      ],
+      "correct_answer": "Gulf of Oman",
+      "explanation": "The strait connects the Persian Gulf and the Gulf of Oman.",
+      "source_url": "https://www.britannica.com/place/Strait-of-Hormuz",
+      "set": "original",
+      "id": "los_020",
+      "correct_option": 0,
+      "correct_option_label": "A"
+    },
+    {
+      "difficulty": 4,
+      "category": "Literature",
+      "question": "Who received the first Nobel Prize in Literature in 1901?",
+      "options": [
+        "Sully Prudhomme",
+        "Leo Tolstoy",
+        "Rudyard Kipling",
+        "Émile Zola"
+      ],
+      "correct_answer": "Sully Prudhomme",
+      "explanation": "The French poet received the inaugural Literature prize.",
+      "source_url": "https://www.nobelprize.org/prizes/literature/1901/summary/",
+      "set": "original",
+      "id": "los_021",
+      "correct_option": 0,
+      "correct_option_label": "A"
+    },
+    {
+      "difficulty": 4,
+      "category": "Astronomy",
+      "question": "Which mathematician predicted Neptune’s position, leading to its discovery in 1846?",
+      "options": [
+        "Joseph-Louis Lagrange",
+        "Pierre-Simon Laplace",
+        "Carl Friedrich Gauss",
+        "Urbain Le Verrier"
+      ],
+      "correct_answer": "Urbain Le Verrier",
+      "explanation": "Le Verrier calculated the predicted position used to find the planet.",
+      "source_url": "https://www.britannica.com/biography/Urbain-Jean-Joseph-Le-Verrier",
+      "set": "original",
+      "id": "los_022",
+      "correct_option": 3,
+      "correct_option_label": "D"
+    },
+    {
+      "difficulty": 4,
+      "category": "Science",
+      "question": "Who won the very first Nobel Prize in Physics in 1901?",
+      "options": [
+        "Albert Einstein",
+        "Ernest Rutherford",
+        "Max Planck",
+        "Wilhelm Röntgen"
+      ],
+      "correct_answer": "Wilhelm Röntgen",
+      "explanation": "Röntgen received the first Physics prize for his discovery of X-rays.",
+      "source_url": "https://www.nobelprize.org/prizes/physics/1901/summary/",
+      "set": "original",
+      "id": "los_023",
+      "correct_option": 3,
+      "correct_option_label": "D"
+    },
+    {
+      "difficulty": 4,
+      "category": "Astronomy",
+      "question": "The lakes and seas on Saturn’s moon Titan are mainly composed of which liquids?",
+      "options": [
+        "Methane and ethane",
+        "Liquid nitrogen and oxygen",
+        "Sulphuric acid and water",
+        "Water and ammonia"
+      ],
+      "correct_answer": "Methane and ethane",
+      "explanation": "Titan’s surface includes lakes and seas of liquid methane and ethane.",
+      "source_url": "https://science.nasa.gov/saturn/moons/titan/",
+      "set": "original",
+      "id": "los_024",
+      "correct_option": 0,
+      "correct_option_label": "A"
+    },
+    {
+      "difficulty": 5,
+      "category": "Chemistry",
+      "question": "Which naturally occurring element is generally recognised as the densest?",
+      "options": [
+        "Tungsten",
+        "Iridium",
+        "Platinum",
+        "Osmium"
+      ],
+      "correct_answer": "Osmium",
+      "explanation": "Osmium has a density slightly greater than iridium under standard reference values.",
+      "source_url": "https://www.britannica.com/science/osmium",
+      "set": "original",
+      "id": "los_025",
+      "correct_option": 3,
+      "correct_option_label": "D"
+    },
+    {
+      "difficulty": 5,
+      "category": "Chemistry",
+      "question": "Who received the first Nobel Prize in Chemistry in 1901?",
+      "options": [
+        "Marie Curie",
+        "Svante Arrhenius",
+        "Jacobus van ’t Hoff",
+        "Dmitri Mendeleev"
+      ],
+      "correct_answer": "Jacobus van ’t Hoff",
+      "explanation": "Van ’t Hoff was honoured for work on chemical dynamics and osmotic pressure.",
+      "source_url": "https://www.nobelprize.org/prizes/chemistry/1901/summary/",
+      "set": "original",
+      "id": "los_026",
+      "correct_option": 2,
+      "correct_option_label": "C"
+    },
+    {
+      "difficulty": 5,
+      "category": "Medicine",
+      "question": "The first Nobel Prize in Physiology or Medicine was awarded for work on treating which disease?",
+      "options": [
+        "Cholera",
+        "Diphtheria",
+        "Malaria",
+        "Tuberculosis"
+      ],
+      "correct_answer": "Diphtheria",
+      "explanation": "Emil von Behring won for serum therapy, especially against diphtheria.",
+      "source_url": "https://www.nobelprize.org/prizes/medicine/1901/summary/",
+      "set": "original",
+      "id": "los_027",
+      "correct_option": 1,
+      "correct_option_label": "B"
+    },
+    {
+      "difficulty": 5,
+      "category": "Sport",
+      "question": "Which event produced the first champion of the modern Olympic Games in 1896?",
+      "options": [
+        "Triple jump",
+        "Marathon",
+        "Discus",
+        "100 metres"
+      ],
+      "correct_answer": "Triple jump",
+      "explanation": "James Connolly won the triple jump on 6 April 1896.",
+      "source_url": "https://olympics.com/en/olympic-games/athens-1896",
+      "set": "original",
+      "id": "los_028",
+      "correct_option": 0,
+      "correct_option_label": "A"
+    },
+    {
+      "difficulty": 5,
+      "category": "Sport",
+      "question": "Who was the leading goalscorer at UEFA Euro 2004?",
+      "options": [
+        "Milan Baroš",
+        "Cristiano Ronaldo",
+        "Wayne Rooney",
+        "Ruud van Nistelrooy"
+      ],
+      "correct_answer": "Milan Baroš",
+      "explanation": "Baroš scored five goals at Euro 2004.",
+      "source_url": "https://www.uefa.com/uefaeuro/history/seasons/2004/",
+      "set": "original",
+      "id": "los_029",
+      "correct_option": 0,
+      "correct_option_label": "A"
+    },
+    {
+      "difficulty": 5,
+      "category": "Astronomy",
+      "question": "Which astronomer identified Neptune at Berlin Observatory in 1846 using Le Verrier’s prediction?",
+      "options": [
+        "William Herschel",
+        "Heinrich Olbers",
+        "Johann Gottfried Galle",
+        "Friedrich Bessel"
+      ],
+      "correct_answer": "Johann Gottfried Galle",
+      "explanation": "Galle observed Neptune in September 1846 with the assistance of Heinrich d’Arrest.",
+      "source_url": "https://www.britannica.com/biography/Johann-Gottfried-Galle",
+      "set": "original",
+      "id": "los_030",
+      "correct_option": 2,
+      "correct_option_label": "C"
+    },
+    {
+      "difficulty": 1,
+      "category": "Geography",
+      "question": "What is the capital city of Australia?",
+      "options": [
+        "Perth",
+        "Canberra",
+        "Sydney",
+        "Melbourne"
+      ],
+      "correct_answer": "Canberra",
+      "explanation": "Canberra was established as the federal capital rather than Sydney or Melbourne.",
+      "source_url": "https://www.britannica.com/place/Canberra",
+      "set": "new",
+      "id": "los_031",
+      "correct_option": 1,
+      "correct_option_label": "B"
+    },
+    {
+      "difficulty": 1,
+      "category": "Film",
+      "question": "Who played Jack in the 1997 film Titanic?",
+      "options": [
+        "Brad Pitt",
+        "Matt Damon",
+        "Tom Cruise",
+        "Leonardo DiCaprio"
+      ],
+      "correct_answer": "Leonardo DiCaprio",
+      "explanation": "DiCaprio starred as Jack Dawson opposite Kate Winslet.",
+      "source_url": "https://www.britannica.com/topic/Titanic-film-by-Cameron",
+      "set": "new",
+      "id": "los_032",
+      "correct_option": 3,
+      "correct_option_label": "D"
+    },
+    {
+      "difficulty": 1,
+      "category": "Music",
+      "question": "Which band released the song Hey Jude in 1968?",
+      "options": [
+        "The Beatles",
+        "Queen",
+        "The Who",
+        "The Rolling Stones"
+      ],
+      "correct_answer": "The Beatles",
+      "explanation": "Hey Jude was a hit single by the Beatles.",
+      "source_url": "https://www.britannica.com/topic/the-Beatles",
+      "set": "new",
+      "id": "los_033",
+      "correct_option": 0,
+      "correct_option_label": "A"
+    },
+    {
+      "difficulty": 1,
+      "category": "Nature",
+      "question": "What type of animal is a Komodo dragon?",
+      "options": [
+        "Reptile",
+        "Mammal",
+        "Amphibian",
+        "Bird"
+      ],
+      "correct_answer": "Reptile",
+      "explanation": "Komodo dragons are large monitor lizards.",
+      "source_url": "https://www.britannica.com/animal/Komodo-dragon",
+      "set": "new",
+      "id": "los_034",
+      "correct_option": 0,
+      "correct_option_label": "A"
+    },
+    {
+      "difficulty": 1,
+      "category": "History",
+      "question": "Which wall divided a German city during the Cold War?",
+      "options": [
+        "Berlin Wall",
+        "Western Wall",
+        "Great Wall",
+        "Hadrian’s Wall"
+      ],
+      "correct_answer": "Berlin Wall",
+      "explanation": "The Berlin Wall divided East and West Berlin.",
+      "source_url": "https://www.britannica.com/topic/Berlin-Wall",
+      "set": "new",
+      "id": "los_035",
+      "correct_option": 0,
+      "correct_option_label": "A"
+    },
+    {
+      "difficulty": 2,
+      "category": "Literature",
+      "question": "Who wrote The Hobbit?",
+      "options": [
+        "C. S. Lewis",
+        "Roald Dahl",
+        "George Orwell",
+        "J. R. R. Tolkien"
+      ],
+      "correct_answer": "J. R. R. Tolkien",
+      "explanation": "Tolkien published The Hobbit in 1937.",
+      "source_url": "https://www.britannica.com/topic/The-Hobbit",
+      "set": "new",
+      "id": "los_036",
+      "correct_option": 3,
+      "correct_option_label": "D"
+    },
+    {
+      "difficulty": 2,
+      "category": "Sport",
+      "question": "Which British driver won the Formula One world championship in 2009?",
+      "options": [
+        "Damon Hill",
+        "Lewis Hamilton",
+        "David Coulthard",
+        "Jenson Button"
+      ],
+      "correct_answer": "Jenson Button",
+      "explanation": "Button took the 2009 drivers’ title with Brawn GP.",
+      "source_url": "https://www.formula1.com/en/results/2009/drivers",
+      "set": "new",
+      "id": "los_037",
+      "correct_option": 3,
+      "correct_option_label": "D"
+    },
+    {
+      "difficulty": 2,
+      "category": "History",
+      "question": "In what year did the Battle of Hastings take place?",
+      "options": [
+        "1415",
+        "1215",
+        "1014",
+        "1066"
+      ],
+      "correct_answer": "1066",
+      "explanation": "William’s Norman forces defeated Harold’s army in 1066.",
+      "source_url": "https://www.britannica.com/event/Battle-of-Hastings",
+      "set": "new",
+      "id": "los_038",
+      "correct_option": 3,
+      "correct_option_label": "D"
+    },
+    {
+      "difficulty": 2,
+      "category": "Art",
+      "question": "Which artist painted Guernica?",
+      "options": [
+        "Pablo Picasso",
+        "Salvador Dalí",
+        "Henri Matisse",
+        "Joan Miró"
+      ],
+      "correct_answer": "Pablo Picasso",
+      "explanation": "Picasso painted Guernica in response to the 1937 bombing.",
+      "source_url": "https://www.museoreinasofia.es/en/collection/artwork/guernica",
+      "set": "new",
+      "id": "los_039",
+      "correct_option": 0,
+      "correct_option_label": "A"
+    },
+    {
+      "difficulty": 2,
+      "category": "Music",
+      "question": "Which singer was known as the Queen of Soul?",
+      "options": [
+        "Aretha Franklin",
+        "Whitney Houston",
+        "Diana Ross",
+        "Tina Turner"
+      ],
+      "correct_answer": "Aretha Franklin",
+      "explanation": "Aretha Franklin was widely known as the Queen of Soul.",
+      "source_url": "https://www.britannica.com/biography/Aretha-Franklin",
+      "set": "new",
+      "id": "los_040",
+      "correct_option": 0,
+      "correct_option_label": "A"
+    },
+    {
+      "difficulty": 3,
+      "category": "Literature",
+      "question": "Who wrote the novel Frankenstein, first published in 1818?",
+      "options": [
+        "Jane Austen",
+        "George Eliot",
+        "Emily Brontë",
+        "Mary Shelley"
+      ],
+      "correct_answer": "Mary Shelley",
+      "explanation": "Mary Shelley published Frankenstein anonymously in 1818.",
+      "source_url": "https://www.britannica.com/topic/Frankenstein-novel-by-Shelley",
+      "set": "new",
+      "id": "los_041",
+      "correct_option": 3,
+      "correct_option_label": "D"
+    },
+    {
+      "difficulty": 3,
+      "category": "Sport",
+      "question": "Who became the first person to run a mile in under four minutes?",
+      "options": [
+        "Roger Bannister",
+        "Paavo Nurmi",
+        "Sebastian Coe",
+        "Steve Ovett"
+      ],
+      "correct_answer": "Roger Bannister",
+      "explanation": "Bannister ran 3:59.4 in Oxford in 1954.",
+      "source_url": "https://www.britannica.com/biography/Roger-Bannister",
+      "set": "new",
+      "id": "los_042",
+      "correct_option": 0,
+      "correct_option_label": "A"
+    },
+    {
+      "difficulty": 3,
+      "category": "Food",
+      "question": "Which cheese is traditionally used in a Greek salad?",
+      "options": [
+        "Feta",
+        "Halloumi",
+        "Mozzarella",
+        "Ricotta"
+      ],
+      "correct_answer": "Feta",
+      "explanation": "Feta is the cheese commonly used in the traditional Greek salad.",
+      "source_url": "https://www.britannica.com/topic/feta",
+      "set": "new",
+      "id": "los_043",
+      "correct_option": 0,
+      "correct_option_label": "A"
+    },
+    {
+      "difficulty": 3,
+      "category": "History",
+      "question": "Which explorer reached the South Pole first in December 1911?",
+      "options": [
+        "Ernest Shackleton",
+        "Roald Amundsen",
+        "Robert Falcon Scott",
+        "Fridtjof Nansen"
+      ],
+      "correct_answer": "Roald Amundsen",
+      "explanation": "Amundsen’s Norwegian expedition reached the South Pole ahead of Scott.",
+      "source_url": "https://www.britannica.com/biography/Roald-Amundsen",
+      "set": "new",
+      "id": "los_044",
+      "correct_option": 1,
+      "correct_option_label": "B"
+    },
+    {
+      "difficulty": 3,
+      "category": "Film",
+      "question": "Who directed the 1994 film Pulp Fiction?",
+      "options": [
+        "Quentin Tarantino",
+        "Steven Soderbergh",
+        "David Fincher",
+        "Martin Scorsese"
+      ],
+      "correct_answer": "Quentin Tarantino",
+      "explanation": "Tarantino wrote and directed Pulp Fiction.",
+      "source_url": "https://www.britannica.com/biography/Quentin-Tarantino",
+      "set": "new",
+      "id": "los_045",
+      "correct_option": 0,
+      "correct_option_label": "A"
+    },
+    {
+      "difficulty": 4,
+      "category": "History",
+      "question": "Which French scholar is most associated with deciphering Egyptian hieroglyphs in 1822?",
+      "options": [
+        "Georges Cuvier",
+        "Auguste Comte",
+        "Louis Pasteur",
+        "Jean-François Champollion"
+      ],
+      "correct_answer": "Jean-François Champollion",
+      "explanation": "Champollion used evidence including the Rosetta Stone to decipher hieroglyphs.",
+      "source_url": "https://www.britishmuseum.org/collection/object/Y_EA24",
+      "set": "new",
+      "id": "los_046",
+      "correct_option": 3,
+      "correct_option_label": "D"
+    },
+    {
+      "difficulty": 4,
+      "category": "Sport",
+      "question": "Which football club won the inaugural Premier League title in the 1992–93 season?",
+      "options": [
+        "Liverpool",
+        "Blackburn Rovers",
+        "Arsenal",
+        "Manchester United"
+      ],
+      "correct_answer": "Manchester United",
+      "explanation": "Manchester United finished first in the initial Premier League season.",
+      "source_url": "https://www.premierleague.com/en/tables/premier-league/1992-93",
+      "set": "new",
+      "id": "los_047",
+      "correct_option": 3,
+      "correct_option_label": "D"
+    },
+    {
+      "difficulty": 4,
+      "category": "Music",
+      "question": "Which album was Fleetwood Mac’s 1977 follow-up to their self-titled 1975 record?",
+      "options": [
+        "Tusk",
+        "Tango in the Night",
+        "Rumours",
+        "Mirage"
+      ],
+      "correct_answer": "Rumours",
+      "explanation": "Rumours was released in 1977, before Tusk in 1979.",
+      "source_url": "https://www.britannica.com/topic/Fleetwood-Mac",
+      "set": "new",
+      "id": "los_048",
+      "correct_option": 2,
+      "correct_option_label": "C"
+    },
+    {
+      "difficulty": 4,
+      "category": "Art",
+      "question": "Which artist painted The Persistence of Memory, featuring melting clocks?",
+      "options": [
+        "René Magritte",
+        "Max Ernst",
+        "Joan Miró",
+        "Salvador Dalí"
+      ],
+      "correct_answer": "Salvador Dalí",
+      "explanation": "Dalí painted the surrealist work in 1931.",
+      "source_url": "https://www.moma.org/collection/works/79018",
+      "set": "new",
+      "id": "los_049",
+      "correct_option": 3,
+      "correct_option_label": "D"
+    },
+    {
+      "difficulty": 4,
+      "category": "Science",
+      "question": "Which scientist is credited with proposing the three-domain system of life?",
+      "options": [
+        "Lynn Margulis",
+        "Carl Woese",
+        "James Watson",
+        "Richard Dawkins"
+      ],
+      "correct_answer": "Carl Woese",
+      "explanation": "Woese and colleagues proposed the domains Bacteria, Archaea and Eukarya.",
+      "source_url": "https://www.britannica.com/biography/Carl-Woese",
+      "set": "new",
+      "id": "los_050",
+      "correct_option": 1,
+      "correct_option_label": "B"
+    },
+    {
+      "difficulty": 5,
+      "category": "Art",
+      "question": "Which artist painted The Arnolfini Portrait in 1434?",
+      "options": [
+        "Jan van Eyck",
+        "Hans Holbein the Younger",
+        "Albrecht Dürer",
+        "Hieronymus Bosch"
+      ],
+      "correct_answer": "Jan van Eyck",
+      "explanation": "Van Eyck signed and dated the painting in 1434.",
+      "source_url": "https://www.nationalgallery.org.uk/paintings/jan-van-eyck-the-arnolfini-portrait",
+      "set": "new",
+      "id": "los_051",
+      "correct_option": 0,
+      "correct_option_label": "A"
+    },
+    {
+      "difficulty": 5,
+      "category": "History",
+      "question": "The 1648 Peace of Westphalia brought an end to which major European conflict?",
+      "options": [
+        "War of Austrian Succession",
+        "Seven Years’ War",
+        "Thirty Years’ War",
+        "War of the Spanish Succession"
+      ],
+      "correct_answer": "Thirty Years’ War",
+      "explanation": "The Peace of Westphalia ended the Thirty Years’ War.",
+      "source_url": "https://www.britannica.com/event/Peace-of-Westphalia",
+      "set": "new",
+      "id": "los_052",
+      "correct_option": 2,
+      "correct_option_label": "C"
+    },
+    {
+      "difficulty": 5,
+      "category": "Literature",
+      "question": "Who wrote the 1922 novel Ulysses?",
+      "options": [
+        "Virginia Woolf",
+        "D. H. Lawrence",
+        "James Joyce",
+        "E. M. Forster"
+      ],
+      "correct_answer": "James Joyce",
+      "explanation": "James Joyce’s modernist novel Ulysses was published in 1922.",
+      "source_url": "https://www.britannica.com/topic/Ulysses-novel-by-Joyce",
+      "set": "new",
+      "id": "los_053",
+      "correct_option": 2,
+      "correct_option_label": "C"
+    },
+    {
+      "difficulty": 5,
+      "category": "Geography",
+      "question": "Which country contains the ancient city of Petra?",
+      "options": [
+        "Syria",
+        "Lebanon",
+        "Jordan",
+        "Egypt"
+      ],
+      "correct_answer": "Jordan",
+      "explanation": "The archaeological city of Petra lies in southern Jordan.",
+      "source_url": "https://whc.unesco.org/en/list/326/",
+      "set": "new",
+      "id": "los_054",
+      "correct_option": 2,
+      "correct_option_label": "C"
+    },
+    {
+      "difficulty": 5,
+      "category": "Music",
+      "question": "Who composed the opera The Magic Flute?",
+      "options": [
+        "Richard Wagner",
+        "Wolfgang Amadeus Mozart",
+        "Ludwig van Beethoven",
+        "Giuseppe Verdi"
+      ],
+      "correct_answer": "Wolfgang Amadeus Mozart",
+      "explanation": "Mozart composed Die Zauberflöte, premiered in 1791.",
+      "source_url": "https://www.britannica.com/topic/The-Magic-Flute",
+      "set": "new",
+      "id": "los_055",
+      "correct_option": 1,
+      "correct_option_label": "B"
+    },
+    {
+      "difficulty": 5,
+      "category": "Sport",
+      "question": "Which nation won the first Rugby World Cup in 1987?",
+      "options": [
+        "South Africa",
+        "New Zealand",
+        "Australia",
+        "England"
+      ],
+      "correct_answer": "New Zealand",
+      "explanation": "New Zealand defeated France in the inaugural final.",
+      "source_url": "https://www.world.rugby/tournaments/rugby-world-cup/1987",
+      "set": "new",
+      "id": "los_056",
+      "correct_option": 1,
+      "correct_option_label": "B"
+    },
+    {
+      "difficulty": 5,
+      "category": "Science",
+      "question": "Which chemical element is named after the Greek word for green because of its yellow-green colour?",
+      "options": [
+        "Iodine",
+        "Chlorine",
+        "Fluorine",
+        "Bromine"
+      ],
+      "correct_answer": "Chlorine",
+      "explanation": "The name chlorine derives from Greek chlōros, meaning pale green.",
+      "source_url": "https://www.rsc.org/periodic-table/element/17/chlorine",
+      "set": "new",
+      "id": "los_057",
+      "correct_option": 1,
+      "correct_option_label": "B"
+    },
+    {
+      "difficulty": 5,
+      "category": "History",
+      "question": "Which Roman emperor ruled when Mount Vesuvius destroyed Pompeii in AD 79?",
+      "options": [
+        "Vespasian",
+        "Domitian",
+        "Titus",
+        "Nero"
+      ],
+      "correct_answer": "Titus",
+      "explanation": "The eruption took place during the reign of Titus.",
+      "source_url": "https://www.britannica.com/biography/Titus-Roman-emperor",
+      "set": "new",
+      "id": "los_058",
+      "correct_option": 2,
+      "correct_option_label": "C"
+    },
+    {
+      "difficulty": 5,
+      "category": "Film",
+      "question": "Which film won the Palme d’Or at the 1994 Cannes Film Festival?",
+      "options": [
+        "Pulp Fiction",
+        "The Piano",
+        "Farewell My Concubine",
+        "Three Colours: Red"
+      ],
+      "correct_answer": "Pulp Fiction",
+      "explanation": "Pulp Fiction won the 1994 Palme d’Or.",
+      "source_url": "https://www.festival-cannes.com/en/festival/films/pulp-fiction",
+      "set": "new",
+      "id": "los_059",
+      "correct_option": 0,
+      "correct_option_label": "A"
+    },
+    {
+      "difficulty": 5,
+      "category": "History",
+      "question": "Who was the last monarch of the House of Tudor?",
+      "options": [
+        "Mary I",
+        "Edward VI",
+        "Elizabeth I",
+        "James I"
+      ],
+      "correct_answer": "Elizabeth I",
+      "explanation": "Elizabeth I died in 1603, ending Tudor rule.",
+      "source_url": "https://www.royal.uk/elizabeth-i",
+      "set": "new",
+      "id": "los_060",
+      "correct_option": 2,
+      "correct_option_label": "C"
+    },
+    {
+      "difficulty": 5,
+      "category": "Art",
+      "question": "Which architect designed the Guggenheim Museum Bilbao?",
+      "options": [
+        "Frank Gehry",
+        "Zaha Hadid",
+        "Norman Foster",
+        "Frank Lloyd Wright"
+      ],
+      "correct_answer": "Frank Gehry",
+      "explanation": "Frank Gehry designed the museum, which opened in 1997.",
+      "source_url": "https://www.guggenheim-bilbao.eus/en/the-building",
+      "set": "new",
+      "id": "los_061",
+      "correct_option": 0,
+      "correct_option_label": "A"
+    },
+    {
+      "difficulty": 5,
+      "category": "Music",
+      "question": "Which jazz musician recorded the album A Love Supreme in 1964?",
+      "options": [
+        "Duke Ellington",
+        "Miles Davis",
+        "John Coltrane",
+        "Thelonious Monk"
+      ],
+      "correct_answer": "John Coltrane",
+      "explanation": "Coltrane recorded his four-part suite A Love Supreme in December 1964.",
+      "source_url": "https://www.britannica.com/biography/John-Coltrane",
+      "set": "new",
+      "id": "los_062",
+      "correct_option": 2,
+      "correct_option_label": "C"
+    },
+    {
+      "difficulty": 5,
+      "category": "Geography",
+      "question": "Which African country was formerly known as Dahomey?",
+      "options": [
+        "Togo",
+        "Gabon",
+        "Benin",
+        "Burkina Faso"
+      ],
+      "correct_answer": "Benin",
+      "explanation": "The Republic of Dahomey changed its name to Benin in 1975.",
+      "source_url": "https://www.britannica.com/place/Benin",
+      "set": "new",
+      "id": "los_063",
+      "correct_option": 2,
+      "correct_option_label": "C"
+    },
+    {
+      "difficulty": 5,
+      "category": "Literature",
+      "question": "Which Shakespeare play features the character Iago?",
+      "options": [
+        "Macbeth",
+        "King Lear",
+        "Othello",
+        "The Tempest"
+      ],
+      "correct_answer": "Othello",
+      "explanation": "Iago is a central antagonist in Othello.",
+      "source_url": "https://www.rsc.org.uk/othello/about-the-play",
+      "set": "new",
+      "id": "los_064",
+      "correct_option": 2,
+      "correct_option_label": "C"
+    },
+    {
+      "difficulty": 5,
+      "category": "Sport",
+      "question": "Which country won the women’s football World Cup in 2011?",
+      "options": [
+        "Sweden",
+        "United States",
+        "Japan",
+        "Germany"
+      ],
+      "correct_answer": "Japan",
+      "explanation": "Japan beat the United States on penalties in the final.",
+      "source_url": "https://www.fifa.com/en/tournaments/womens/womensworldcup/germany2011",
+      "set": "new",
+      "id": "los_065",
+      "correct_option": 2,
+      "correct_option_label": "C"
+    },
+    {
+      "difficulty": 5,
+      "category": "Science",
+      "question": "Which British scientist received the 1962 Nobel Prize in Chemistry for studies of globular protein structures?",
+      "options": [
+        "Dorothy Hodgkin",
+        "John Kendrew",
+        "Francis Crick",
+        "Max Perutz"
+      ],
+      "correct_answer": "John Kendrew",
+      "explanation": "Kendrew shared the prize with Max Perutz for work on protein structures.",
+      "source_url": "https://www.nobelprize.org/prizes/chemistry/1962/summary/",
+      "set": "new",
+      "id": "los_066",
+      "correct_option": 1,
+      "correct_option_label": "B"
+    },
+    {
+      "difficulty": 5,
+      "category": "Film",
+      "question": "Which film earned Bong Joon-ho the Palme d’Or at Cannes in 2019?",
+      "options": [
+        "Parasite",
+        "The Host",
+        "Snowpiercer",
+        "Memories of Murder"
+      ],
+      "correct_answer": "Parasite",
+      "explanation": "Parasite won the 2019 Palme d’Or.",
+      "source_url": "https://www.festival-cannes.com/en/festival/films/parasite",
+      "set": "new",
+      "id": "los_067",
+      "correct_option": 0,
+      "correct_option_label": "A"
+    },
+    {
+      "difficulty": 5,
+      "category": "History",
+      "question": "Which English king was on the throne when the Gunpowder Plot was uncovered in 1605?",
+      "options": [
+        "Henry VIII",
+        "Elizabeth I",
+        "James I",
+        "Charles I"
+      ],
+      "correct_answer": "James I",
+      "explanation": "The plot targeted James I and Parliament.",
+      "source_url": "https://www.parliament.uk/about/living-heritage/evolutionofparliament/parliamentaryauthority/the-gunpowder-plot/",
+      "set": "new",
+      "id": "los_068",
+      "correct_option": 2,
+      "correct_option_label": "C"
+    },
+    {
+      "difficulty": 5,
+      "category": "Art",
+      "question": "Which artist is associated with the 1930 painting American Gothic?",
+      "options": [
+        "Thomas Hart Benton",
+        "Edward Hopper",
+        "Georgia O’Keeffe",
+        "Grant Wood"
+      ],
+      "correct_answer": "Grant Wood",
+      "explanation": "Grant Wood painted American Gothic in 1930.",
+      "source_url": "https://www.artic.edu/artworks/6565/american-gothic",
+      "set": "new",
+      "id": "los_069",
+      "correct_option": 3,
+      "correct_option_label": "D"
+    },
+    {
+      "difficulty": 5,
+      "category": "Music",
+      "question": "Which composer wrote the ballet The Rite of Spring?",
+      "options": [
+        "Maurice Ravel",
+        "Igor Stravinsky",
+        "Sergei Prokofiev",
+        "Claude Debussy"
+      ],
+      "correct_answer": "Igor Stravinsky",
+      "explanation": "Stravinsky’s ballet premiered in Paris in 1913.",
+      "source_url": "https://www.britannica.com/topic/The-Rite-of-Spring",
+      "set": "new",
+      "id": "los_070",
+      "correct_option": 1,
+      "correct_option_label": "B"
+    }
+  ]
+}
