@@ -23,6 +23,10 @@ socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
 GAME_ROUNDS_TOTAL = 1
 #AVAILABLE_ROUND_TYPES = ['guess_the_age', 'guess_the_year', 'who_didnt_do_it', 'order_up', 'quick_pairs', 'true_or_false', 'tap_the_pic', 'the_top_three', 'higher_or_lower', 'averagers_assemble', 'higher_lower_board']
 AVAILABLE_ROUND_TYPES = ['win_when_singing']
+# Test Last One Standing only with: HFF_TEST_LOS=1 python app.py
+if os.environ.get('HFF_TEST_LOS') == '1':
+    AVAILABLE_ROUND_TYPES = ['last_one_standing']
+    GAME_ROUNDS_TOTAL = 1
 # Test the new round with: HFF_TEST_WILTY=1 python app.py
 if os.environ.get('HFF_TEST_WILTY') == '1':
     AVAILABLE_ROUND_TYPES = ['would_i_lie_to_you']
@@ -42,6 +46,8 @@ if WWTS_FIRST_TEST:
     AVAILABLE_ROUND_TYPES = ['win_when_singing']
     GAME_ROUNDS_TOTAL = 1
 WILTY_TIMINGS = {'lie_reveal': 4, 'truth_reveal': 6, 'question_scores': 7, 'round_summary': 12}
+LOS_REVEAL_SECONDS = 7
+LOS_SUMMARY_SECONDS = 12
 MAX_PLAYERS = 8
 gta_target_turns = 1
 gty_target_turns = 1
@@ -61,6 +67,7 @@ QP_NUM_PAIRS_PER_QUESTION = 3
 
 # === ROUND DETAILS ===
 ROUND_RULES = {
+    'last_one_standing': 'Three lives each! Answer four-choice questions that get harder every two questions. Wrong answer: lose a life. Last one standing wins; ties are allowed.',
     'would_i_lie_to_you': 'Invent believable lies, then find the truth! +2 for a correct vote; +1 every time someone falls for your bluff. Five questions.',
     'win_when_singing': "Keep the song going in your head. Tap when the first word begins! Closest: 3 points, second: 2, third: 1. Within half a second: +1 bonus.",
     'guess_the_age': "Guess the celebrity's current age! Score based on difference (lowest wins).",
@@ -76,6 +83,7 @@ ROUND_RULES = {
     'averagers_assemble': "Form teams and work together! The team whose average guess is closest to the answer wins the point.",
 }
 ROUND_DISPLAY_NAMES = {
+    'last_one_standing': 'Last One Standing',
     'would_i_lie_to_you': 'Would I Lie to You?',
     'win_when_singing': "Win When They're Singing",
     'guess_the_age': "Guess The Age",
@@ -161,6 +169,7 @@ ROUND_INTRO_DELAY = 8 # Seconds
 # === TIMING CONFIG (in seconds) ===
 GAME_INTRO_DURATION = 12 # Duration of the new overall game intro screen
 ROUND_TIMINGS = {
+    'last_one_standing': {'intro_card': 8},
     'would_i_lie_to_you': {'intro_card': 8},
     'default': {
         'intro_card': 8,
@@ -555,6 +564,7 @@ def migrate_player_sid(old_sid, new_sid):
     hlb.migrate(old_sid, new_sid)
     wwts.migrate(old_sid, new_sid)
     wilty.migrate(old_sid, new_sid)
+    los.migrate(old_sid, new_sid)
 
     # Ensure connected after a successful migrate
     if new_sid in players:
@@ -697,6 +707,7 @@ def handle_register_main_screen():
     emit_player_list_update(); emit_game_state_update()
     hlb.send(player_sid)
     if wilty.live(): wilty.send(player_sid)
+    if los.live(): los.send(player_sid)
     if wwts.live(): wwts.reconnected()
 
 @socketio.on('register_player')
@@ -763,6 +774,10 @@ def handle_register_player(data):
 
     if wilty.live():
         wilty.send(player_sid)
+        return
+
+    if los.live():
+        los.send(player_sid)
         return
 
     if hlb.live():
@@ -896,6 +911,7 @@ def start_round_logic(round_type_key):
     elif round_type_key == 'higher_lower_board': hlb.setup()
     elif round_type_key == 'win_when_singing': wwts.setup()
     elif round_type_key == 'would_i_lie_to_you': wilty.setup()
+    elif round_type_key == 'last_one_standing': los.setup()
     elif round_type_key == 'higher_or_lower': setup_higher_or_lower_round()
     elif round_type_key == 'averagers_assemble': setup_averagers_assemble_round()
     else:
@@ -928,6 +944,7 @@ def handle_request_reset_game():
     hlb.token = None
     socketio.emit("hlb_close")
     wilty.reset()
+    los.reset()
     emit_game_state_update()
     # Tell the main screen it's ready for a new game, which should take it to the lobby.
     socketio.emit('ready_for_new_game', room=main_screen_sid)
@@ -973,6 +990,10 @@ def resend_current_prompt_to_player(player_sid):
 
     if wilty.live():
         wilty.send(player_sid)
+        return
+
+    if los.live():
+        los.send(player_sid)
         return
 
     # -------------------------
@@ -3827,6 +3848,15 @@ def handle_wilty_submit_bluff(data):
 @socketio.on('wilty_submit_vote')
 def handle_wilty_submit_vote(data):
     wilty.submit_vote(request.sid, data)
+
+# === LAST ONE STANDING ===
+from last_one_standing import LastOneStanding
+los = LastOneStanding(sys.modules[__name__])
+
+@socketio.on('los_answer')
+def handle_los_answer(data):
+    los.answer(request.sid, data)
+
 
 # === MAIN EXECUTION ===
 if __name__ == '__main__':
