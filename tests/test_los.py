@@ -129,6 +129,22 @@ class SurvivalTests(unittest.TestCase):
         self.assertEqual(seen, ['ran'])
         self.assertFalse(active['yes'])
 
+    def test_brutal_deck_recycles_only_after_all_questions_used(self):
+        from unittest.mock import patch
+        self.round.number = 34
+        self.round.phase = 'reveal'
+        self.round.questions = {n: [] for n in range(1, 6)}
+        self.round.questions[5] = [
+            {'id': str(n), 'question': str(n), 'options': ['a', 'b', 'c', 'd'],
+             'correct_option': 0, 'correct_answer': 'a'} for n in range(26)
+        ]
+        self.round.question = self.round.questions[5][-1]
+        self.round.used = {str(n) for n in range(26)}
+        self.round.next_question()
+        self.assertEqual(self.round.phase, 'question')
+        self.assertEqual(self.round.number, 35)
+        self.assertNotEqual(self.round.question['id'], '25')
+
     def test_sid_migration_preserves_lives_and_answer(self):
         self.round.lives['a'] = 1
         self.round.answers['a'] = 2
