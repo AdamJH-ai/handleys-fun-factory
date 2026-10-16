@@ -101,6 +101,13 @@ class LastOneStanding:
         self.number += 1
         level = self.difficulty()
         available = [q for q in self.questions[level] if q["id"] not in self.used]
+        if not available and level == 5:
+            # An exceptional game can continue past the entire Brutal bank.
+            # Start a fresh deck only after every Brutal question has appeared;
+            # avoid immediately repeating the most recent question.
+            last_id = self.question["id"] if self.question else None
+            available = [q for q in self.questions[5] if q["id"] != last_id]
+            self.used.difference_update(q["id"] for q in self.questions[5])
         if not available:
             self.error = "No unused questions remain at difficulty " + self.names.get(level, str(level)) + ". Add more to the JSON bank."
             self.phase = "error"
