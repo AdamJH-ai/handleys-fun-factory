@@ -122,6 +122,27 @@ class BankOrBustTests(unittest.TestCase):
         self.assertEqual(self.game.decisions["new-a"], "risk")
         self.assertNotIn("a", self.game.bank)
 
+    def test_prompt_resend_reaches_player_without_leaking_private_choices(self):
+        self.game.phase = "decision"
+        self.game.question = None
+        self.game.pot = {"a": 4, "b": 8, "c": 2}
+        self.game.decisions = {"a": "bank"}
+        self.game.send("b")
+        messages = [item for item in self.socket.events if item[0] == "bob_player_prompt"]
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(messages[0][2], "b")
+        snapshot = self.game.snapshot("b")
+        self.assertFalse(any(p["decision"] is not None for p in snapshot["players"]))
+        self.assertNotIn("question", snapshot)
+
+    def test_rejoin_answering_player_gets_current_question(self):
+        self.game.answer("a", {"token": self.game.token, "choice": 1})
+        self.game.send("b")
+        snapshot = self.game.snapshot("b")
+        self.assertEqual(snapshot["phase"], "question")
+        self.assertEqual(len(snapshot["options"]), 6)
+        self.assertFalse(snapshot["submitted"])
+
     def test_timer_enters_app_context(self):
         active = {"context": False}
 
