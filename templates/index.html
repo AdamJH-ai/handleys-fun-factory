@@ -907,6 +907,19 @@ body.hlb-active #mute-button,body.hlb-active #status-message{display:none}
         });
 
 
+        // If a player joined during the lobby and missed the first round
+        // broadcast, recover the Bank or Bust prompt without requiring them
+        // to refresh or press Join again. The server ignores these harmless
+        // requests outside the Bank or Bust round.
+        let bobHasRegistered = false;
+        setInterval(() => {
+            if (bobHasRegistered && socket.connected &&
+                !document.body.classList.contains('bob-active') &&
+                (!currentClientRoundType || currentClientRoundType === 'bank_or_bust')) {
+                socket.emit('bob_request_state');
+            }
+        }, 5000);
+
         // Bank or Bust: decisions are held server-side until all players commit.
         socket.on('bob_player_prompt', data => {
             configureInputArea(null);
@@ -1670,6 +1683,7 @@ body.hlb-active #mute-button,body.hlb-active #status-message{display:none}
                          const pid = getOrCreatePid();
                          saveName(name);
 
+                         bobHasRegistered = true;
                          socket.emit('register_player', { name: name, pid: pid });
                          // Socket.IO preserves event order: register first, then
                          // recover the active game prompt if one was missed.
