@@ -935,6 +935,15 @@ body.hlb-active #mute-button,body.hlb-active #status-message{display:none}
             configureInputArea(null);
             if (statusMessage) statusMessage.textContent = 'Check main screen!';
         });
+        // Re-request the current view after a registration or when a phone
+        // returns from sleep. This is safe: the server will only respond to
+        // registered players while Bank or Bust is running.
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && socket.connected) socket.emit('bob_request_state');
+        });
+        window.addEventListener('focus', () => {
+            if (socket.connected) socket.emit('bob_request_state');
+        });
 
         // --- Socket Event Listeners ---
         socket.on('connect', () => {
@@ -1662,6 +1671,9 @@ body.hlb-active #mute-button,body.hlb-active #status-message{display:none}
                          saveName(name);
 
                          socket.emit('register_player', { name: name, pid: pid });
+                         // Socket.IO preserves event order: register first, then
+                         // recover the active game prompt if one was missed.
+                         socket.emit('bob_request_state');
                          console.log("DEBUG: register_player event emitted.");
                          showArea('guessing-area'); // Show the guessing area div
                          console.log("DEBUG: Called showArea('guessing-area').");
