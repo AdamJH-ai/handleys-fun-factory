@@ -47,7 +47,9 @@
         <img class="hff-explainer-logo"
              src="{{ url_for('static', filename=round_text_logo) }}"
              alt="{{ round_type_name }}"
-             decoding="async">
+             decoding="async"
+             width="300" height="300"
+             style="display:block; width:min(300px, 36vw); height:auto; max-height:10vh; max-width:100%; object-fit:contain; margin:0 auto 8px;">
     {% endif %}
 
     <div class="how-to-play-container">
