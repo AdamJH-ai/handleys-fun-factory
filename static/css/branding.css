@@ -38,50 +38,52 @@
   #splash-logo { max-height: 52vh; }
 }
 
-/* Phase 1 / Step 3A — title-card and how-to-play logos.
-   Intentionally leaves the existing audio/transition sequence and explainer content alone. */
+/* Step 3A correction: keep round title cards within the TV safe area.
+   Inline image limits in the templates also protect against stale browser CSS caches. */
 .hff-round-intro {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: clamp(8px, 1.5vh, 18px);
-  min-height: min(76vh, 710px);
+  gap: clamp(6px, 1vh, 12px);
+  min-height: 0;
+  max-height: calc(100vh - 100px);
   width: 100%;
+  padding: 4px 0 12px;
 }
-.hff-round-intro h2 { margin: 0; }
+.hff-round-intro h2 { font-size: clamp(28px, 3.3vw, 46px); margin: 0; }
 .hff-round-hero-logo {
   display: block;
-  width: min(850px, 88vw);
+  width: min(560px, 72vw);
   max-width: 100%;
-  max-height: 51vh;
+  max-height: 43vh;
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 12px 26px rgba(0, 14, 66, .43));
+  margin: 0 auto;
+  filter: drop-shadow(0 8px 18px rgba(0, 14, 66, .38));
 }
 .hff-round-intro-rules {
-  font-size: clamp(18px, 1.75vw, 26px);
-  line-height: 1.35;
-  max-width: min(850px, 90vw);
+  font-size: clamp(17px, 1.65vw, 24px);
+  line-height: 1.3;
+  max-width: min(840px, 88vw);
   margin: 0 auto;
   color: var(--text-primary);
 }
 #how-to-play-content .hff-explainer-logo {
   display: block;
-  width: min(410px, 48vw);
+  width: min(300px, 36vw);
   max-width: 100%;
-  max-height: 11vh;
+  max-height: 10vh;
   height: auto;
   object-fit: contain;
-  margin: 0 auto 12px;
+  margin: 0 auto 8px;
   filter: drop-shadow(0 6px 14px rgba(0, 14, 66, .33));
 }
-/* Existing explainer uses a 75vh content grid; reserve height for the new heading emblem. */
 #how-to-play-content.hff-has-explainer-logo .how-to-play-container {
-  height: 62vh;
+  height: 60vh;
 }
 @media (max-height: 700px) {
-  .hff-round-hero-logo { max-height: 43vh; }
-  #how-to-play-content .hff-explainer-logo { max-height: 9vh; margin-bottom: 7px; }
-  #how-to-play-content.hff-has-explainer-logo .how-to-play-container { height: 59vh; }
+  .hff-round-hero-logo { max-height: 36vh; }
+  #how-to-play-content .hff-explainer-logo { max-height: 8vh; margin-bottom: 5px; }
+  #how-to-play-content.hff-has-explainer-logo .how-to-play-container { height: 56vh; }
 }

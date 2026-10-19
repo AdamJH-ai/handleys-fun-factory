@@ -6,7 +6,9 @@
         <img class="hff-round-hero-logo"
              src="{{ url_for('static', filename=round_big_logo) }}"
              alt="{{ round_type_name }}"
-             decoding="async">
+             decoding="async"
+             width="560" height="560"
+             style="display:block; width:min(560px, 72vw); height:auto; max-height:43vh; max-width:100%; object-fit:contain; margin:0 auto;">
     {% else %}
         <h1>{{ round_type_name or 'Next Round!' }}</h1>
     {% endif %}
