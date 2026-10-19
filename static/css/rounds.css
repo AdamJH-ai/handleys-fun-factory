@@ -1,0 +1,47 @@
+
+/* Layout extensions only: colours, typography, option cards and score tiles
+   inherit Handley's Fun Factory's existing theme and components. */
+#hlb-screen[hidden]{display:none!important}
+body.hlb-active #mute-button,body.hlb-active #status-message{display:none}
+#hlb-screen{max-width:1400px;margin:0 auto;color:var(--text-primary)}
+#hlb-screen .hlb-progress,#hlb-screen .hlb-muted{color:var(--text-secondary);margin:10px auto;line-height:1.4}
+#hlb-screen .hlb-demo{color:var(--accent-gold);font-size:.85em;margin:8px auto}
+#hlb-screen .hlb-categories{max-width:1100px;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+#hlb-screen .hlb-category{display:flex;align-items:center;justify-content:center;min-height:90px}
+#hlb-screen .hlb-board{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;max-width:1300px;margin:16px auto}
+#hlb-screen .hlb-tile{display:flex;flex-direction:column;gap:10px;justify-content:space-between;min-height:140px;padding:15px;border:3px solid transparent;overflow-wrap:anywhere}
+#hlb-screen .hlb-current{border-color:var(--accent-gold)}
+#hlb-screen .hlb-hidden{background:var(--bg-secondary);color:var(--text-secondary)}
+#hlb-screen .hlb-number{align-self:flex-start;font-size:.7em;opacity:.8}
+#hlb-screen .hlb-name{font-size:clamp(18px,1.6vw,28px)}
+#hlb-screen .hlb-value{font-family:var(--font-display);font-size:clamp(22px,2vw,34px)}
+#hlb-screen .hlb-status{margin:14px auto}
+#hlb-screen .hlb-status h3{color:var(--accent-gold);font-weight:700;margin:8px auto}
+#hlb-screen .hlb-players{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin:16px auto}
+#hlb-screen .hlb-player{background:var(--bg-secondary);padding:10px 15px;border-radius:6px;font-size:1.1em}
+#hlb-screen .hlb-out{color:var(--text-secondary)}
+#hlb-screen .hlb-instructions{font-size:clamp(24px,2.8vw,42px);line-height:1.4;max-width:1100px;margin:30px auto}
+#hlb-screen .hlb-scores{margin:24px auto}
+#hlb-screen .hlb-scores li{gap:12px;min-height:80px}
+#hlb-screen .hlb-scores .player-points{white-space:normal;overflow:visible}
+#hlb-screen.hlb-phone .hlb-board{display:none}
+#hlb-screen.hlb-phone .hlb-categories{display:block;margin:15px auto}
+#hlb-screen.hlb-phone .hlb-category{background:var(--bg-primary);padding:12px;font-size:1em;min-height:0;margin:8px 0}
+#hlb-screen.hlb-phone .hlb-actions{display:flex;gap:10px}
+#hlb-screen.hlb-phone .hlb-actions button{flex:1}
+#hlb-screen.hlb-phone .hlb-scores{list-style:none;margin:16px auto;padding:0}
+#hlb-screen.hlb-phone .hlb-scores li{display:grid;grid-template-columns:1fr 1fr;gap:6px;min-height:0;margin:10px 0;padding:12px;background:var(--bg-primary);border-radius:6px}
+#hlb-screen.hlb-phone .hlb-scores .player-name{grid-column:1/-1;font-weight:700;color:var(--accent-gold)}
+#hlb-screen.hlb-phone .hlb-scores .player-answer,#hlb-screen.hlb-phone .hlb-scores .player-points{font-size:.9em}
+#hlb-screen.hlb-phone .hlb-instructions{font-size:1.2em;margin:20px auto}
+#hlb-screen.hlb-phone .hlb-players{font-size:.8em}
+#hlb-screen.hlb-phone .hlb-player{padding:6px 10px;background:var(--bg-primary)}
+@media(max-height:800px){
+ #hlb-screen.hlb-main h2{font-size:2.2em;margin-bottom:6px}
+ #hlb-screen.hlb-main .hlb-tile{min-height:112px;padding:10px;gap:6px}
+ #hlb-screen.hlb-main .hlb-progress,#hlb-screen.hlb-main .hlb-demo{margin:6px auto}
+ #hlb-screen.hlb-main .hlb-player{padding:6px 10px}
+ #hlb-screen.hlb-main .hlb-category{min-height:65px;padding:18px}
+ #hlb-screen.hlb-main .hlb-scores li{min-height:65px}
+}
+
