@@ -1,0 +1,39 @@
+/* Phase 1 / Step 2 — HFF branding only. No gameplay layout or timing rules. */
+#splash-logo {
+  max-width: min(82vw, 850px);
+  max-height: 59vh;
+  width: auto;
+  height: auto;
+  filter: drop-shadow(0 12px 25px rgba(0, 15, 75, .4));
+}
+.hff-lobby-logo {
+  display: block;
+  width: min(440px, 62vw);
+  max-height: 23vh;
+  height: auto;
+  object-fit: contain;
+  margin: 0 auto 8px;
+  filter: drop-shadow(0 6px 17px rgba(0, 20, 85, .45));
+}
+.hff-join-logo {
+  display: block;
+  width: min(100%, 280px);
+  max-height: 145px;
+  height: auto;
+  object-fit: contain;
+  margin: 0 auto 14px;
+  filter: drop-shadow(0 5px 12px rgba(0, 13, 65, .35));
+}
+.game-intro-logo-box .hff-intro-logo {
+  display: block;
+  width: 100%;
+  max-width: 95%;
+  max-height: 100%;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 24px rgba(0, 18, 70, .4));
+}
+@media (max-height: 700px) {
+  .hff-lobby-logo { max-height: 17vh; }
+  #splash-logo { max-height: 52vh; }
+}

@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main-screen.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/rounds.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/branding.css') }}">
 </head>
 <body>
     <button id="mute-button">Mute</button>
@@ -17,10 +18,11 @@
         <!-- Static HTML Structure -->
         <div id="splash-screen">
             <h1>Welcome to</h1>
-            <img id="splash-logo" src="/static/image/colour_logo.jpeg" alt="Handley's Fun Factory Logo">
+            <img id="splash-logo" src="{{ url_for('static', filename='image/logos/hff-big-logo.png') }}" alt="Handley's Fun Factory Logo">
             <button id="initiateGameButton">Start New Game</button>
         </div>
         <div id="waiting-area" class="hidden">
+             <img class="hff-lobby-logo" src="{{ url_for('static', filename='image/logos/hff-trans-logo.png') }}" alt="Handley's Fun Factory" decoding="async">
              <h2>Waiting for Players...</h2>
              <p>Connect: <strong>http://<span id="connect-ip">...</span>:5000</strong> (Max 8)</p>
              <h3>Connected Players:</h3>
