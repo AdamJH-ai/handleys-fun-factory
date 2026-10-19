@@ -1,15 +1,15 @@
-{# templates/_round_intro.html (Rewritten) #}
-{# Expects: game_round_num, game_rounds_total, round_type_name, round_rules #}
-<div id="round-intro-content">
-
+{# Round title-card visual upgrade. Timings and jingle are controlled by app.py. #}
+<div id="round-intro-content" class="hff-round-intro">
     <h2>Round {{ game_round_num }} / {{ game_rounds_total }}</h2>
-    
-    {# Using a different heading tag, h1, for the main round title to make it bigger/bolder if desired. #}
-    {# Our CSS can style h1 differently from h2. Let's add that. #}
-    <h1>{{ round_type_name or 'Next Round!' }}</h1>
-    
-    <p style="font-size: 1.2em; max-width: 600px; margin: auto; line-height: 1.6;">
-        {{ round_rules or 'Get ready!' }}
-    </p>
 
+    {% if round_big_logo %}
+        <img class="hff-round-hero-logo"
+             src="{{ url_for('static', filename=round_big_logo) }}"
+             alt="{{ round_type_name }}"
+             decoding="async">
+    {% else %}
+        <h1>{{ round_type_name or 'Next Round!' }}</h1>
+    {% endif %}
+
+    <p class="hff-round-intro-rules">{{ round_rules or 'Get ready!' }}</p>
 </div>

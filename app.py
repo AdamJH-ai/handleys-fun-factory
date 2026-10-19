@@ -108,6 +108,33 @@ ROUND_DISPLAY_NAMES = {
     'higher_or_lower': "Higher or Lower",
     'averagers_assemble': "Averagers, Assemble!"
 }
+
+# Visual branding: keyed by the actual round identifiers (not display names).
+ROUND_LOGO_PREFIXES = {
+    'guess_the_age': 'gta',
+    'guess_the_year': 'gty',
+    'who_didnt_do_it': 'wddi',
+    'order_up': 'ou',
+    'quick_pairs': 'qp',
+    'true_or_false': 'tf',
+    'tap_the_pic': 'ttp',
+    'the_top_three': 'ttt',
+    'higher_or_lower': 'stb',
+    'averagers_assemble': 'aa',
+    'higher_lower_board': 'hol',
+    'win_when_singing': 'wwts',
+    'would_i_lie_to_you': 'wilty',
+    'last_one_standing': 'los',
+    'bank_or_bust': 'bob',
+}
+
+def get_round_logo_path(round_type_key, variant):
+    """Return a Flask static-relative logo path, or None for unknown rounds."""
+    prefix = ROUND_LOGO_PREFIXES.get(round_type_key)
+    if not prefix or variant not in ('big', 'text', 'trans'):
+        return None
+    return f'image/logos/{prefix}-{variant}-logo.png'
+
 ROUND_JINGLES = {
     'guess_the_age': 'gta_jingle.mp3',
     'guess_the_year': 'gty_jingle.mp3',
@@ -888,7 +915,7 @@ def start_next_game_round():
     if jingle_file and main_screen_sid:
         socketio.emit('play_round_jingle', {'jingle_file': jingle_file}, room=main_screen_sid)
     
-    intro_context = {'game_round_num': current_game_round_num, 'game_rounds_total': GAME_ROUNDS_TOTAL, 'round_type_name': round_type_name, 'round_rules': round_rules }
+    intro_context = {'game_round_num': current_game_round_num, 'game_rounds_total': GAME_ROUNDS_TOTAL, 'round_type_name': round_type_name, 'round_rules': round_rules, 'round_big_logo': get_round_logo_path(round_type_key, 'big') }
     update_main_screen_html('#results-area', '_round_intro.html', intro_context)
     
     socketio.sleep(get_round_timing('intro_card'))
@@ -897,7 +924,9 @@ def start_next_game_round():
     # --- Step 2: Check for and show "How to Play" screen ---
     if round_type_key in ROUND_EXPLAINER_INFO:
         print(f"   Found explainer for {round_type_key}. Showing how-to-play screen.")
-        explainer_data = ROUND_EXPLAINER_INFO[round_type_key]
+        explainer_data = dict(ROUND_EXPLAINER_INFO[round_type_key])
+        explainer_data['round_type_name'] = round_type_name
+        explainer_data['round_text_logo'] = get_round_logo_path(round_type_key, 'text')
         
         # Update the main screen with the explainer template
         update_main_screen_html('#results-area', '_how_to_play.html', explainer_data)
