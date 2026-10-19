@@ -9,7 +9,7 @@
                  alt="{{ round_type_name }}"
                  decoding="async"
                  width="1254" height="1254"
-                 style="display:block; width:auto; max-width:90vw; height:auto; max-height:65vh; object-fit:contain; margin:auto;">
+                 style="display:block; width:auto; max-width:90vw; height:auto; max-height:min(65vh, 100%); min-height:0; object-fit:contain; margin:auto;">
         {% else %}
             <h1>{{ round_type_name or 'Next Round!' }}</h1>
         {% endif %}
