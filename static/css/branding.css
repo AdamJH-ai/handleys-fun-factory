@@ -37,3 +37,51 @@
   .hff-lobby-logo { max-height: 17vh; }
   #splash-logo { max-height: 52vh; }
 }
+
+/* Phase 1 / Step 3A — title-card and how-to-play logos.
+   Intentionally leaves the existing audio/transition sequence and explainer content alone. */
+.hff-round-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(8px, 1.5vh, 18px);
+  min-height: min(76vh, 710px);
+  width: 100%;
+}
+.hff-round-intro h2 { margin: 0; }
+.hff-round-hero-logo {
+  display: block;
+  width: min(850px, 88vw);
+  max-width: 100%;
+  max-height: 51vh;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 26px rgba(0, 14, 66, .43));
+}
+.hff-round-intro-rules {
+  font-size: clamp(18px, 1.75vw, 26px);
+  line-height: 1.35;
+  max-width: min(850px, 90vw);
+  margin: 0 auto;
+  color: var(--text-primary);
+}
+#how-to-play-content .hff-explainer-logo {
+  display: block;
+  width: min(410px, 48vw);
+  max-width: 100%;
+  max-height: 11vh;
+  height: auto;
+  object-fit: contain;
+  margin: 0 auto 12px;
+  filter: drop-shadow(0 6px 14px rgba(0, 14, 66, .33));
+}
+/* Existing explainer uses a 75vh content grid; reserve height for the new heading emblem. */
+#how-to-play-content.hff-has-explainer-logo .how-to-play-container {
+  height: 62vh;
+}
+@media (max-height: 700px) {
+  .hff-round-hero-logo { max-height: 43vh; }
+  #how-to-play-content .hff-explainer-logo { max-height: 9vh; margin-bottom: 7px; }
+  #how-to-play-content.hff-has-explainer-logo .how-to-play-container { height: 59vh; }
+}
