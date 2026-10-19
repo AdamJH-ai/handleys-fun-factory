@@ -3889,12 +3889,6 @@ def handle_bob_decide(data):
 def handle_bob_answer(data):
     bob.answer(request.sid, data)
 
-@socketio.on('bob_request_state')
-def handle_bob_request_state():
-    """Resend the current Bank or Bust phone view after a missed update."""
-    if request.sid in players and bob.live():
-        bob.send(request.sid)
-
 
 # === MAIN EXECUTION ===
 if __name__ == '__main__':
