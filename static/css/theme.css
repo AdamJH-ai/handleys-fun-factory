@@ -1,0 +1,27 @@
+/* Handley's Fun Factory — Phase 1 shared visual identity.
+   Palette-only first pass: no markup, interactions or layout changes.
+   Load after the legacy component rules so existing selectors and sizing remain stable. */
+:root {
+  --bg-primary: #07143C;
+  --bg-secondary: #122C77;
+  --accent-gold: #FFD34B;
+  --accent-blue: #00D8F2;
+  --text-primary: #FFFFFF;
+  --text-secondary: #C8D8F4;
+  --color-success: #2ECC71;
+  --color-danger: #EF4A5C;
+  --color-waiting: #9CAECC;
+  --color-podium-1: #FFD34B;
+  --color-podium-2: #C0C8DA;
+  --color-podium-3: #CD925D;
+
+  /* Reserved for later visual refinement without replacing components. */
+  --hff-navy: #07143C;
+  --hff-panel: #122C77;
+  --hff-panel-light: #2358C9;
+  --hff-cyan: #00D8F2;
+  --hff-purple: #7435C4;
+  --hff-gold: #FFD34B;
+  --hff-white: #FFFFFF;
+  --hff-muted: #C8D8F4;
+}
