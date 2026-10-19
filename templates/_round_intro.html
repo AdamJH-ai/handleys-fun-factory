@@ -1,17 +1,19 @@
-{# Round title-card visual upgrade. Timings and jingle are controlled by app.py. #}
+{# Round title card. Logic, jingle and timing remain controlled by app.py. #}
 <div id="round-intro-content" class="hff-round-intro">
     <h2>Round {{ game_round_num }} / {{ game_rounds_total }}</h2>
 
-    {% if round_big_logo %}
-        <img class="hff-round-hero-logo"
-             src="{{ url_for('static', filename=round_big_logo) }}"
-             alt="{{ round_type_name }}"
-             decoding="async"
-             width="560" height="560"
-             style="display:block; width:min(560px, 72vw); height:auto; max-height:43vh; max-width:100%; object-fit:contain; margin:0 auto;">
-    {% else %}
-        <h1>{{ round_type_name or 'Next Round!' }}</h1>
-    {% endif %}
+    <div class="hff-round-logo-area">
+        {% if round_big_logo %}
+            <img class="hff-round-hero-logo"
+                 src="{{ url_for('static', filename=round_big_logo) }}"
+                 alt="{{ round_type_name }}"
+                 decoding="async"
+                 width="1254" height="1254"
+                 style="display:block; width:auto; max-width:90vw; height:auto; max-height:65vh; object-fit:contain; margin:auto;">
+        {% else %}
+            <h1>{{ round_type_name or 'Next Round!' }}</h1>
+        {% endif %}
+    </div>
 
     <p class="hff-round-intro-rules">{{ round_rules or 'Get ready!' }}</p>
 </div>
