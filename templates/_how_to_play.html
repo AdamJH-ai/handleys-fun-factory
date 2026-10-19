@@ -41,8 +41,14 @@
     }
 </style>
 
-<div id="how-to-play-content">
+<div id="how-to-play-content" class="{{ 'hff-has-explainer-logo' if round_text_logo else '' }}">
     <h2 style="font-size: 3em; margin-bottom: 20px;">HOW TO PLAY</h2>
+    {% if round_text_logo %}
+        <img class="hff-explainer-logo"
+             src="{{ url_for('static', filename=round_text_logo) }}"
+             alt="{{ round_type_name }}"
+             decoding="async">
+    {% endif %}
 
     <div class="how-to-play-container">
         <div class="how-to-play-box">
