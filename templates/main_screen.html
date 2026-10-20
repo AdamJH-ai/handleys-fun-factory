@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main-screen.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/rounds.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/branding.css', v='intro-height-3') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/branding.css', v='gameplay-header-4') }}">
 </head>
 <body>
     <button id="mute-button">Mute</button>
@@ -29,6 +29,14 @@
              <ul id="player-list"><li>Loading...</li></ul>
              <button id="startGameButton" disabled>Start Game</button>
         </div>
+        <!-- Shared television gameplay identity, outside all injected round templates. -->
+        <header id="hff-gameplay-header" class="hidden" aria-label="Current round">
+            <img id="hff-gameplay-logo" alt="" src="" decoding="async">
+            <div class="hff-gameplay-round-label">
+                <span id="hff-gameplay-round-name"></span>
+                <span id="hff-gameplay-round-position"></span>
+            </div>
+        </header>
         <div id="round-content-area" class="hidden"></div>
         <div id="results-area" class="hidden"></div>
         <div id="overall-game-over-area" class="hidden"></div>
@@ -75,6 +83,27 @@
         const serverIp = window.location.hostname;
         const socket = io(`http://${serverIp}:5000`);
 
+        // The active brand follows screen fragments rather than round-state guesses.
+        let currentRoundBranding = null;
+        function updateGameplayHeader(areaId) {
+            const header = document.getElementById('hff-gameplay-header');
+            const logo = document.getElementById('hff-gameplay-logo');
+            if (!header || !logo) return;
+            const visible = !!currentRoundBranding &&
+                (areaId === 'round-content-area' || areaId === 'results-area');
+            header.classList.toggle('hidden', !visible);
+            document.body.classList.toggle('hff-gameplay-branded', visible);
+            if (!visible) return;
+            if (logo.getAttribute('src') !== currentRoundBranding.logo)
+                logo.setAttribute('src', currentRoundBranding.logo);
+            logo.alt = currentRoundBranding.round_name || 'Current round';
+            document.getElementById('hff-gameplay-round-name').textContent =
+                currentRoundBranding.round_name || '';
+            document.getElementById('hff-gameplay-round-position').textContent =
+                'ROUND ' + currentRoundBranding.round_number + ' / ' +
+                currentRoundBranding.total_rounds;
+        }
+
         // --- Helper Functions ---
         function showArea(areaToShowId) {
             const ts = new Date().toISOString();
@@ -85,6 +114,7 @@
                 if (!area) return;
                 area.id === areaToShowId ? area.classList.remove('hidden') : area.classList.add('hidden');
             });
+            updateGameplayHeader(areaToShowId);
             // Ensure specific content areas are hidden when not in round content view
             const gtaContent = document.getElementById('gta-content'); if (gtaContent && areaToShowId !== 'round-content-area') gtaContent.classList.add('hidden');
             const gtyContent = document.getElementById('gty-content'); if (gtyContent && areaToShowId !== 'round-content-area') gtyContent.classList.add('hidden');
@@ -412,6 +442,10 @@
             console.log(`[${new Date().toISOString()}] update_html target=${data.target_selector}`);
             const targetElement = document.querySelector(data.target_selector);
             if (targetElement) {
+                if (data.target_selector === '#round-content-area' ||
+                    data.target_selector === '#results-area') {
+                    currentRoundBranding = data.round_branding || null;
+                }
                 targetElement.innerHTML = data.html; console.log(`Target ${data.target_selector} updated.`);
                 const parentArea = targetElement.closest('#round-content-area, #results-area, #overall-game-over-area');
                 if (parentArea) { showArea(parentArea.id); }

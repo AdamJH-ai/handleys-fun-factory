@@ -8,7 +8,7 @@ import uuid
 import sys
 from pathlib import Path
 from datetime import datetime
-from flask import Flask, render_template, request # Removed unused 'session' import
+from flask import Flask, render_template, request, url_for # Removed unused 'session' import
 from flask_socketio import SocketIO, emit, join_room, leave_room
 import eventlet # Recommended for stability
 import socket
@@ -550,9 +550,23 @@ def update_main_screen_html(target_selector, template_name, context):
     if main_screen_sid:
         try:
             html_content = render_template(template_name, **context)
+            # Brand the visible gameplay or result fragment; never intro/explainer screens.
+            brandable = target_selector in ('#round-content-area', '#results-area') and template_name not in (
+                '_game_intro.html', '_round_intro.html', '_how_to_play.html',
+                '_overall_game_over.html',
+            )
+            current_round = (selected_rounds_for_game[current_game_round_num - 1]
+                             if 0 < current_game_round_num <= len(selected_rounds_for_game) else None)
+            logo = get_round_logo_path(current_round, 'trans') if brandable else None
             socketio.emit('update_html', {
                 'target_selector': target_selector,
-                'html': html_content
+                'html': html_content,
+                'round_branding': {
+                    'logo': url_for('static', filename=logo),
+                    'round_number': current_game_round_num,
+                    'total_rounds': GAME_ROUNDS_TOTAL,
+                    'round_name': ROUND_DISPLAY_NAMES.get(current_round, current_round),
+                } if logo else None
             }, room=main_screen_sid)
         except Exception as e:
             print(f"ERROR rendering template {template_name}: {e}")
