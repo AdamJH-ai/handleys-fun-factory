@@ -102,3 +102,51 @@
   #how-to-play-content .hff-explainer-logo { max-height: 8vh; margin-bottom: 5px; }
   #how-to-play-content.hff-has-explainer-logo .how-to-play-container { height: 56vh; }
 }
+
+/* Step 3B: compact television-only gameplay identity strip. */
+#hff-gameplay-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  width: min(1220px, 94vw);
+  height: clamp(56px, 8vh, 76px);
+  margin: 0 auto 6px;
+  padding: 4px 14px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #142d75, #0b2057);
+  border: 1px solid rgba(80, 143, 225, .55);
+  box-shadow: 0 4px 17px rgba(0, 10, 48, .34);
+}
+#hff-gameplay-logo {
+  display: block;
+  width: auto;
+  height: 100%;
+  max-width: 23vw;
+  max-height: 66px;
+  object-fit: contain;
+}
+.hff-gameplay-round-label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 0;
+  gap: 2px;
+  text-align: right;
+  font-family: var(--font-display);
+}
+#hff-gameplay-round-name {
+  color: var(--accent-gold);
+  font-size: clamp(15px, 1.55vw, 24px);
+  line-height: 1.1;
+  font-weight: 700;
+}
+#hff-gameplay-round-position {
+  color: var(--text-secondary);
+  font-size: clamp(12px, 1.05vw, 16px);
+  letter-spacing: .07em;
+}
+@media (max-height: 700px) {
+  #hff-gameplay-header { height: 52px; padding: 3px 12px; margin-bottom: 4px; }
+  #hff-gameplay-logo { max-height: 44px; }
+}
