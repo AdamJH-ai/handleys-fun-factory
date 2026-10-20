@@ -21,9 +21,9 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'a_super_secret_key_chan
 socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
 
 # === GAME CONFIG ===
-GAME_ROUNDS_TOTAL = 1
-#AVAILABLE_ROUND_TYPES = ['guess_the_age', 'guess_the_year', 'who_didnt_do_it', 'order_up', 'quick_pairs', 'true_or_false', 'tap_the_pic', 'the_top_three', 'higher_or_lower', 'averagers_assemble', 'higher_lower_board', 'win_when_singing', 'would_i_lie_to_you', 'last_one_standing', 'bank_or_bust']
-AVAILABLE_ROUND_TYPES = ['win_when_singing']
+GAME_ROUNDS_TOTAL = 15
+AVAILABLE_ROUND_TYPES = ['guess_the_age', 'guess_the_year', 'who_didnt_do_it', 'order_up', 'quick_pairs', 'true_or_false', 'tap_the_pic', 'the_top_three', 'higher_or_lower', 'averagers_assemble', 'higher_lower_board', 'win_when_singing', 'would_i_lie_to_you', 'last_one_standing', 'bank_or_bust']
+#AVAILABLE_ROUND_TYPES = ['win_when_singing']
 # Test Bank or Bust only: HFF_TEST_BOB=1 python app.py
 if os.environ.get('HFF_TEST_BOB') == '1':
     AVAILABLE_ROUND_TYPES = ['bank_or_bust']
@@ -53,7 +53,7 @@ if WWTS_FIRST_TEST:
 WILTY_TIMINGS = {'lie_reveal': 4, 'truth_reveal': 6, 'question_scores': 7, 'round_summary': 12}
 LOS_REVEAL_SECONDS = 7
 LOS_SUMMARY_SECONDS = 12
-BOB_QUESTIONS_PER_ROUND = 10
+BOB_QUESTIONS_PER_ROUND = 1
 BOB_DECISION_REVEAL_SECONDS = 4
 BOB_ANSWER_REVEAL_SECONDS = 7
 BOB_SUMMARY_SECONDS = 12
@@ -66,7 +66,7 @@ qp_target_turns = 1
 tf_target_turns = 1
 ttp_target_turns = 1
 ttt_target_turns = 1
-hlb_target_turns = 5  # Category games per round; offered categories = this + 2
+hlb_target_turns = 1  # Category games per round; offered categories = this + 2
 HLB_ENTRIES_PER_GAME = 8
 HLB_CHOICE_REVEAL_SECONDS = 3
 HLB_ANSWER_REVEAL_SECONDS = 3
