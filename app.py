@@ -8,7 +8,8 @@ import uuid
 import sys
 from pathlib import Path
 from datetime import datetime
-from flask import Flask, render_template, request, url_for # Removed unused 'session' import
+from flask import Flask, render_template, request, url_for, has_request_context # Removed unused 'session' import
+from contextlib import nullcontext
 from flask_socketio import SocketIO, emit, join_room, leave_room
 import eventlet # Recommended for stability
 import socket
@@ -549,7 +550,12 @@ def update_main_screen_html(target_selector, template_name, context):
     print(f"[UPDATE_HTML] target={target_selector} state={game_state}")
     if main_screen_sid:
         try:
-            html_content = render_template(template_name, **context)
+            # Timed transitions may run in a background greenlet without a Flask
+            # request. Give url_for('static', ...) a local request context in
+            # that case, without hard-coding a SERVER_NAME or public host.
+            render_context = nullcontext() if has_request_context() else app.test_request_context('/')
+            with render_context:
+                html_content = render_template(template_name, **context)
             # Brand the visible gameplay or result fragment; never intro/explainer screens.
             brandable = target_selector in ('#round-content-area', '#results-area') and template_name not in (
                 '_game_intro.html', '_round_intro.html', '_how_to_play.html',
